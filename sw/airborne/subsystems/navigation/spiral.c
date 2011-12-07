@@ -166,6 +166,7 @@ bool_t SpiralNav(void)
 	  }
 	  CSpiralStatus = Circle;
 	  break;
+	default: break;
 
 	}
   return TRUE;

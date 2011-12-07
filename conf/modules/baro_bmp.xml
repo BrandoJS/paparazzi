@@ -15,6 +15,7 @@
   <event fun="baro_bmp_event()"/>
   <makefile target="ap">
     <file name="baro_bmp.c"/>
+    <define name="USE_I2C2"/>
   </makefile>
 </module>
 

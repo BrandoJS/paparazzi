@@ -116,7 +116,13 @@
 </modules>
 
 
-<!-- for simulation only  <modules>
+<!-- for simulation only 
+
+<modules>
+    <load name="flaps.xml" >
+    	<define name="FLAPS_MIN" value="-9600"/>
+    	<define name="FLAPS_MAX" value="800"/>
+    </load>
     
    <load name="infrared_adc.xml"/>
   </modules> 
@@ -143,9 +149,6 @@
     <define name="CORRECTION_RIGHT" value="1."/>
   </section>
 
-
-
-
   <section name="GYRO" prefix="GYRO_">
     <define name="ADC_ROLL_NEUTRAL" value="500"/>
     <define name="DYNAMIC_RANGE" value="300" unit="deg/s"/>
@@ -155,7 +158,7 @@
     <define name="ROLL_DIRECTION" value="1."/>
   </section>
 
-end for simulation only -->
+ end for simulation only -->
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="40000"/>
@@ -173,6 +176,7 @@ end for simulation only -->
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
     <define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="80"/>
+    <!--<define name="USE_I2C2"/>  needed for Baro -->
 
   </section>
 
@@ -275,7 +279,7 @@ end for simulation only -->
     <subsystem name="gps" 		    type="ublox">
        <configure name="GPS_PORT"	value="UART1"/>
     </subsystem>
-    <subsystem name="navigation"/>
+    <subsystem name="navigation_extra"/>
     
 
   </firmware>

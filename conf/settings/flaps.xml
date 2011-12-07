@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings NAME="Flap control">
+    <dl_settings NAME="Flaps">
+      <dl_setting var="flaps_engaged" min="0" max="1" step="1" module="core/flaps" values="OFF|ON">
+        <strip_button name="FlapsDown" icon="down_profile.png" value="1" group="flaps"/>
+        <strip_button name="FlapsUp" icon="up_profile.png" value="0" group="flaps"/>
+      </dl_setting>
+      <dl_setting var="flaps_min" min="-9600" max="9600" step="1"/>
+      <dl_setting var="flaps_max" min="-9600" max="9600" step="1"/>
+    </dl_settings>
+  </dl_settings>
+</settings>

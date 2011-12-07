@@ -185,7 +185,7 @@
     <subsystem name="gyro"          type="roll"/>
     <subsystem name="ahrs" 		type="infrared"/>
     <subsystem name="gps" 		    type="ublox_utm"/>
-    <subsystem name="navigation"/>
+    <subsystem name="navigation_extra"/>
 
   </firmware>
 
