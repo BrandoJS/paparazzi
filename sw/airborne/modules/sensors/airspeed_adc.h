@@ -26,6 +26,10 @@
 #include <inttypes.h>
 
 extern uint16_t adc_airspeed_val;
+extern uint16_t airspeed_ets_offset;
+
+extern float airspeed_scale;
+extern uint16_t airspeed_bias;
 
 void airspeed_adc_init( void );
 void airspeed_adc_update( void );

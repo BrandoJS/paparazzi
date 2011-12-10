@@ -5,7 +5,7 @@
     <file name="flaps.h"/>
   </header>
   <init fun="flaps_init()"/>
-  <periodic fun="periodic_flaps()" period="0.1" autorun="TRUE"/>
+  <periodic fun="periodic_flaps()" period="0.1"/>
   <makefile>
     <file name="flaps.c"/>
     <!-- Add to airframe file

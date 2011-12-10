@@ -25,8 +25,12 @@
 #include BOARD_CONFIG
 #include "generated/airframe.h"
 #include "estimator.h"
+#include "messages.h"
+#include "downlink.h"
+#include "mcu_periph/uart.h"
 
 uint16_t adc_airspeed_val;
+uint16_t airspeed_ets_offset;
 
 #ifndef SITL // Use ADC if not in simulation
 
@@ -38,11 +42,21 @@ uint16_t adc_airspeed_val;
 #define ADC_CHANNEL_AIRSPEED_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
+
 struct adc_buf buf_airspeed;
 
 #endif
 
+#ifndef DOWNLINK_DEVICE
+#define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
+#endif
+
+float airspeed_scale;
+uint16_t airspeed_bias;
+
 void airspeed_adc_init( void ) {
+  airspeed_scale = AIRSPEED_SCALE;
+  airspeed_bias = AIRSPEED_BIAS;
 #ifndef SITL
   adc_buf_channel(ADC_CHANNEL_AIRSPEED, &buf_airspeed, ADC_CHANNEL_AIRSPEED_NB_SAMPLES);
 #endif
@@ -60,6 +74,9 @@ void airspeed_adc_update( void ) {
   float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
 #endif
   EstimatorSetAirspeed(airspeed);
+#ifdef SENSOR_SYNC_SEND
+  DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &adc_airspeed_val, &airspeed_ets_offset, &airspeed);
+#endif
 #else // SITL
   extern float sim_air_speed;
   EstimatorSetAirspeed(sim_air_speed);

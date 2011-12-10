@@ -112,6 +112,13 @@
 	<define name="BMP_I2C_DEV" value="i2c2"/>
 	<define name="SENSOR_SYNC_SEND"/>
     </load>
+    <load name="airspeed_adc.xml">
+      <configure name="ADC_AIRSPEED" value="AD1"/>
+      <configure name="AIRSPEED_PIN" value="3"/>
+      <define name="AIRSPEED_SCALE" value="0.03986"/>
+      <define name="AIRSPEED_BIAS" value="3143"/>
+      <define name="SENSOR_SYNC_SEND"/>
+    </load>
 
 </modules>
 
@@ -250,8 +257,8 @@
     </target>
     <target name="jsbsim"       board="pc"/>
     <target name="ap" 		board="lisa_m_1.0">
-     
-         <configure name="PERIODIC_FREQUENCY" value="120"/>
+      <define name="MEASURE_AIRSPEED"/>
+      <configure name="PERIODIC_FREQUENCY" value="120"/>
       <subsystem name="ahrs" type="gx3">
          <configure name="GX3_PORT" value="UART3"/>
       </subsystem>
