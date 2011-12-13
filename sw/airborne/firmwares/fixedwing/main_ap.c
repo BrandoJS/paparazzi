@@ -534,6 +534,12 @@ void init_ap( void ) {
   sys_time_init();
 #endif /* SINGLE_MCU */
 
+#ifdef USE_GX3
+  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
+  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
+    __asm("nop");
+  }
+#endif
   /************* Sensors initialization ***************/
 #ifdef USE_GPS
   gps_init();
