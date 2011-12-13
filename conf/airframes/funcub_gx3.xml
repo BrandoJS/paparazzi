@@ -19,8 +19,8 @@
 
   <servos>
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>
-    <servo name="AILERON"  	no="1" min="2000" neutral="1560" max="1000"/> <!-- REVERSED -->
-    <servo name="ELEVATOR" 	no="2" min="1000" neutral="1400" max="2000"/>
+    <servo name="AILERON"  	no="1" min="2000" neutral="1500" max="1000"/> <!-- REVERSED -->
+    <servo name="ELEVATOR" 	no="2" min="1000" neutral="1500" max="2000"/>
     <servo name="RUDDER" 	no="3" min="1000" neutral="1500" max="2000"/>
     <servo name="FLAP"		no="4" min="1000" neutral="1500" max="2000"/>
   </servos>

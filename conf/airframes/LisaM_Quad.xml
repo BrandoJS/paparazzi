@@ -19,7 +19,8 @@
   <!-- MKK Actuators -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
-    <define name="ADDR" value="{0x52, 0x58, 0x54, 0x56}"/>   
+    <!--<define name="ADDR" value="{0x52, 0x58, 0x54, 0x56}"/> -->
+    <define name="ADDR" value="{0x5A, 0x5E, 0x5C, 0x60}"/> 
   </section>
 
 
@@ -34,7 +35,7 @@
 <!-- bstark 11/4/10 Motor defs           M1 ,  M2 ,  M3 ,  M4  -->
     <define name="ROLL_COEF"   value="{  0  ,  -256,    0, 256 }"/>
     <define name="PITCH_COEF"  value="{  256,   0 , -256,    0 }"/>
-    <define name="YAW_COEF"    value="{ -256,  256, -256,  256 }"/>
+    <define name="YAW_COEF"    value="{ 256,  -256, 256,  -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
 
 <!-- bstark 11/4/10 Motors are defined clockwise -->
@@ -127,12 +128,12 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-900"/>
-    <define name="PHI_DGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="-800"/>
+    <define name="PHI_DGAIN"  value="-500"/>
     <define name="PHI_IGAIN"  value="-200"/>
 
-    <define name="THETA_PGAIN"  value="-900"/>
-    <define name="THETA_DGAIN"  value="-200"/>
+    <define name="THETA_PGAIN"  value="-800"/>
+    <define name="THETA_DGAIN"  value="-500"/>
     <define name="THETA_IGAIN"  value="-200"/>
 
     <define name="PSI_PGAIN"  value="-900"/>
