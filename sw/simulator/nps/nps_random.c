@@ -99,6 +99,7 @@ double get_gaussian_noise(void) {
     return x2 * w;
 }
 #else
+
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
 #include <stdlib.h>

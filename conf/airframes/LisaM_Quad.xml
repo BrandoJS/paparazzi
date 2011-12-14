@@ -143,7 +143,7 @@
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 200"/>
     <define name="THETA_DDGAIN" value=" 200"/>
-    <define name="PSI_DDGAIN"   value=" 200"/>
+    <define name="PSI_DDGAIN"   value=" 400"/>
 
   </section>
 
@@ -152,26 +152,31 @@
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
-   <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-10.)"/>
-   <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 10.)"/>
+   <define name="MIN_ERR_Z"   value="POS_BFP_OF_REAL(-7.)"/>
+   <define name="MAX_ERR_Z"   value="POS_BFP_OF_REAL( 7.)"/>
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="-500"/>
-   <define name="HOVER_KD"    value="-200"/>
-   <define name="HOVER_KI"    value="-100"/>
+   <define name="HOVER_KP"    value="-230"/>
+   <define name="HOVER_KD"    value="-210"/>
+   <define name="HOVER_KI"    value="-80"/>
+   
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
    <define name="RC_CLIMB_COEF" value ="163"/>
    <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
    <define name="RC_CLIMB_DEAD_BAND" value ="160000"/>
+   
    <define name="INV_M" value ="0.2"/>
+   <define name="MIN_BOUND" value="10"/>
+   <define name="MAX_BOUND" value="10"/> <!--Controller Bounds -->
+   <define name="NOM_THRUST" value="120"/>
   </section>
 
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-100"/>
-   <define name="DGAIN" value="-100"/>
-   <define name="IGAIN" value="-0"/>
+   <define name="PGAIN" value="-68"/>
+   <define name="DGAIN" value="-160"/>
+   <define name="IGAIN" value="-20"/>
  </section>
 
  <section name="MISC">
@@ -185,14 +190,16 @@
  </section>
 
  <modules main_freq="512">
-   <!--load name="vehicle_interface_overo_link.xml"/-->
+   
  </modules>
 
   <firmware name="rotorcraft">
     <target name="ap" board="lisa_m_1.0">
-<!--      <define name="BOOZ_START_DELAY" value="1"/> -->
+
       <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="actuators"     type="mkk"/>
+      <subsystem name="actuators"     type="mkk">
+	<define name="MKK_I2C_SCL_TIME" value="50"/>
+      </subsystem>
       <subsystem name="telemetry"     type="transparent"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/> <!-- on DX6-->
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
@@ -209,6 +216,16 @@
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="int_cmpl_euler"/>
+
+    <!-- Additional Parameters 
+    <define name="USE_ADAPT_HOVER"/>  USE ADAPTIVE ALGORITHM FOR HOVER CONTROL 
+    <define name="GUIDANCE_H_USE_REF"/>
+    
+    <define name="USE_INS_NAV_INIT"/> 
+    <define name="USE_GPS_ACC4R"/>  USE GPS For R Matrix for HFF
+    <define name="KILL_AS_FAILSAFE" />-->
+    <define name="BATT_THRUST_FIX"/>
+
   </firmware>
 
 

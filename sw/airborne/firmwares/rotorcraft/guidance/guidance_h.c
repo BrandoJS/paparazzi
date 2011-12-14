@@ -152,7 +152,7 @@ void guidance_h_read_rc(bool_t  in_flight) {
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
       STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
-      guidance_h_rc_sp.psi = 0;
+      // guidance_h_rc_sp.psi = 0; Unnecessary
     }
     else {
       INT_EULERS_ZERO(guidance_h_rc_sp);
@@ -240,12 +240,15 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 
   /* run PID */
   // cmd_earth < 15.17
-  guidance_h_command_earth.x = (guidance_h_pgain<<1)  * guidance_h_pos_err.x +
-                                     guidance_h_dgain * (guidance_h_speed_err.x>>9) +
-                                      guidance_h_igain * (guidance_h_pos_err_sum.x >> 12);
-  guidance_h_command_earth.y = (guidance_h_pgain<<1)  * guidance_h_pos_err.y +
-                                     guidance_h_dgain *( guidance_h_speed_err.y>>9) +
-		                      guidance_h_igain * (guidance_h_pos_err_sum.y >> 12);
+  guidance_h_command_earth.x =
+    guidance_h_pgain * (guidance_h_pos_err.x << (10 - INT32_POS_FRAC)) +
+    guidance_h_dgain * (guidance_h_speed_err.x >> (INT32_SPEED_FRAC - 10)) +
+    guidance_h_igain * (guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - 10));
+  guidance_h_command_earth.y =
+    guidance_h_pgain * (guidance_h_pos_err.y << (10 - INT32_POS_FRAC)) +
+    guidance_h_dgain * (guidance_h_speed_err.y >> (INT32_SPEED_FRAC - 10)) +
+    guidance_h_igain * (guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - 10));
+
 
   VECT2_STRIM(guidance_h_command_earth, -MAX_BANK, MAX_BANK);
 
@@ -360,7 +363,7 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
   // Add RC setpoint
   guidance_h_command_body.phi   += guidance_h_rc_sp.phi;
   guidance_h_command_body.theta += guidance_h_rc_sp.theta;
-  guidance_h_command_body.psi    = guidance_h_psi_sp + guidance_h_rc_sp.psi;
+  guidance_h_command_body.psi    = guidance_h_psi_sp; // + guidance_h_rc_sp.psi; don't like
   ANGLE_REF_NORMALIZE(guidance_h_command_body.psi);
 
   // Set attitude setpoint
@@ -393,7 +396,7 @@ __attribute__ ((always_inline)) static inline void guidance_h_nav_enter(void) {
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
   nav_heading = (guidance_h_psi_sp >> (REF_ANGLE_FRAC - INT32_ANGLE_FRAC));
 #endif /* STABILISATION_ATTITUDE_TYPE_FLOAT */
-  guidance_h_rc_sp.psi = 0;
+  // guidance_h_rc_sp.psi = 0; don't like
 
   INT_VECT2_ZERO(guidance_h_pos_err_sum);
 
