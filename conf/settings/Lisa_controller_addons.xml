@@ -1,0 +1,14 @@
+<!DOCTYPE settings SYSTEM "settings.dtd">
+
+<settings>
+  <dl_settings>
+
+    <dl_settings NAME="Vert Loop">
+      <dl_setting var="min_bound" min="0" step="1" max="20"   module="guidance/guidance_v"/>
+      <dl_setting var="max_bound" min="0" step="1" max="20"   module="guidance/guidance_v"/>
+      <dl_setting var="nom_thrust" min="90" step="1" max="130"   module="guidance/guidance_v"/>
+    </dl_settings>
+
+   
+  </dl_settings>
+</settings>

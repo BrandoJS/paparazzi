@@ -18,9 +18,9 @@
 
   <!-- MKK Actuators -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
-    <define name="NB" value="4"/>
+    <define name="NB" value="8"/>
     <!--<define name="ADDR" value="{0x52, 0x58, 0x54, 0x56}"/> -->
-    <define name="ADDR" value="{0x5A, 0x5E, 0x5C, 0x60}"/> 
+    <define name="ADDR" value="{0x52, 0x58, 0x54, 0x56, 0x5A, 0x5E, 0x5C, 0x60}"/> 
   </section>
 
 
@@ -30,24 +30,24 @@
     <define name="TRIM_A" value="0"/>
     <define name="TRIM_E" value="0"/>
     <define name="TRIM_R" value="0"/>
-     <define name="NB_MOTOR" value="4"/> <!--number of motors -->
+     <define name="NB_MOTOR" value="8"/> <!--number of motors -->
     <define name="SCALE" value="256"/>
-<!-- bstark 11/4/10 Motor defs           M1 ,  M2 ,  M3 ,  M4  -->
-    <define name="ROLL_COEF"   value="{  0  ,  -256,    0, 256 }"/>
-    <define name="PITCH_COEF"  value="{  256,   0 , -256,    0 }"/>
-    <define name="YAW_COEF"    value="{ 256,  -256, 256,  -256 }"/>
-    <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
+<!-- bstark 11/4/10 Motor defs           M12     ,    M34     ,  M56 ,  M78  -->
+    <define name="ROLL_COEF"   value="{    0,    0, -256, -256,    0,    0,  256,  256 }"/>
+    <define name="PITCH_COEF"  value="{  256,  256,    0,    0, -256, -256,    0,    0 }"/>
+    <define name="YAW_COEF"    value="{  256,  256, -256, -256,  256,  256, -256, -256 }"/>
+    <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256,  256,  256 }"/>
 
 <!-- bstark 11/4/10 Motors are defined clockwise -->
   </section>
 
-<!-- from IMU calibration file -->
+<!-- from IMU calibration file IMU#57-->
   <section name="IMU" prefix="IMU_">
     <define name="MAG_OFFSET" value="-17" />
 
-    <define name="GYRO_P_NEUTRAL" value="48"/>
-    <define name="GYRO_Q_NEUTRAL" value="-28"/>
-    <define name="GYRO_R_NEUTRAL" value="7"/>
+    <define name="GYRO_P_NEUTRAL" value="12"/>
+    <define name="GYRO_Q_NEUTRAL" value="-26"/>
+    <define name="GYRO_R_NEUTRAL" value="24"/>
     <define name="GYRO_P_SENS" value="4.412" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
     <define name="GYRO_R_SENS" value="4.412" integer="16"/>
@@ -55,22 +55,22 @@
     <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
     <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
     
-    <define name="ACCEL_X_NEUTRAL" value="4"/>
-    <define name="ACCEL_Y_NEUTRAL" value="6"/>
-    <define name="ACCEL_Z_NEUTRAL" value="-10"/>
-    <define name="ACCEL_X_SENS" value="37.7635998957" integer="16"/>
-    <define name="ACCEL_Y_SENS" value="36.9082018246" integer="16"/>
-    <define name="ACCEL_Z_SENS" value="39.2157000000" integer="16"/>
+    <define name="ACCEL_X_NEUTRAL" value="-9"/>
+    <define name="ACCEL_Y_NEUTRAL" value="7"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-4"/>
+    <define name="ACCEL_X_SENS" value="38.1437093428" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="38.0489482581" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.0644179574" integer="16"/>
     <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
     <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
     
-    <define name="MAG_X_NEUTRAL" value="-42"/>
-    <define name="MAG_Y_NEUTRAL" value="10"/>
-    <define name="MAG_Z_NEUTRAL" value="-55"/>
-    <define name="MAG_X_SENS" value="4.11425178549" integer="16"/>
-    <define name="MAG_Y_SENS" value="4.39461207401" integer="16"/>
-    <define name="MAG_Z_SENS" value="4.09787178392" integer="16"/>
+    <define name="MAG_X_NEUTRAL" value="-69"/>
+    <define name="MAG_Y_NEUTRAL" value="54"/>
+    <define name="MAG_Z_NEUTRAL" value="-95"/>
+    <define name="MAG_X_SENS" value="4.33051329328" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.48656987772" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.34013098443" integer="16"/>
     <define name="MAG_XY_SENS" value="0.0" integer="16"/>
     <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
     <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
@@ -196,17 +196,25 @@
  </modules>
 
   <firmware name="rotorcraft">
-    <target name="ap" board="lisa_m_1.0">
+    <target name="ap" board="lisa_l_1.1">
 
-      <subsystem name="radio_control" type="spektrum"/>
+      
       <subsystem name="actuators"     type="mkk">
 	<define name="MKK_I2C_SCL_TIME" value="50"/>
       </subsystem>
-      <subsystem name="telemetry"     type="transparent"/>
+      
+      <subsystem name="telemetry"     type="transparent">
+        <define name="MODEM_PORT" value="UART3"/>
+      </subsystem>
+      
+      <subsystem name="radio_control" type="spektrum"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/> <!-- on DX6-->
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,1,1,1,1,1,1,1,1,1,1\}"/>
     </target>
+
+    <!-- SPEKTRUM on UART5, AGGIECAP on UART3 as defined in module code -->
+
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
       <subsystem name="radio_control" type="ppm"/>

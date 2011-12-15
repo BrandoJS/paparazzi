@@ -37,6 +37,24 @@
 
 #include "generated/airframe.h"
 
+#ifdef BATT_THRUST_FIX
+#include "subsystems/electrical.h"
+
+#ifndef GUIDANCE_V_NOM_THRUST
+#define GUIDANCE_V_NOM_THRUST 100
+#warning "GUIDANCE_V_NOM_THRUST not defined"
+#endif
+
+#endif
+
+#ifndef GUIDANCE_V_MIN_BOUND
+#define GUIDANCE_V_MIN_BOUND 10
+#endif
+
+#ifndef GUIDANCE_V_MAX_BOUND
+#define GUIDANCE_V_MAX_BOUND 10
+#endif
+
 /* In case Asctec controllers are used without supervision */
 #ifndef SUPERVISION_MIN_MOTOR
 #define SUPERVISION_MIN_MOTOR 1
@@ -81,6 +99,12 @@ int32_t guidance_v_ki;
 
 int32_t guidance_v_z_sum_err;
 
+int32_t min_bound;
+int32_t max_bound;
+int32_t nom_thrust;
+
+int32_t vd_tmp;
+
 
 #define GuidanceVSetRef(_pos, _speed, _accel) { \
     gv_set_ref(_pos, _speed, _accel);	     \
@@ -103,7 +127,16 @@ void guidance_v_init(void) {
 
   guidance_v_z_sum_err = 0;
 
+  min_bound = GUIDANCE_V_MIN_BOUND;
+  max_bound = GUIDANCE_V_MAX_BOUND;
+
+  #ifdef BATT_THRUST_FIX
+  nom_thrust = GUIDANCE_V_NOM_THRUST;
+  #endif
+
   gv_adapt_init();
+  
+  vd_tmp = 0;
 }
 
 
@@ -262,6 +295,13 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
   int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
+
+  
+  //LPF vertical speed
+  err_z = vd_tmp + ((err_z-vd_tmp)>>3);
+  vd_tmp = err_z;
+
+
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
   int32_t err_zd =  ins_ltp_speed.z - guidance_v_zd_ref;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
@@ -273,6 +313,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   else
     guidance_v_z_sum_err = 0;
 
+#ifndef BATT_THRUST_FIX
   /* our nominal command : (g + zdd)*m   */
 #ifdef GUIDANCE_V_INV_M
   const int32_t inv_m = BFP_OF_REAL(GUIDANCE_V_INV_M, GV_ADAPT_X_FRAC);
@@ -281,12 +322,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 #endif
   const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
                           (guidance_v_zdd_ref<<(FF_CMD_FRAC - INT32_ACCEL_FRAC));
-#if 0
-  if (g_m_zdd > 0)
-    guidance_v_ff_cmd = ( g_m_zdd + (inv_m>>1)) / inv_m;
-  else
-    guidance_v_ff_cmd = ( g_m_zdd - (inv_m>>1)) / inv_m;
-#else
+
   guidance_v_ff_cmd = g_m_zdd / inv_m;
   int32_t cphi,ctheta,cphitheta;
   PPRZ_ITRIG_COS(cphi, ahrs.ltp_to_body_euler.phi);
@@ -294,6 +330,11 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   cphitheta = (cphi * ctheta) >> INT32_TRIG_FRAC;
   if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
+#else
+  int32_t vs_add = (158-electrical.vsupply);
+  Bound(vs_add,0,25);
+  guidance_v_ff_cmd = nom_thrust + vs_add;
+  Bound(guidance_v_ff_cmd,95,150); //Just in case
 #endif
 
   /* our error command                   */
@@ -301,6 +342,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
                             ((-guidance_v_kd * err_zd) >> 21) +
                             ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
 
+  Bound(guidance_v_fb_cmd,-min_bound,max_bound);
   guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
   // guidance_v_delta_t = guidance_v_fb_cmd;
 

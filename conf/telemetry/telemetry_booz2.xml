@@ -17,7 +17,7 @@
       <message name="GPS_INT"         period=".25"/>
       <message name="INS"          period=".25"/>
       <message name="STAB_ATTITUDE"     period=".3"/>
-      <message name="STAB_ATTITUDE_REF" period=".3"/>
+      
     </mode>
 
     <mode name="ppm">

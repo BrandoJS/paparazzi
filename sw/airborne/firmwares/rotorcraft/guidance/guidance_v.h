@@ -52,6 +52,11 @@ extern int32_t guidance_v_kp;
 extern int32_t guidance_v_kd;
 extern int32_t guidance_v_ki;
 
+extern int32_t min_bound;
+extern int32_t max_bound;
+extern int32_t nom_thrust;
+extern int32_t vd_tmp;
+
 extern void guidance_v_init(void);
 extern void guidance_v_read_rc(void);
 extern void guidance_v_mode_changed(uint8_t new_mode);
