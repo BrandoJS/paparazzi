@@ -26,7 +26,7 @@
 #include "generated/airframe.h"
 #include "estimator.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/datalink/downlink.h"
 #include "mcu_periph/uart.h"
 
 uint16_t adc_airspeed_val;

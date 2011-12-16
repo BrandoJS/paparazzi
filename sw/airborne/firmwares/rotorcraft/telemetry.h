@@ -482,6 +482,8 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
+			    &baro.absolute,	\
+			    &baro_filtered,	\
 			    &vff_z_meas,		\
 			    &vff_z,			\
 			    &vff_zdot,		\
@@ -670,13 +672,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                            &gps.num_sv,             \
                            &gps.fix);               \
     static uint8_t i;                               \
-    static uint8_t last_cnos[GPS_NB_CHANNELS];      \
-    if (i == gps.nb_channels) i = 0;                \
-    if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
-      DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
-      last_cnos[i] = gps.svinfos[i].cno;                                \
-    }                                                                   \
-    i++;                                                                \
+	if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
+    	if (i >= gps.nb_channels * 2) i = 0;                                    \
+    	if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \
+      	DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
+    	}                                                                   \
+    	i++;                                                                \
   }
 #else
 #define PERIODIC_SEND_GPS_INT(_chan) {}
@@ -751,11 +752,12 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 				   );					       \
   }
 
-//TODO replace by BOOZ_EXTRA_ADC
-#ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) DOWNLINK_SEND_BOOZ2_SONAR(_chan,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
+
+#ifdef USE_SONAR
+#include "modules/sonar/sonar_maxbotix.h"
+#define PERIODIC_SEND_SONAR(_chan) DOWNLINK_SEND_SONAR(_chan,&sonar_meas,&sonar_filtered,&ins_sonar_offset,&d_sonar);
 #else
-#define PERIODIC_SEND_BOOZ2_SONAR(_chan) {}
+#define PERIODIC_SEND_SONAR(_chan) {}
 #endif
 
 #ifdef BOOZ2_TRACK_CAM

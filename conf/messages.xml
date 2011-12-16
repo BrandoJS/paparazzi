@@ -1337,6 +1337,8 @@
   </message>
 
   <message name="VFF" id="162">
+      <field name="baro_raw"	   type="int32"/>
+      <field name="baro_filt"	   type="int32"/>
       <field name="measure"        type="float"/>
       <field name="z"              type="float"/>
       <field name="zd"             type="float"/>
@@ -1378,11 +1380,11 @@
       <field name="save_cnt"    type="int16"/>
   </message>
 
-  <message name="BOOZ2_SONAR" id="167">
-    <field name="front" type="uint16" unit="adc"/>
-    <field name="back" type="uint16" unit="adc"/>
-    <field name="right" type="uint16" unit="adc"/>
-    <field name="left" type="uint16" unit="adc"/>
+  <message name="SONAR" id="167">
+    <field name="raw" type="uint16" unit="adc"/>
+    <field name="filtered" type="int32"/>
+    <field name="sensor_offset" type="int32"/>
+    <field name="sonar_measure" type="float" unit="m"/>
   </message>
 
   <message name="BOOZ2_CAM" id="168">

@@ -39,7 +39,7 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
-#ifdef BOOZ2_SONAR
+#ifdef USE_SONAR
 #include "generated/modules.h"
 #endif
 
@@ -70,9 +70,12 @@ bool_t ins_hf_realign;
 int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
+int32_t baro_filtered;
 #ifdef USE_SONAR
 bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
+float d_sonar;
+int32_t sonar_filtered;
 #endif
 #endif
 bool_t  ins_vf_realign;
@@ -107,7 +110,8 @@ void ins_init() {
 #endif
 #ifdef USE_VFF
   ins_baro_initialised = FALSE;
-#ifdef BOOZ2_SONAR
+  baro_filtered = 0;
+#ifdef USE_SONAR
   ins_update_on_agl = FALSE;
 #endif
   vff_init(0., 0., 0.);
@@ -180,16 +184,19 @@ void ins_propagate() {
 
 void ins_update_baro() {
 #ifdef USE_VFF
+  
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>2) ;
+  
   if (baro.status == BS_RUNNING) {
     if (!ins_baro_initialised) {
-      ins_qfe = baro.absolute;
+      ins_qfe = baro_filtered;
       ins_baro_initialised = TRUE;
     }
-    ins_baro_alt = ((baro.absolute - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
+    ins_baro_alt = ((baro_filtered - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
     float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
-      ins_qfe = baro.absolute;
+      ins_qfe = baro_filtered;
 #ifdef USE_SONAR
       ins_sonar_offset = sonar_meas;
 #endif
@@ -268,12 +275,16 @@ void ins_update_gps(void) {
 
 void ins_update_sonar() {
 #if defined USE_SONAR && defined USE_VFF
-  static int32_t sonar_filtered = 0;
-  sonar_filtered = (sonar_meas + 2*sonar_filtered) / 3;
+  
+  sonar_filtered = sonar_filtered + (((int32_t)sonar_meas-sonar_filtered)>>2) ;
+
   /* update baro_qfe assuming a flat ground */
+  /*
   if (ins_update_on_agl && baro.status == BS_RUNNING) {
     int32_t d_sonar = (((int32_t)sonar_filtered - ins_sonar_offset) * INS_SONAR_SENS_NUM) / INS_SONAR_SENS_DEN;
     ins_qfe = baro.absolute + (d_sonar * (INS_BARO_SENS_DEN))/INS_BARO_SENS_NUM;
   }
+  */
+  d_sonar = (((float)sonar_filtered - (float)ins_sonar_offset) * INS_SONAR_SENS_NUM) / INS_SONAR_SENS_DEN;
 #endif
 }

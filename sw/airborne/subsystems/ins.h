@@ -37,9 +37,12 @@ extern struct NedCoor_i ins_gps_speed_cm_s_ned;
 extern int32_t ins_baro_alt;
 extern int32_t ins_qfe;
 extern bool_t  ins_baro_initialised;
+extern int32_t baro_filtered;
 #ifdef USE_SONAR
 extern bool_t  ins_update_on_agl; /* use sonar to update agl if available */
 extern int32_t ins_sonar_offset;
+extern float d_sonar;
+extern int32_t sonar_filtered;
 #endif
 #endif
 

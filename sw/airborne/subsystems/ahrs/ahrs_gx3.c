@@ -33,13 +33,14 @@
 #include "estimator.h"
 #include "led.h"
 
-// FIXME Debugging Only
+/* FIXME Debugging Only
 #ifndef DOWNLINK_DEVICE
 #define DOWNLINK_DEVICE DOWNLINK_AP_DEVICE
 #endif
 #include "mcu_periph/uart.h"
 #include "messages.h"
-#include "downlink.h"
+#include "subsystems/downlink/downlink.h"
+*/
 
 #define GX3_HEADER 0xC8
 
@@ -134,7 +135,9 @@ void imu_impl_init(void) {
 void ahrs_propagate(void)  {
 }
 
+void ahrs_update_gps(void) {
 
+}
 
 void ahrs_update_accel(void) {
 }

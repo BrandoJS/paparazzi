@@ -2,7 +2,7 @@
 
 <flight_plan alt="1475" ground_alt="1466" lat0="41.742852" lon0="-111.806738" max_dist_from_home="1000" name="Blue Room" qfu="270" security_height="2">
   <header>
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 </header>
   <waypoints>
     <waypoint name="HOME" x="14.7" y="-11.3"/>
