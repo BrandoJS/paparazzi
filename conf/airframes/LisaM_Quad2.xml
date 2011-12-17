@@ -27,9 +27,9 @@
   <section name="SUPERVISION" prefix="SUPERVISION_">
     <define name="MIN_MOTOR" value="3"/>
     <define name="MAX_MOTOR" value="200"/>
-    <define name="TRIM_A" value="2"/>
-    <define name="TRIM_E" value="-1"/>
-    <define name="TRIM_R" value="-6"/>
+    <define name="TRIM_A" value="0"/>
+    <define name="TRIM_E" value="0"/>
+    <define name="TRIM_R" value="0"/>
      <define name="NB_MOTOR" value="4"/> <!--number of motors -->
     <define name="SCALE" value="256"/>
 <!-- bstark 11/4/10 Motor defs           M1 ,  M2 ,  M3 ,  M4  -->
@@ -45,9 +45,9 @@
   <section name="IMU" prefix="IMU_">
     <define name="MAG_OFFSET" value="-17" />
 
-    <define name="GYRO_P_NEUTRAL" value="48"/>
-    <define name="GYRO_Q_NEUTRAL" value="-28"/>
-    <define name="GYRO_R_NEUTRAL" value="7"/>
+    <define name="GYRO_P_NEUTRAL" value="51"/>
+    <define name="GYRO_Q_NEUTRAL" value="-29"/>
+    <define name="GYRO_R_NEUTRAL" value="9"/>
     <define name="GYRO_P_SENS" value="4.412" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
     <define name="GYRO_R_SENS" value="4.412" integer="16"/>
@@ -156,7 +156,7 @@ AP_MODE_NAV  		- 'Nav Mode'
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="10." integer="16"/>
+    <define name="BARO_SENS" value="20." integer="16"/>
     <define name="SONAR_SENS" value=".0028" integer="16"/>
   </section>
 

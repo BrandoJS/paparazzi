@@ -1337,15 +1337,18 @@
   </message>
 
   <message name="VFF" id="162">
-      <field name="baro_raw"	   type="int32"/>
-      <field name="baro_filt"	   type="int32"/>
-      <field name="measure"        type="float"/>
-      <field name="z"              type="float"/>
-      <field name="zd"             type="float"/>
-      <field name="bias"           type="float"/>
-      <field name="Pzz"            type="float"/>
-      <field name="Pzdzd"          type="float"/>
-      <field name="Pbb"            type="float"/>
+      <field name="Baro_Alt"		type="float" unit="m"/>
+      <field name="Accel_raw"		type="int32" unit="m/s2"/>
+      <field name="Accel_filt"		type="int32" unit="m/s2"/>
+      <field name="baro_raw"	   	type="int32" unit="Pa"/>
+      <field name="baro_filt"	   	type="int32" unit="Pa"/>
+      <field name="measure"        	type="float"/>
+      <field name="z"              	type="float"/>
+      <field name="zd"             	type="float"/>
+      <field name="bias"           	type="float"/>
+      <field name="Pzz"            	type="float"/>
+      <field name="Pzdzd"          	type="float"/>
+      <field name="Pbb"            	type="float"/>
   </message>
 
   <message name="BOOZ2_TUNE_FF" id="163">

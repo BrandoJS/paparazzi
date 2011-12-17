@@ -482,6 +482,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 #include "subsystems/ins/vf_float.h"
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
+			    &ins_baro_abs,	\
+			    &accz_raw,	\
+			    &accz_filtered,     \
 			    &baro.absolute,	\
 			    &baro_filtered,	\
 			    &vff_z_meas,		\

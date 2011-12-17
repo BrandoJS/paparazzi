@@ -38,6 +38,9 @@ extern int32_t ins_baro_alt;
 extern int32_t ins_qfe;
 extern bool_t  ins_baro_initialised;
 extern int32_t baro_filtered;
+extern int32_t accz_filtered;
+extern int32_t accz_raw;
+extern float   ins_baro_abs;
 #ifdef USE_SONAR
 extern bool_t  ins_update_on_agl; /* use sonar to update agl if available */
 extern int32_t ins_sonar_offset;

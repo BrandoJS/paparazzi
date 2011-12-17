@@ -71,6 +71,9 @@ int32_t ins_qfe;
 bool_t  ins_baro_initialised;
 int32_t ins_baro_alt;
 int32_t baro_filtered;
+int32_t accz_raw;
+int32_t accz_filtered;
+float   ins_baro_abs;
 #ifdef USE_SONAR
 bool_t  ins_update_on_agl;
 int32_t ins_sonar_offset;
@@ -111,6 +114,7 @@ void ins_init() {
 #ifdef USE_VFF
   ins_baro_initialised = FALSE;
   baro_filtered = 0;
+  accz_filtered = 0;
 #ifdef USE_SONAR
   ins_update_on_agl = FALSE;
 #endif
@@ -153,6 +157,9 @@ void ins_propagate() {
   INT32_RMAT_TRANSP_VMULT(accel_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_ltp, ahrs.ltp_to_body_rmat, accel_body);
+  accz_raw = (int32_t)accel_ltp.z;
+  accz_filtered = accz_filtered + (((int32_t)accel_ltp.z-accz_filtered)>>5) ; //LPF at 2.62Hz  
+
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 
 #ifdef USE_VFF
@@ -185,7 +192,7 @@ void ins_propagate() {
 void ins_update_baro() {
 #ifdef USE_VFF
   
-  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>2) ;
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>3) ; //LPF at .56Hz
   
   if (baro.status == BS_RUNNING) {
     if (!ins_baro_initialised) {
@@ -193,6 +200,11 @@ void ins_update_baro() {
       ins_baro_initialised = TRUE;
     }
     ins_baro_alt = ((baro_filtered - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
+ 
+    float baro_float = POS_FLOAT_OF_BFP(baro_filtered);
+    baro_float = baro_float/101325.0;
+    ins_baro_abs = 44330.*(1-pow(baro_float,.1903));
+
     float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
@@ -276,7 +288,7 @@ void ins_update_gps(void) {
 void ins_update_sonar() {
 #if defined USE_SONAR && defined USE_VFF
   
-  sonar_filtered = sonar_filtered + (((int32_t)sonar_meas-sonar_filtered)>>2) ;
+  sonar_filtered = sonar_filtered + (((int32_t)sonar_meas-sonar_filtered)>>3) ; //LPF at .22Hz
 
   /* update baro_qfe assuming a flat ground */
   /*
