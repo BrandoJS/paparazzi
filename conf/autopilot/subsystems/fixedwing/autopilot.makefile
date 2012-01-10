@@ -119,11 +119,10 @@ ns_srcs	   	+= $(SRC_FIRMWARE)/main.c
 # LEDs
 #
 ns_CFLAGS 		+= -DUSE_LED
-ifeq ($(ARCH), stm32)
-  ns_CFLAGS 	+= -DSYS_TIME_LED=1
-else
-  ns_CFLAGS 	+= -DTIME_LED=1
+ifneq ($(SYS_TIME_LED),none)
+  ns_CFLAGS 	+= -DSYS_TIME_LED=$(SYS_TIME_LED)
 endif
+
 
 #
 # Sys-time
@@ -180,7 +179,7 @@ ap_srcs			+= $(SRC_FIRMWARE)/ap_downlink.c
 
 UNAME = $(shell uname -s)
 ifeq ("$(UNAME)","Darwin")
-  sim.CFLAGS += -I/opt/local/include/
+  sim.CFLAGS += -I/opt/paparazzi/include/ -I/opt/local/include/
 endif
 
 sim.CFLAGS              += $(CPPFLAGS)
@@ -219,7 +218,7 @@ jsbsim.CFLAGS 		+= -I$(SIMDIR) -I/usr/include -I$(JSBSIM_INC) -I$(OCAMLLIBDIR) `
 jsbsim.LDFLAGS		+= `pkg-config glib-2.0 --libs` -lglibivy -lm -L/usr/lib -lJSBSim
 
 jsbsim.CFLAGS 		+= -DDOWNLINK -DDOWNLINK_TRANSPORT=IvyTransport
-jsbsim.srcs 		+= downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
+jsbsim.srcs 		+= subsystems/datalink/downlink.c $(SRC_FIRMWARE)/datalink.c $(SRC_ARCH)/jsbsim_hw.c $(SRC_ARCH)/jsbsim_ir.c $(SRC_ARCH)/jsbsim_gps.c $(SRC_ARCH)/jsbsim_ahrs.c $(SRC_ARCH)/ivy_transport.c $(SRC_ARCH)/jsbsim_transport.c
 
 jsbsim.srcs 		+= subsystems/settings.c
 jsbsim.srcs 		+= $(SRC_ARCH)/subsystems/settings_arch.c
