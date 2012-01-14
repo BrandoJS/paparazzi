@@ -158,7 +158,8 @@ void ins_propagate() {
   struct Int32Vect3 accel_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_ltp, ahrs.ltp_to_body_rmat, accel_body);
   accz_raw = (int32_t)accel_ltp.z;
-  accz_filtered = accz_filtered + (((int32_t)accel_ltp.z-accz_filtered)>>5) ; //LPF at 2.62Hz  
+  accz_filtered = accz_filtered + (((int32_t)accel_ltp.z-accz_filtered)>>5) ; //LPF at 2.62Hz 
+   
 
   float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
 
@@ -192,7 +193,7 @@ void ins_propagate() {
 void ins_update_baro() {
 #ifdef USE_VFF
   
-  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>3) ; //LPF at .56Hz
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>1) ; //LPF at 7Hz
   
   if (baro.status == BS_RUNNING) {
     if (!ins_baro_initialised) {

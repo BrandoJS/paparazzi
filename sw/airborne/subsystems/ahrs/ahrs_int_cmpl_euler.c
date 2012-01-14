@@ -150,13 +150,15 @@ void ahrs_propagate(void) {
   /* unbias gyro             */
   struct Int32Rates uf_rate;
   RATES_DIFF(uf_rate, imu.gyro, ahrs_impl.gyro_bias);
-#ifdef USE_NOISE_CUT
+#if defined(USE_NOISE_CUT) || defined(USE_NOISE_FILTER)
   static struct Int32Rates last_uf_rate = { 0, 0, 0 };
+#endif
+#ifdef USE_NOISE_CUT
   if (!cut_rates(uf_rate, last_uf_rate, RATE_CUT_THRESHOLD)) {
 #endif
     /* low pass rate */
 #ifdef USE_NOISE_FILTER
-    RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
+    RATES_SUM_SCALED(ahrs.imu_rate, uf_rate, last_uf_rate, NOISE_FILTER_GAIN);
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
 #else
     RATES_ADD(ahrs.imu_rate, uf_rate);
@@ -164,8 +166,9 @@ void ahrs_propagate(void) {
 #endif
 #ifdef USE_NOISE_CUT
   }
-  RATES_COPY(last_uf_rate, uf_rate);
 #endif
+  RATES_COPY(last_uf_rate, uf_rate);
+
 
   /* integrate eulers */
   struct Int32Eulers euler_dot;
@@ -212,9 +215,8 @@ void ahrs_update_accel(void) {
     get_phi_theta_measurement_fom_accel(&ahrs_impl.measurement.phi, &ahrs_impl.measurement.theta, imu.accel);
 #ifdef USE_NOISE_CUT
   }
-  VECT3_COPY(last_accel, imu.accel);
 #endif
-
+  VECT3_COPY(last_accel, imu.accel);
 }
 
 

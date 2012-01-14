@@ -94,7 +94,9 @@
       <while cond="15 > stage_time">
         <stay wp="E_LAND"/>
       </while>
-      <go climb="-0.1" vmode="climb" wp="E_LAND"/>
+      <while cond="d_sonar > 0.15">
+        <stay climb="-0.1" vmode="climb" wp="E_LAND"/>
+      </while>
       <call fun="NavKillThrottle()"/>
       <deroute block="Holding point"/>
     </block>
@@ -105,7 +107,9 @@
       <stay wp="LAND"/>
     </block>
     <block name="Land" strip_button="Land" strip_icon="downdown.png">
-      <go climb="-0.1" vmode="climb" wp="LAND"/>
+      <while cond="d_sonar > 0.15">
+        <stay climb="-0.1" vmode="climb" wp="LAND"/>
+      </while>
       <call fun="NavKillThrottle()"/>
       <deroute block="Holding point"/>
     </block>
