@@ -43,7 +43,7 @@
 
 <!-- from IMU calibration file -->
   <section name="IMU" prefix="IMU_">
-    <define name="MAG_OFFSET" value="-17" />
+    <define name="MAG_OFFSET" value="-0.559" />
 
     <define name="GYRO_P_NEUTRAL" value="51"/>
     <define name="GYRO_Q_NEUTRAL" value="-29"/>
@@ -144,8 +144,8 @@ AP_MODE_NAV  		- 'Nav Mode'
     <define name="THETA_DGAIN"  value="-500"/>
     <define name="THETA_IGAIN"  value="-200"/>
 
-    <define name="PSI_PGAIN"  value="-900"/>
-    <define name="PSI_DGAIN"  value="-200"/>
+    <define name="PSI_PGAIN"  value="-1300"/>
+    <define name="PSI_DGAIN"  value="-600"/>
     <define name="PSI_IGAIN"  value="-10"/>
 
     <!-- feedforward -->
@@ -156,7 +156,7 @@ AP_MODE_NAV  		- 'Nav Mode'
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="20." integer="16"/>
+    <define name="BARO_SENS" value="10." integer="16"/>
     <define name="SONAR_SENS" value=".0028" integer="16"/>
   </section>
 
@@ -166,8 +166,8 @@ AP_MODE_NAV  		- 'Nav Mode'
    <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
    <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
    <define name="MAX_SUM_ERR" value="2000000"/>
-   <define name="HOVER_KP"    value="-230"/>
-   <define name="HOVER_KD"    value="-210"/>
+   <define name="HOVER_KP"    value="-170"/>
+   <define name="HOVER_KD"    value="-130"/>
    <define name="HOVER_KI"    value="-80"/>
    
    <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
@@ -178,14 +178,14 @@ AP_MODE_NAV  		- 'Nav Mode'
    <define name="INV_M" value ="0.2"/>
    <define name="MIN_BOUND" value="10"/>
    <define name="MAX_BOUND" value="10"/> <!--Controller Bounds -->
-   <define name="NOM_THRUST" value="115"/>
+   <define name="NOM_THRUST" value="110"/>
   </section>
 
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-68"/>
-   <define name="DGAIN" value="-160"/>
-   <define name="IGAIN" value="-20"/>
+   <define name="PGAIN" value="-24"/>
+   <define name="DGAIN" value="-10"/>
+   <define name="IGAIN" value="-2"/>
  </section>
 
  <section name="MISC">
