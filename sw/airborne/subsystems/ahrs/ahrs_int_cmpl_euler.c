@@ -95,7 +95,7 @@ void ahrs_align(void) {
 
 }
 
-//#define USE_NOISE_CUT 1
+#define USE_NOISE_CUT 1
 //#define USE_NOISE_FILTER 1
 #define NOISE_FILTER_GAIN 50
 
@@ -120,10 +120,10 @@ static inline bool_t cut_accel (struct Int32Vect3 i1, struct Int32Vect3 i2, int3
   if (diff.x < -threshold || diff.x > threshold ||
       diff.y < -threshold || diff.y > threshold ||
       diff.z < -threshold || diff.z > threshold) {
-    LED_ON(4);
+    LED_ON(2);
     return TRUE;
   } else {
-    LED_OFF(4);
+    LED_OFF(2);
     return FALSE;
   }
 }

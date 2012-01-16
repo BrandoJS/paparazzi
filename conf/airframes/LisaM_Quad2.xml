@@ -16,6 +16,20 @@
     <axis name="THRUST" failsafe_value="0"/>
   </commands>
 
+  <command_laws>
+    <!--<let var="aileron"  value="@ROLL  * AILEVON_AILERON_RATE"/>
+    <let var="elevator" value="@PITCH * AILEVON_ELEVATOR_RATE"/>
+    <set servo="MOTOR"         value="@THROTTLE"/>
+    <set servo="AILEVON_LEFT"  value="$elevator + $aileron"/>
+    <set servo="AILEVON_RIGHT" value="$elevator - $aileron"/>
+    -->
+    <set servo="FRONT" value="0"/>
+    <set servo="BACK" value="1"/>
+    <set servo="LEFT" value="2"/>
+    <set servo="RIGHT" value="3"/>
+
+  </command_laws>
+
   <!-- MKK Actuators -->
   <section name="ACTUATORS_MKK" prefix="ACTUATORS_MKK_">
     <define name="NB" value="4"/>
@@ -45,9 +59,9 @@
   <section name="IMU" prefix="IMU_">
     <define name="MAG_OFFSET" value="-0.559" />
 
-    <define name="GYRO_P_NEUTRAL" value="93"/>
+    <define name="GYRO_P_NEUTRAL" value="90"/>
     <define name="GYRO_Q_NEUTRAL" value="-56"/>
-    <define name="GYRO_R_NEUTRAL" value="-3"/>
+    <define name="GYRO_R_NEUTRAL" value="-2"/>
     <define name="GYRO_P_SENS" value="4.412" integer="16"/>
     <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
     <define name="GYRO_R_SENS" value="4.412" integer="16"/>
@@ -55,9 +69,9 @@
     <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
     <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
     
-    <define name="ACCEL_X_NEUTRAL" value="6"/>
+    <define name="ACCEL_X_NEUTRAL" value="5"/>
     <define name="ACCEL_Y_NEUTRAL" value="3"/>
-    <define name="ACCEL_Z_NEUTRAL" value="3"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-5"/>
     <define name="ACCEL_X_SENS" value="37.7635998957" integer="16"/>
     <define name="ACCEL_Y_SENS" value="36.9082018246" integer="16"/>
     <define name="ACCEL_Z_SENS" value="39.2157000000" integer="16"/>
@@ -210,13 +224,13 @@ AP_MODE_NAV  		- 'Nav Mode'
     <target name="ap" board="lisa_m_1.0">
 
       <subsystem name="radio_control" type="spektrum"/>
-      <subsystem name="actuators"     type="mkk"/>
+      <subsystem name="actuators"     type="pwm_supervision"/>
+      <define name="SERVO_HZ" value="400"/>
       <subsystem name="telemetry"     type="transparent"/>
       <define name="RADIO_MODE" value="RADIO_FLAP"/> <!-- on DX7s-->
       <define name="RADIO_KILL_SWITCH" value="RADIO_GEAR"/>
       <define name="RADIO_CONTROL_SPEKTRUM_SIGNS" value="\{1,1,1,1,1,1,1,1,1,1,1,1\}"/>
-      <define name="ACTUATORS_START_DELAY" value="2"/>
-      <define name="RADIO_CONTROL_LED" value="2"/>
+      
     </target>
     <target name="sim" board="pc">
       <subsystem name="fdm"           type="nps"/>
@@ -237,6 +251,9 @@ AP_MODE_NAV  		- 'Nav Mode'
     <define name="USE_INS_NAV_INIT"/> Use Flight plan to initialize INS - otherwise use GPS after lock
     <define name="USE_GPS_ACC4R"/>  USE GPS For R Matrix for HFF
     -->
+
+    <define name="ACTUATORS_START_DELAY" value="2"/>
+      <define name="AHRS_ALIGNER_LED" value="2"/>
     <define name="USE_NOISE_FILTER"/>    <!-- int_cmpl_euler Acc filter -->
     <define name="GUIDANCE_H_USE_REF"/> <!-- Use Model to calculate sp/acc setpoints for better control -->
     <define name="KILL_AS_FAILSAFE" /> 	<!-- Sets failsafe mode as kill motors - otherwise keep level and climb -->

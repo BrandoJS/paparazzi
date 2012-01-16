@@ -57,7 +57,7 @@
       <message name="ROTORCRAFT_STATUS"       	period="1.2"/>
       <message name="DL_VALUE"          	period="0.5"/>
       <message name="ALIVE"             	period="2.1"/>
-      <message name="FILTER"      		period=".5"/>
+      <message name="FILTER"      		period=".1"/>
     </mode>
 
     <mode name="rate_loop">
