@@ -70,6 +70,8 @@ struct GX3 gx3;
 
 struct GX3_packet GX3_packet;
 
+
+#ifdef AHRS_UPDATE_FW_ESTIMATOR
 /**************************************************/
 
 void ahrs_update_fw_estimator( void )
@@ -95,7 +97,7 @@ void ahrs_update_fw_estimator( void )
   estimator_q = RATE_FLOAT_OF_BFP(ahrs.body_rate.q);
 
 }
-
+#endif
 
 void ahrs_init(void) {
   

@@ -238,11 +238,13 @@ AP_MODE_NAV  		- 'Nav Mode'
       <subsystem name="actuators"     type="mkk"/>
     </target>
 
-    <subsystem name="imu"           type="aspirin_v1.5"/>
+    
     <subsystem name="ins"	    type="hff"/>
     <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
-    <subsystem name="ahrs"          type="int_cmpl_euler"/>
+    <subsystem name="ahrs" type="gx3">
+         <configure name="GX3_PORT" value="UART5"/>
+    </subsystem>
 
     <!-- Additional Parameters 
     <define name="USE_ADAPT_HOVER"/>  USE ADAPTIVE ALGORITHM FOR HOVER CONTROL 
