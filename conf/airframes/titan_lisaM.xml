@@ -110,6 +110,8 @@
       <define name="AIRSPEED_BIAS" value="3143"/>
       <define name="SENSOR_SYNC_SEND"/>
     </load>
+    
+    <load name="sdcard.xml"/>
 
 </modules>
 
@@ -224,7 +226,8 @@
     </subsystem>
 
     <subsystem name="control" />
-    
+    <define name="USE_UART3"/>
+    <define name="UART3_BAUD" value="115200"/>
 
     <!-- Sensors -->
 
