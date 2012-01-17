@@ -19,6 +19,7 @@
 #include "math/pprz_algebra_float.h"
 #include "generated/airframe.h"
 #include "mcu_periph/uart.h"
+#include "ahrs_aligner.h"
 
 #define GX3_MAX_PAYLOAD 128
 #define GX3_MSG_LEN 67

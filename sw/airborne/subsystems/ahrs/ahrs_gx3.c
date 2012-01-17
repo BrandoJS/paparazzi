@@ -18,8 +18,10 @@
 
 #include "subsystems/ahrs.h"
 #include "subsystems/ahrs/ahrs_gx3.h"
+#include "subsystems/ahrs/ahrs_aligner.h"
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
+#include "led.h"
 
 #include "math/pprz_algebra_float.h"
 
@@ -29,9 +31,6 @@
 
 #include <string.h>
 
-// FIXME this is still needed for fixedwing integration
-#include "estimator.h"
-#include "led.h"
 
 /* FIXME Debugging Only
 #ifndef DOWNLINK_DEVICE
@@ -50,13 +49,7 @@
 #define DONE		2
 
 
-// remotely settable
-float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
-float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 
-// for heading message
-float gps_estimator_psi;
-float gx3_estimator_psi;
 
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
@@ -72,6 +65,19 @@ struct GX3_packet GX3_packet;
 
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
+
+// remotely settable
+float ins_roll_neutral = INS_ROLL_NEUTRAL_DEFAULT;
+float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
+
+// for heading message
+float gps_estimator_psi;
+float gx3_estimator_psi;
+
+
+// FIXME this is still needed for fixedwing integration
+#include "estimator.h"
+#include "led.h"
 /**************************************************/
 
 void ahrs_update_fw_estimator( void )
@@ -117,6 +123,9 @@ void ahrs_init(void) {
   //Needed to set orientations
   imu_init();
   ahrs.status = AHRS_RUNNING;
+#ifdef AHRS_ALIGNER_LED
+      LED_ON(AHRS_ALIGNER_LED);
+#endif
   
 }
 
@@ -162,9 +171,6 @@ static inline void compute_body_orientation_and_rates(void) {
 
 void GX3_packet_read_message(void) {
     
-	#ifdef AHRS_CPU_LED
-    	LED_ON(AHRS_CPU_LED);
-	#endif
 
     struct FloatVect3 GX3_accel;
     struct FloatRates GX3_rate;
@@ -193,23 +199,30 @@ void GX3_packet_read_message(void) {
         VECT3_SMUL(GX3_accel,GX3_accel, 9.80665); //Convert g into m/s2
         ACCELS_BFP_OF_REAL(imu.accel, GX3_accel); //
 
-
-        /* IMU rate */
+	/* IMU rate */
+	//if (ahrs_aligner.status == AHRS_ALIGNER_LOCKED) {
+	//RATES_BFP_OF_REAL(imu.gyro, GX3_rate);
+        //RATES_BFP_OF_REAL(ahrs.imu_rate, GX3_rate);
+        //RATES_DIFF(ahrs.imu_rate,imu.gyro, ahrs_aligner.lp_gyro); 
+	//}
+        //else {
         RATES_BFP_OF_REAL(imu.gyro, GX3_rate);
         RATES_BFP_OF_REAL(ahrs.imu_rate, GX3_rate);
+	//}
+	imu.gyro.p = imu.gyro.p - 50;
+	imu.gyro.r = imu.gyro.r + 210;
+	RATES_COPY(ahrs.imu_rate, imu.gyro);
+	       
 
         /* LTP to IMU rotation matrix to Eulers to Quat*/
         RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, GX3_rmat);
         INT32_EULERS_OF_RMAT(ahrs.ltp_to_imu_euler, ahrs.ltp_to_imu_rmat);
         
-	/* Add Mag Offset */
-	//ahrs.ltp_to_body_euler.psi += -ANGLE_BFP_OF_REAL(ahrs_mag_offset); 
-        
-	#ifdef AHRS_CPU_LED
-    	LED_OFF(AHRS_CPU_LED);
-	#endif
-        
         INT32_QUAT_OF_EULERS(ahrs.ltp_to_imu_quat, ahrs.ltp_to_imu_euler);
+        compute_body_orientation_and_rates();
+
+	/* Add Mag Offset */
+	ahrs.ltp_to_body_euler.psi += -ANGLE_BFP_OF_REAL(ahrs_mag_offset); 
 
 }
 

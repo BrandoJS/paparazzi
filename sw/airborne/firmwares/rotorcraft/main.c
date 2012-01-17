@@ -63,12 +63,16 @@
 
 #include "generated/modules.h"
 
+#ifdef USE_IMU
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
+static inline void on_mag_event( void );
+#endif
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
-static inline void on_mag_event( void );
+static inline void on_ahrs_event( void );
+
 
 #ifndef SITL
 int main( void ) {
@@ -88,6 +92,14 @@ STATIC_INLINE void main_init( void ) {
   mcu_init();
 
   sys_time_init();
+
+#ifdef USE_GX3
+  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
+  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
+    __asm("nop");
+  }
+#endif
+
   electrical_init();
 
   actuators_init();
@@ -98,7 +110,9 @@ STATIC_INLINE void main_init( void ) {
 #endif
 
   baro_init();
+#ifndef USE_GX3
   imu_init();
+#endif
   autopilot_init();
   nav_init();
   guidance_h_init();
@@ -124,9 +138,9 @@ STATIC_INLINE void main_init( void ) {
 
 
 STATIC_INLINE void main_periodic( void ) {
-
+#ifdef USE_IMU
   imu_periodic();
-
+#endif
   /* run control loops */
   autopilot_periodic();
   /* set actuators     */
@@ -180,9 +194,12 @@ STATIC_INLINE void main_event( void ) {
   if (autopilot_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
-
+#ifdef USE_IMU
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-
+#endif
+#ifdef USE_GX3
+AhrsEvent(on_ahrs_event);
+#endif
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
 #ifdef USE_GPS
@@ -197,6 +214,7 @@ STATIC_INLINE void main_event( void ) {
 
 }
 
+#ifdef USE_IMU
 static inline void on_accel_event( void ) {
   ImuScaleAccel(imu);
 
@@ -226,6 +244,16 @@ static inline void on_gyro_event( void ) {
 #endif
 }
 
+static inline void on_mag_event(void) {
+  ImuScaleMag(imu);
+  if (ahrs.status == AHRS_RUNNING)
+    ahrs_update_mag();
+#ifdef USE_VEHICLE_INTERFACE
+  vi_notify_mag_available();
+#endif
+}
+#endif
+
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
 #ifdef USE_VEHICLE_INTERFACE
@@ -245,11 +273,11 @@ static inline void on_gps_event(void) {
 #endif
 }
 
-static inline void on_mag_event(void) {
-  ImuScaleMag(imu);
-  if (ahrs.status == AHRS_RUNNING)
-    ahrs_update_mag();
-#ifdef USE_VEHICLE_INTERFACE
-  vi_notify_mag_available();
-#endif
+static inline void on_ahrs_event(void)
+{
+  if (ahrs.status == AHRS_UNINIT) {
+    ahrs_aligner_run();
+  }
+
 }
+
