@@ -206,7 +206,7 @@
     <target name="ap" 		board="lisa_m_1.0">
       <define name="MEASURE_AIRSPEED"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
-      <subsystem name="ahrs"          type="ugear"/>
+      <subsystem name="ahrs"          type="ugear"/> <!-- Uses GPS Port -->
     </target>
 
     <define name="AGR_CLIMB" />

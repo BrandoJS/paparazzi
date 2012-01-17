@@ -13,7 +13,7 @@
  */
 
 
-
+#include <math.h>
 #include "std.h"
 
 #include "subsystems/ahrs.h"
@@ -22,12 +22,17 @@
 
 #include "math/pprz_algebra_float.h"
 
+#include "subsystems/nav.h"
+#include "math/pprz_geodetic_float.h"
+
+
 #include "xsens_protocol.h" //in var/include
 #include <string.h>
 
 // FIXME this is still needed for fixedwing integration
 #include "estimator.h"
 #include "led.h"
+
 
 
 // remotely settable
@@ -44,7 +49,7 @@ float gps_estimator_psi;
 // Positive yaw : clockwise
 
 
-struct UGEAR ugear;
+//struct UGEAR ugear;
 
 struct UGEAR_packet UGEAR_packet;
 
@@ -101,12 +106,11 @@ void ahrs_update_mag(void) {
 
 void UGEAR_packet_read_message(void) {
    
-   float ins_phi, ins_psi, ins_theta;
    int16_t ugear_phi, ugear_psi, ugear_theta;
 
     switch (UGEAR_packet.type){
         case 0:  /*gps*/
-            gps.tow = UGEAR_NAV_VELNED_ITOW(ugear_msg_buf);
+            gps.tow = UGEAR_NAV_VELNED_ITOW(UGEAR_packet.ugear_msg_buf);
             gps.week = 0; // FIXME
 	    gps.fix = 3;  // FIXME currently forced into 3d fix
  
@@ -114,19 +118,19 @@ void UGEAR_packet_read_message(void) {
 	    gps.ecef_pos.y = 0; // FIXME
 	    gps.ecef_pos.z = 0; // FIXME
 
-	    gps.pacc = UGEAR_NAV_SOL_Pacc(ugear_msg_buf);
+	    gps.pacc = UGEAR_NAV_SOL_Pacc(UGEAR_packet.ugear_msg_buf);
 
 	    gps.ecef_vel.x = 0; // FIXME
             gps.ecef_vel.y = 0; // FIXME
             gps.ecef_vel.z = 0; // FIXME 
 
-	    gps.sacc = UGEAR_NAV_SOL_Sacc(ugear_msg_buf);
-            gps.pdop = UGEAR_NAV_SOL_PDOP(ugear_msg_buf);
-            gps.num_sv = UGEAR_NAV_SOL_numSV(ugear_msg_buf);
+	    gps.sacc = UGEAR_NAV_SOL_Sacc(UGEAR_packet.ugear_msg_buf);
+            gps.pdop = UGEAR_NAV_SOL_PDOP(UGEAR_packet.ugear_msg_buf);
+            gps.num_sv = UGEAR_NAV_SOL_numSV(UGEAR_packet.ugear_msg_buf);
 
-            gps.lla_pos.lat = UGEAR_NAV_POSLLH_LAT(ugear_msg_buf);
-            gps.lla_pos.lon = UGEAR_NAV_POSLLH_LON(ugear_msg_buf);
-            gps.lla_pos.alt = UGEAR_NAV_POSLLH_HEIGHT(ugear_msg_buf);
+            gps.lla_pos.lat = UGEAR_NAV_POSLLH_LAT(UGEAR_packet.ugear_msg_buf);
+            gps.lla_pos.lon = UGEAR_NAV_POSLLH_LON(UGEAR_packet.ugear_msg_buf);
+            gps.lla_pos.alt = UGEAR_NAV_POSLLH_HEIGHT(UGEAR_packet.ugear_msg_buf);
 
             gps.hmsl = 0; // FIXME
 
@@ -145,30 +149,31 @@ void UGEAR_packet_read_message(void) {
             gps.utm_pos.zone = nav_utm_zone0;
 
             gps.speed_3d = 0; // FIXME
-            gps.gspeed = UGEAR_NAV_VELNED_GSpeed(ugear_msg_buf);
+            gps.gspeed = UGEAR_NAV_VELNED_GSpeed(UGEAR_packet.ugear_msg_buf);
             gps.ned_vel.x = 0; // FIXME
             gps.ned_vel.y = 0; // FIXME
-            gps.ned_vel.z = - UGEAR_NAV_POSLLH_VD(ugear_msg_buf);
-            gps.course = UGEAR_NAV_VELNED_Heading(ugear_msg_buf)/10000; /*in decdegree */
-            
+            gps.ned_vel.z = - UGEAR_NAV_POSLLH_VD(UGEAR_packet.ugear_msg_buf);
+            gps.course = UGEAR_NAV_VELNED_Heading(UGEAR_packet.ugear_msg_buf)/10000; /*in decdegree */
+            gps_available = TRUE; // Let AP know a GPS message has been received
             break;
         case 1:  /*IMU*/
-            ugear_phi = UGEAR_IMU_PHI(ugear_msg_buf);
-            ugear_psi = UGEAR_IMU_PSI(ugear_msg_buf);
-            ugear_theta = UGEAR_IMU_THE(ugear_msg_buf);
-            ahrs_float.ltp_to_body_euler.phi  = RadofDeg((float)ugear_phi/10000 - ins_roll_neutral); //ugear outputs degrees
+            ugear_phi = UGEAR_IMU_PHI(UGEAR_packet.ugear_msg_buf);
+            ugear_psi = UGEAR_IMU_PSI(UGEAR_packet.ugear_msg_buf);
+            ugear_theta = UGEAR_IMU_THE(UGEAR_packet.ugear_msg_buf);
+            ahrs_float.ltp_to_body_euler.phi  = RadOfDeg((float)ugear_phi/10000 - ins_roll_neutral); //ugear outputs degrees
             ahrs_float.ltp_to_body_euler.psi = 0;
-            ahrs_float.ltp_to_body_euler.theta  = RadofDeg((float)ugear_theta/10000 - ins_pitch_neutral);
+            ahrs_float.ltp_to_body_euler.theta  = RadOfDeg((float)ugear_theta/10000 - ins_pitch_neutral);
 
             break;
         case 2:  /*GPS status*/
-            gps.nb_channels = XSENS_GPSStatus_nch(ugear_msg_buf);
+            gps.nb_channels = XSENS_GPSStatus_nch(UGEAR_packet.ugear_msg_buf);
             uint8_t is;
             for(is = 0; is < gps.nb_channels; is++) {
-                gps.svinfos[ch].svid = XSENS_GPSStatus_svid(ugear_msg_buf, is);
-                gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(ugear_msg_buf, is);
-                gps.svinfos[ch].qi = XSENS_GPSStatus_qi(ugear_msg_buf, is);
-                gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(ugear_msg_buf, is);
+		uint8_t ch = XSENS_GPSStatus_chn(UGEAR_packet.ugear_msg_buf,is);
+                gps.svinfos[ch].svid = XSENS_GPSStatus_svid(UGEAR_packet.ugear_msg_buf, is);
+                gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(UGEAR_packet.ugear_msg_buf, is);
+                gps.svinfos[ch].qi = XSENS_GPSStatus_qi(UGEAR_packet.ugear_msg_buf, is);
+                gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(UGEAR_packet.ugear_msg_buf, is);
                 gps.svinfos[ch].elev = 0;
                 gps.svinfos[ch].azim = 0;
             }
@@ -184,7 +189,7 @@ void UGEAR_packet_read_message(void) {
 void UGEAR_packet_parse( uint8_t c ) {
 
 /*checksum go first*/
-  if (UGEAR_packet.status < GOT_PAYLOAD) {
+  if (UGEAR_packet.status < GOT_PAYS) {
     UGEAR_packet.ck_a += c;
     UGEAR_packet.ck_b += UGEAR_packet.ck_a;
   }
@@ -216,13 +221,13 @@ void UGEAR_packet_parse( uint8_t c ) {
     UGEAR_packet.status++;
     break;
   case GOT_LEN: //Fill message buffer with c
-    UGEAR_packet.msg_buf[ugear_msg_idx] = c;
+    UGEAR_packet.ugear_msg_buf[UGEAR_packet.msg_idx] = c;
     UGEAR_packet.msg_idx++;
     if (UGEAR_packet.msg_idx >= UGEAR_packet.len) { //until we've filled buffer
       UGEAR_packet.status++;
     }
     break;
-  case GOT_PAYLOAD:
+  case GOT_PAYS:
     if (c == UGEAR_packet.ck_a) {
        UGEAR_packet.status++;
     } else {
@@ -231,7 +236,7 @@ void UGEAR_packet_parse( uint8_t c ) {
     break;
   case GOT_CHECKSUM1:
     if (c == UGEAR_packet.ck_b) {
-        UGEAR_packet.msg_received = TRUE; // If checksum a doesn't match, packet got bad :( 
+        UGEAR_packet.msg_available = TRUE; // If checksum a doesn't match, packet got bad :( 
     } 
     UGEAR_packet.status = UNINIT; //either way, start over
     break;

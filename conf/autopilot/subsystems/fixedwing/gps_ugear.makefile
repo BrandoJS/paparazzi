@@ -1,5 +1,5 @@
 # Hey Emacs, this is a -*- makefile -*-
-# UBlox LEA 5H
+# UGEAR GPS parser
 
 
 ap.CFLAGS += -DUSE_GPS -DUBX -DGPS_USE_LATLONG

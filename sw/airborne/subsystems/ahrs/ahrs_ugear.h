@@ -25,7 +25,7 @@
 #define GOT_SYNC2   2
 #define GOT_ID          3
 #define GOT_LEN         4
-#define GOT_PAYLOAD     5
+#define GOT_PAYS     5
 #define GOT_CHECKSUM1   6
 #define GOT_CHECKSUM2   7
 
@@ -81,6 +81,7 @@ struct UGEAR_packet {
   uint8_t  ck_a, ck_b;
 };
 
+extern struct UGEAR_packet UGEAR_packet;
 
 
 #define AhrsEvent(_sol_available_callback) {				\
