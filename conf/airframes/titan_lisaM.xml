@@ -209,6 +209,8 @@
       <define name="MEASURE_AIRSPEED"/>
       <configure name="PERIODIC_FREQUENCY" value="120"/>
       <subsystem name="ahrs"          type="ugear"/> <!-- Uses GPS Port -->
+	  <define name="USE_UART3"/>
+          <define name="UART3_BAUD" value="115200"/>
     </target>
 
     <define name="AGR_CLIMB" />
@@ -226,12 +228,11 @@
     </subsystem>
 
     <subsystem name="control" />
-    <define name="USE_UART3"/>
-    <define name="UART3_BAUD" value="115200"/>
+    <subsystem name="gps" 		    type="ugear"/>
 
     <!-- Sensors -->
 
-    <subsystem name="gps" 		    type="ugear"/>
+
   
     <subsystem name="navigation_extra"/>
     
