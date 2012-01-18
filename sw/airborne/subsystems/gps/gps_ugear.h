@@ -16,9 +16,6 @@ extern bool_t gps_available;
       if (gps.fix == GPS_FIX_3D) {              \
         gps.last_fix_time = cpu_time_sec;       \
       } 					\
-      if (GpsIsLost())	{			\
-	gps.fix = GPS_FIX_NONE;			\
-      }						\
       _sol_available_callback();                \
       gps_available = FALSE;                    \
     }                                           \

@@ -24,7 +24,7 @@
 
 #include "subsystems/nav.h"
 #include "math/pprz_geodetic_float.h"
-
+#include "sys_time.h"
 
 #include "xsens_protocol.h" //in var/include
 #include <string.h>
@@ -128,11 +128,10 @@ void UGEAR_packet_read_message(void) {
             gps.pdop = UGEAR_NAV_SOL_PDOP(UGEAR_packet.ugear_msg_buf);
             gps.num_sv = UGEAR_NAV_SOL_numSV(UGEAR_packet.ugear_msg_buf);
 
-            gps.lla_pos.lat = UGEAR_NAV_POSLLH_LAT(UGEAR_packet.ugear_msg_buf);
-            gps.lla_pos.lon = UGEAR_NAV_POSLLH_LON(UGEAR_packet.ugear_msg_buf);
+            gps.lla_pos.lat = RadOfDeg(UGEAR_NAV_POSLLH_LAT(UGEAR_packet.ugear_msg_buf));
+            gps.lla_pos.lon = RadOfDeg(UGEAR_NAV_POSLLH_LON(UGEAR_packet.ugear_msg_buf));
             gps.lla_pos.alt = UGEAR_NAV_POSLLH_HEIGHT(UGEAR_packet.ugear_msg_buf);
-
-            gps.hmsl = 0; // FIXME
+            gps.hmsl = UGEAR_NAV_POSLLH_HEIGHT(UGEAR_packet.ugear_msg_buf)*10; // UGEAR sends in cm, struct gps likes mm
 
             /* Computes from (lat, long) in the referenced UTM zone */
 	    struct LlaCoor_f lla_f;
@@ -152,17 +151,21 @@ void UGEAR_packet_read_message(void) {
             gps.gspeed = UGEAR_NAV_VELNED_GSpeed(UGEAR_packet.ugear_msg_buf);
             gps.ned_vel.x = 0; // FIXME
             gps.ned_vel.y = 0; // FIXME
-            gps.ned_vel.z = - UGEAR_NAV_POSLLH_VD(UGEAR_packet.ugear_msg_buf);
-            gps.course = UGEAR_NAV_VELNED_Heading(UGEAR_packet.ugear_msg_buf)/10000; /*in decdegree */
+            gps.ned_vel.z = UGEAR_NAV_POSLLH_VD(UGEAR_packet.ugear_msg_buf);
+            gps.course = RadOfDeg(UGEAR_NAV_VELNED_Heading(UGEAR_packet.ugear_msg_buf)*10)*10; /*in decdegree */
             gps_available = TRUE; // Let AP know a GPS message has been received
+	    gps.last_fix_time = cpu_time_sec; // record last GPS message
+	    #ifdef GPS_LED
+      	    LED_TOGGLE(GPS_LED);
+	    #endif
             break;
         case 1:  /*IMU*/
             ugear_phi = UGEAR_IMU_PHI(UGEAR_packet.ugear_msg_buf);
             ugear_psi = UGEAR_IMU_PSI(UGEAR_packet.ugear_msg_buf);
             ugear_theta = UGEAR_IMU_THE(UGEAR_packet.ugear_msg_buf);
-            ahrs_float.ltp_to_body_euler.phi  = RadOfDeg((float)ugear_phi/10000 - ins_roll_neutral); //ugear outputs degrees
+	    ahrs_float.ltp_to_body_euler.phi  = ((float)ugear_phi/10000 - ins_roll_neutral); //ugear outputs degrees
             ahrs_float.ltp_to_body_euler.psi = 0;
-            ahrs_float.ltp_to_body_euler.theta  = RadOfDeg((float)ugear_theta/10000 - ins_pitch_neutral);
+            ahrs_float.ltp_to_body_euler.theta  = ((float)ugear_theta/10000 - ins_pitch_neutral);
 
             break;
         case 2:  /*GPS status*/

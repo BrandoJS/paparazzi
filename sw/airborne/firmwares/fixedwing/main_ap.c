@@ -623,6 +623,10 @@ void event_task_ap( void ) {
 
 #ifdef USE_GPS
   GpsEvent(on_gps_solution);
+  if (GpsIsLost())	{			
+	gps.fix = GPS_FIX_NONE;	
+	LED_OFF(GPS_LED);		
+  }						
 #endif /** USE_GPS */
 
 
