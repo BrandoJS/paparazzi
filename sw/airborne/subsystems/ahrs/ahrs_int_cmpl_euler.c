@@ -97,7 +97,7 @@ void ahrs_align(void) {
 
 //#define USE_NOISE_CUT 1
 //#define USE_NOISE_FILTER 1
-#define NOISE_FILTER_GAIN 50
+#define NOISE_FILTER_GAIN 30
 
 #ifdef USE_NOISE_CUT
 #include "led.h"

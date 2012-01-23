@@ -170,7 +170,7 @@ AP_MODE_NAV  		- 'Nav Mode'
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="10." integer="16"/>
+    <define name="BARO_SENS" value="20." integer="16"/>
     <define name="SONAR_SENS" value=".0028" integer="16"/>
   </section>
 
@@ -197,8 +197,8 @@ AP_MODE_NAV  		- 'Nav Mode'
 
 
  <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-   <define name="PGAIN" value="-6"/>
-   <define name="DGAIN" value="-5"/>
+   <define name="PGAIN" value="-11"/>
+   <define name="DGAIN" value="-38"/>
    <define name="IGAIN" value="-1"/>
  </section>
 

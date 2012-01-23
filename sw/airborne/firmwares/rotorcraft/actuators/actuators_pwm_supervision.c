@@ -49,7 +49,7 @@ void actuators_init(void)
 void actuators_set(bool_t motors_on) {
   int32_t pwm_commands[COMMANDS_NB];
   int32_t pwm_commands_pprz[COMMANDS_NB];
-  int32_t booz2_commands[COMMANDS_NB];
+  //int32_t booz2_commands[COMMANDS_NB];
 
   pwm_commands[COMMAND_ROLL] = commands[COMMAND_ROLL] * PWM_GAIN_SCALE;
   pwm_commands[COMMAND_PITCH] = commands[COMMAND_PITCH] * PWM_GAIN_SCALE;
@@ -71,6 +71,7 @@ void actuators_set(bool_t motors_on) {
     for (int i = 0; i < SUPERVISION_NB_MOTOR; i++)
       actuators_pwm_values[i] = PWM_OFF;
   }
+  
   actuators_pwm_commit();
 
 }

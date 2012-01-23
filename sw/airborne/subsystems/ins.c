@@ -193,7 +193,7 @@ void ins_propagate() {
 void ins_update_baro() {
 #ifdef USE_VFF
   
-  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>1) ; //LPF at 7Hz
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>3) ; //LPF at 7Hz
   
   if (baro.status == BS_RUNNING) {
     if (!ins_baro_initialised) {

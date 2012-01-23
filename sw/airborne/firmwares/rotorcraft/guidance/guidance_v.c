@@ -296,14 +296,13 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   /* compute the error to our reference */
   int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
 
+  Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
   
   //LPF vertical speed
-  err_z = vd_tmp + ((err_z-vd_tmp)>>3);
-  vd_tmp = err_z;
-
-
-  Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
   int32_t err_zd =  ins_ltp_speed.z - guidance_v_zd_ref;
+  err_zd = vd_tmp + ((err_zd-vd_tmp)>>3); //LPF at 11.6 Hz
+  vd_tmp = err_zd;
+  
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {

@@ -8,7 +8,7 @@
     <mode name="default">
       <message name="DL_VALUE"          	period="1.10"/>
       <message name="ROTORCRAFT_STATUS"       	period="0.60"/>
-      <message name="ROTORCRAFT_FP"          	period="0.17"/>
+      <message name="ROTORCRAFT_FP"          	period="0.47"/>
       <message name="ALIVE"             	period="2.10"/>
       <message name="INS_REF"     		period="5.10"/>
       <message name="ROTORCRAFT_NAV_STATUS"  	period="2.10"/>
@@ -17,7 +17,7 @@
       <message name="INS"          		period="0.55"/>
       <message name="STAB_ATTITUDE"     	period="0.30"/>
       <message name="SONAR"			period="0.55"/>
-      
+      <message name="BOOZ2_CMD"           	period=".1"/>
     </mode>
 
     <mode name="ppm">
@@ -29,7 +29,7 @@
       <message name="ROTORCRAFT_NAV_STATUS"  	period="1.6"/>
       <message name="GPS_INT"         		period=".25"/>
       <message name="INS"          		period=".25"/>
-      <message name="BOOZ2_CMD"           	period=".05"/>
+      <message name="BOOZ2_CMD"           	period=".1"/>
       <message name="PPM"                 	period="0.5"/>
       <message name="RC"                  	period="0.5"/>
     </mode>
