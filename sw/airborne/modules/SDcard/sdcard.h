@@ -25,6 +25,7 @@
 #define SDCARD_MODULE_H
 
 #include <inttypes.h>
+
 #include "mcu_periph/uart.h"
 #include "actuators.h"
 
@@ -36,6 +37,7 @@
 
 
 #define STATE_MESSAGE_SIZE SERVOS_NB*2+6+2
+
 
 void send_buf(uint8_t size,uint8_t *_buf);
 void init_sdcard(void);

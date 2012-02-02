@@ -28,6 +28,8 @@
 #include "subsystems/gps.h"
 #include "actuators.h"
 #include <string.h>
+#include "estimator.h"
+
 
 uint8_t STATE_buf[STATE_MESSAGE_SIZE];
 
@@ -37,27 +39,27 @@ void init_sdcard(void){
 }
 
 void periodic_sdcard(void) {
- 	int16_t sd_phi = (int16_t)( (float)ahrs.ltp_to_body_euler.phi*2.422866068);
-	int16_t sd_the = (int16_t)( (float)ahrs.ltp_to_body_euler.theta*2.422866068);
-	int16_t sd_psi = (int16_t)( (float)ahrs.ltp_to_body_euler.psi*2.422866068);	
-	STATE_buf[1] = 0xFF&sd_phi;
-	STATE_buf[2] = 0xFF&(sd_phi>>8);
-	STATE_buf[3] = 0xFF&sd_the;
-	STATE_buf[4] = 0xFF&(sd_the>>8);
-	STATE_buf[5] = 0xFF&sd_psi;
-	STATE_buf[6] = 0xFF&(sd_psi>>8);
+	
+ 	int16_t sd_phi = (int16_t)( estimator_phi * 10000);
+	int16_t sd_the = (int16_t)( estimator_theta * 10000 );
+	int16_t sd_psi = (int16_t)( estimator_psi * 10000 );	
+	STATE_buf[0] = 0xFF&sd_phi;
+	STATE_buf[1] = 0xFF&(sd_phi>>8);
+	STATE_buf[2] = 0xFF&sd_the;
+	STATE_buf[3] = 0xFF&(sd_the>>8);
+	STATE_buf[4] = 0xFF&sd_psi;
+	STATE_buf[5] = 0xFF&(sd_psi>>8);
 	for (uint8_t i = 0;i<SERVOS_NB;i++) {
-		STATE_buf[i+7] = 0xFF&actuators[i];
-		STATE_buf[i+8] = 0xFF&(actuators[i]>>8);
+		STATE_buf[2*i+6] = 0xFF&actuators[i];
+		STATE_buf[2*i+7] = 0xFF&(actuators[i]>>8);
 	}
-
+    
 	send_buf(STATE_MESSAGE_SIZE,STATE_buf);
 		
 }
 
 void send_buf(uint8_t size, uint8_t *_buf){
   for (uint8_t i = 0;i<size;i++){
-  	//SDCLink(Transmit(_buf[i]));
-	Uart3Transmit(_buf[i]);
+  	SDCLink(Transmit(_buf[i]));
   }
 }

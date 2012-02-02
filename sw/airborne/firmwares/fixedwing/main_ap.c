@@ -625,7 +625,7 @@ void event_task_ap( void ) {
   GpsEvent(on_gps_solution);
   if (GpsIsLost())	{			
 	gps.fix = GPS_FIX_NONE;	
-	LED_OFF(GPS_LED);		
+	//LED_OFF(GPS_LED);		
   }						
 #endif /** USE_GPS */
 

@@ -5,14 +5,14 @@
     <file name="sdcard.h"/>
   </header>
   <init fun="init_sdcard()"/>
-  <periodic fun="periodic_sdcard()" period="0.02" autorun="TRUE"/>
+  <periodic fun="periodic_sdcard()" period="0.02" autorun="FALSE"/>
   <makefile target="ap">
-    <define name="SDC_PORT" value="UART3"/>
+    <define name="SDC_PORT" value="UART5"/>
     <define name="SDC_BAUD" value="115200"/>
-    <raw>
+    <!--<raw>
 	ap.CFLAGS += -DUSE_$(SDC_PORT) -D$(SDC_PORT)_BAUD=$(SDC_BAUD)
 	ap.CFLAGS += -DSDC_LINK=$(SDC_PORT) 
-    </raw><!-- -->
+    </raw>- -->
     
     <file name="sdcard.c"/>
   </makefile>
