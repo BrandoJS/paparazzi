@@ -19,8 +19,8 @@
   <servos>
     <servo name="THROTTLE"      no="0" min="1000" neutral="1000" max="2000"/>
     <servo name="AILERON"  	no="1" min="2000" neutral="1500" max="1000"/> <!-- REVERSED -->
-    <servo name="ELEVATOR" 	no="2" min="1000" neutral="1500" max="2000"/>
-    <servo name="RUDDER" 	no="3" min="1000" neutral="1500" max="2000"/>
+    <servo name="ELEVATOR" 	no="2" min="2000" neutral="1500" max="1000"/>
+    <servo name="RUDDER" 	no="3" min="2000" neutral="1500" max="1000"/>
   </servos>
 
   <command_laws>
@@ -104,14 +104,14 @@
 	<define name="BMP_I2C_DEV" value="i2c2"/>
 	<define name="SENSOR_SYNC_SEND"/>
     </load>
-    <load name="airspeed_adc.xml">
+    <!--<load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="AD1"/>
       <configure name="AIRSPEED_PIN" value="3"/>
       <define name="AIRSPEED_SCALE" value="0.03986"/>
       <define name="AIRSPEED_BIAS" value="3143"/>
       <define name="SENSOR_SYNC_SEND"/>
-    </load>
-    <load name="sdcard.xml"/>
+    </load> -->
+    <load name="sdcard.xml"/> 
       
 </modules>
 
@@ -171,7 +171,7 @@
     <define name="CARROT" value="10." unit="s"/>
     <define name="KILL_MODE_DISTANCE" value="(1.5*MAX_DIST_FROM_HOME)"/>
     <define name="CONTROL_RATE" value="60" unit="Hz"/>
-
+    <define name="XBEE_INIT" value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
     <define name="ALT_KALMAN_ENABLED" value="TRUE"/>
 
     <define name="DEFAULT_CIRCLE_RADIUS" value="80."/>
@@ -269,10 +269,14 @@
 
     <subsystem name="radio_control" type="ppm"/>  
     
-    <!-- Communication -->
+    <!-- Communication 
     <subsystem name="telemetry" 	type="transparent">
       <configure name="MODEM_PORT"	value="UART2"/>
       <configure name="MODEM_BAUD" 	value="B57600"/>
+    </subsystem>-->
+    <subsystem name="telemetry" 	type="xbee_api">
+      <configure name="MODEM_PORT"	value="UART2"/>
+      <configure name="MODEM_BAUD" 	value="B9600"/>
     </subsystem>
 
     <subsystem name="control" />
