@@ -109,7 +109,6 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-<<<<<<< HEAD
   sys_time_init();
 
 #ifdef USE_GX3
@@ -119,8 +118,7 @@ STATIC_INLINE void main_init( void ) {
   }
 #endif
 
-=======
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
+
   electrical_init();
 
   actuators_init();

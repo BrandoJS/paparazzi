@@ -474,7 +474,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
-<<<<<<< HEAD
 #define PERIODIC_SEND_VFF(_chan) {		\
     DOWNLINK_SEND_VFF(_chan,			\
 			    &ins_baro_abs,	\
@@ -489,17 +488,6 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
 			    & vff_P[0][0],		\
 			    & vff_P[1][1],		\
 			    & vff_P[2][2]);		\
-=======
-#define PERIODIC_SEND_VFF(_trans, _dev) {		\
-    DOWNLINK_SEND_VFF(_trans, _dev,			\
-                &vff_z_meas,		\
-                &vff_z,			\
-                &vff_zdot,		\
-                &vff_bias,		\
-                & vff_P[0][0],		\
-                & vff_P[1][1],		\
-                & vff_P[2][2]);		\
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
   }
 #else
 #define PERIODIC_SEND_VFF(_trans, _dev) {}

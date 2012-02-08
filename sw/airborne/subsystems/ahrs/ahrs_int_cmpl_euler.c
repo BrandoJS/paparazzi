@@ -150,24 +150,18 @@ void ahrs_propagate(void) {
   /* unbias gyro             */
   struct Int32Rates uf_rate;
   RATES_DIFF(uf_rate, imu.gyro, ahrs_impl.gyro_bias);
-<<<<<<< HEAD
+
 #if defined(USE_NOISE_CUT) || defined(USE_NOISE_FILTER)
-=======
-#if USE_NOISE_CUT
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
   static struct Int32Rates last_uf_rate = { 0, 0, 0 };
 #endif
 #ifdef USE_NOISE_CUT
   if (!cut_rates(uf_rate, last_uf_rate, RATE_CUT_THRESHOLD)) {
 #endif
     /* low pass rate */
-<<<<<<< HEAD
+
 #ifdef USE_NOISE_FILTER
     RATES_SUM_SCALED(ahrs.imu_rate, uf_rate, last_uf_rate, NOISE_FILTER_GAIN);
-=======
-#if USE_NOISE_FILTER
-    RATES_SUM_SCALED(ahrs.imu_rate, ahrs.imu_rate, uf_rate, NOISE_FILTER_GAIN);
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
+
     RATES_SDIV(ahrs.imu_rate, ahrs.imu_rate, NOISE_FILTER_GAIN+1);
 #else
     RATES_ADD(ahrs.imu_rate, uf_rate);
