@@ -46,37 +46,51 @@
     <define name="MAX_PITCH" value="0.6"/>
   </section>
 
-  <section name="INFRARED" prefix="IR_">
-    <define name="ADC_IR1_NEUTRAL" value="512"/>
-    <define name="ADC_IR2_NEUTRAL" value="512"/>
-    <define name="ADC_TOP_NEUTRAL" value="512"/>
+  <section name="IMU" prefix="IMU_">
 
-    <define name="LATERAL_CORRECTION" value="1."/>
-    <define name="LONGITUDINAL_CORRECTION" value="1."/>
-    <define name="VERTICAL_CORRECTION" value="1.5"/>
+	<define name="MAG_OFFSET" value="-17" />
 
-    <define name="HORIZ_SENSOR_TILTED" value="1"/>
-    <define name="IR2_SIGN" value="-1"/>
-    <define name="TOP_SIGN" value="-1"/>
+	<define name="GYRO_P_NEUTRAL" value="0"/>
+	<define name="GYRO_Q_NEUTRAL" value="0"/>
+	<define name="GYRO_R_NEUTRAL" value="0"/>
+	<define name="GYRO_P_SENS" value="1" integer="16"/>
+	<define name="GYRO_Q_SENS" value="1" integer="16"/>
+	<define name="GYRO_R_SENS" value="1" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
 
-    <define name="ROLL_NEUTRAL_DEFAULT" value="-3.6" unit="deg"/>
-    <define name="PITCH_NEUTRAL_DEFAULT" value="5" unit="deg"/>
+	<define name="ACCEL_X_NEUTRAL" value="10"/>
+	<define name="ACCEL_Y_NEUTRAL" value="2"/>
+	<define name="ACCEL_Z_NEUTRAL" value="-29"/>
+	<define name="ACCEL_X_SENS" value="38.3475843364" integer="16"/>
+	<define name="ACCEL_Y_SENS" value="38.9040877618" integer="16"/>
+	<define name="ACCEL_Z_SENS" value="39.7917583815" integer="16"/>
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
 
-    <define name="CORRECTION_UP" value="1."/>
-    <define name="CORRECTION_DOWN" value="1."/>
-    <define name="CORRECTION_LEFT" value="1."/>
-    <define name="CORRECTION_RIGHT" value="1."/>
+    <define name="MAG_X_NEUTRAL" value="0"/>
+    <define name="MAG_Y_NEUTRAL" value="0"/>
+    <define name="MAG_Z_NEUTRAL" value="0"/>
+    <define name="MAG_X_SENS" value="1." integer="16"/>
+    <define name="MAG_Y_SENS" value="1." integer="16"/>
+    <define name="MAG_Z_SENS" value="1." integer="16"/>
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
+	
+	<define name="BODY_TO_IMU_PHI" value="0"/>
+    <define name="BODY_TO_IMU_THETA" value="0"/>
+    <define name="BODY_TO_IMU_PSI" value="RadOfDeg(0)"/>
+
   </section>
 
-  <section name="IMU" prefix="IMU_">
-    <define name="GYRO_P_SIGN" value="1"/>
-    <define name="GYRO_P_NEUTRAL" value="500"/>
-    <!--define name="ADXRS300_RESISTOR_BRIDGE" value="(3.3/(3.3+1.8))"/-->
-    <!--define name="ADXRS300_SENSITIVITY" value="5" unit="mV/(deg/s)"/-->
-    <!--define name="ROLL_SCALE" value="3.3*1000./1024./(IMU_ADXRS300_SENSITIVITY*IMU_ADXRS300_RESISTOR_BRIDGE)" unit="deg/s/adc_unit"/-->
-    <!--define name="RATE_DEGS_TO_RADINT" value="M_PI/180./4096."/-->
-    <!--define name="GYRO_P_SENS" value="IMU_RATE_DEGS_TO_RADINT * IMU_ROLL_SCALE" integer="16"/-->
-    <define name="GYRO_P_SENS" value="0.137518981" integer="16"/>
+  
+
+  <section name="INS" prefix="INS_">
+    <define name="ROLL_NEUTRAL_DEFAULT" value="0" unit="deg"/>
+    <define name="PITCH_NEUTRAL_DEFAULT" value="0" unit="deg"/>
   </section>
 
   <section name="BAT">
@@ -166,7 +180,7 @@
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
     <target name="jsbsim"       board="pc"/>
-    <target name="ap" 			board="tiny_1.1"/>
+    <target name="ap" 			board="twog_1.0"/>
 
     <define name="AGR_CLIMB" />
     <define name="LOITER_TRIM" />
@@ -182,21 +196,18 @@
     <subsystem name="control"/>
     <!-- Sensors -->
 
-    <subsystem name="imu"       type="analog">
-      <configure name="GYRO_P" value="ADC_3"/>
+    
+    <subsystem name="ahrs"      type="ugear">
+	<configure name="UGEAR_PORT" value="UART0"/>
     </subsystem>
-    <subsystem name="ahrs"      type="infrared"/>
-    <subsystem name="gps"       type="ublox_utm"/>
+    <subsystem name="gps"       type="ugear"/>
     <subsystem name="navigation" type="extra"/>
 
 
   </firmware>
 
   <modules>
-    <load name="infrared_adc.xml"/>
-    <load name="digital_cam_servo.xml">
-      <define name="DC_SHUTTER_SERVO" value="COMMAND_SHUTTER" />
-    </load>
+    
   </modules>
 
 
