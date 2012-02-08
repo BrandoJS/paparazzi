@@ -11,9 +11,15 @@ static inline void main_event( void );
 int main(void) {
 
   mcu_init();
+<<<<<<< HEAD
   unsigned int tmr_02 = sys_time_register_timer(SYS_TIME_TIMER_S(0.2), NULL);
   unsigned int tmr_03 = sys_time_register_timer(SYS_TIME_TIMER_S(0.3), NULL);
   sys_time_register_timer(SYS_TIME_TIMER_S(0.5), main_periodic_05);
+=======
+  unsigned int tmr_02 = sys_time_register_timer(0.2, NULL);
+  unsigned int tmr_03 = sys_time_register_timer(0.3, NULL);
+  sys_time_register_timer(0.5, main_periodic_05);
+>>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
 
   while(1) {
     if (sys_time_check_and_ack_timer(tmr_02))

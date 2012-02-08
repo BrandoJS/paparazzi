@@ -23,7 +23,7 @@
 
 
 #include "mcu.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "firmwares/rotorcraft/commands.h"
 #include "actuators.h"
 #include "subsystems/datalink/downlink.h"
@@ -62,7 +62,7 @@ static inline void main_periodic_task( void ) {
 
   RunOnceEvery(100, {
       LED_TOGGLE(3);
-      DOWNLINK_SEND_ALIVE(DefaultChannel, 16, MD5SUM);
+      DOWNLINK_SEND_ALIVE(DefaultChannel, DefaultDevice, 16, MD5SUM);
     });
 
 

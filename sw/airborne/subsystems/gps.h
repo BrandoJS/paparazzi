@@ -20,7 +20,7 @@
  */
 
 /** @file gps.h
- *  @brief Device independent GPS code
+ *  @brief Device independent GPS code (interface)
  *
  */
 
@@ -48,16 +48,17 @@
 #define GPS_NB_CHANNELS 1
 #endif
 
-/** Space Vehicle Information */
+/** data structure for Space Vehicle Information of a single satellite */
 struct SVinfo {
-  uint8_t svid;
-  uint8_t flags;
-  uint8_t qi;
-  uint8_t cno;
-  int8_t elev;  ///< deg
-  int16_t azim; ///< deg
+  uint8_t svid;  ///< Satellite ID
+  uint8_t flags; ///< bitfield with GPS receiver specific flags
+  uint8_t qi;    ///< quality bitfield (GPS receiver specific)
+  uint8_t cno;   ///< Carrier to Noise Ratio (Signal Strength) in dbHz
+  int8_t elev;   ///< elevation in deg
+  int16_t azim;  ///< azimuth in deg
 };
 
+/** data structure for GPS information */
 struct GpsState {
   struct EcefCoor_i ecef_pos;    ///< position in ECEF in cm
   struct LlaCoor_i lla_pos;      ///< position in LLA (lat,lon: rad*1e7; alt: mm over ellipsoid)
@@ -67,7 +68,7 @@ struct GpsState {
   struct NedCoor_i ned_vel;      ///< speed NED in cm/s
   int16_t gspeed;                ///< norm of 2d ground speed in cm/s
   int16_t speed_3d;              ///< norm of 3d speed in cm/s
-  int32_t course;                ///< GPS heading in rad*1e7
+  int32_t course;                ///< GPS heading in rad*1e7 (CW/north)
   uint32_t pacc;                 ///< position accuracy
   uint32_t sacc;                 ///< speed accuracy
   uint16_t pdop;                 ///< dilution of precision
@@ -77,7 +78,7 @@ struct GpsState {
   uint32_t tow;                  ///< time of week in ms
 
   uint8_t nb_channels;           ///< Number of scanned satellites
-  struct SVinfo svinfos[GPS_NB_CHANNELS];
+  struct SVinfo svinfos[GPS_NB_CHANNELS]; ///< holds information from the Space Vehicles (Satellites)
 
   uint32_t last_fix_ticks;       ///< cpu time in ticks at last valid fix
   uint16_t last_fix_time;        ///< cpu time in sec at last valid fix
@@ -90,6 +91,7 @@ struct GpsTimeSync {
   uint32_t t0;          ///< for time sync: hw clock ticks when GPS message is received
 };
 
+/** global GPS state */
 extern struct GpsState gps;
 
 
@@ -142,7 +144,7 @@ uint32_t gps_tow_from_ticks(uint32_t clock_ticks)
     clock_delta = clock_ticks - gps_time.t0;
   }
 
-  time_delta = MSEC_OF_SYS_TICS(clock_delta);
+  time_delta = MSEC_OF_CPU_TICKS(clock_delta);
 
   itow_now = gps_time.t0_tow + time_delta;
   if (itow_now > MSEC_PER_WEEK) itow_now %= MSEC_PER_WEEK;

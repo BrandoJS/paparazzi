@@ -7,7 +7,7 @@
 
 #include "baro_scp_i2c.h"
 
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/i2c.h"
 #include "led.h"
 
@@ -100,7 +100,7 @@ void baro_scp_event( void ) {
       baro_scp_pressure *= 25;
 
 #ifdef SENSOR_SYNC_SEND
-      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, &baro_scp_pressure, &baro_scp_temperature);
+      DOWNLINK_SEND_SCP_STATUS(DefaultChannel, DefaultDevice, &baro_scp_pressure, &baro_scp_temperature);
 #endif
 
       baro_scp_status = BARO_SCP_IDLE;

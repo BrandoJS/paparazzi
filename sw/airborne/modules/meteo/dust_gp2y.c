@@ -32,7 +32,7 @@
 
 #include "modules/meteo/dust_gp2y.h"
 #include "mcu_periph/i2c.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "mcu_periph/uart.h"
 #include "messages.h"
 #include "subsystems/datalink/downlink.h"
@@ -77,7 +77,7 @@ void dust_gp2y_event( void ) {
     if (dust_gp2y_density_f < 0)
       dust_gp2y_density_f = 0;
 
-    DOWNLINK_SEND_GP2Y_STATUS(DefaultChannel, &dust_gp2y_density, &dust_gp2y_density_f);
+    DOWNLINK_SEND_GP2Y_STATUS(DefaultChannel, DefaultDevice, &dust_gp2y_density, &dust_gp2y_density_f);
 
     gp2y_trans.status = I2CTransDone;
   }

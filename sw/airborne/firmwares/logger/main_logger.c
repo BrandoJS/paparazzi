@@ -80,7 +80,7 @@
 #include "std.h"
 #include "mcu.h"
 #include "mcu_periph/uart.h"
-#include "sys_time.h"
+#include "mcu_periph/sys_time.h"
 #include "led.h"
 
 #include "usb_msc_hw.h"
@@ -100,7 +100,7 @@
 #endif
 
 #ifndef LOG_STOP_KEY
-/* BUTTON that stops logging (BUTTON = P0.7, DTR = P0.13, INT1 = P0.14) */
+/* BUTTON that stops logging (PPM_IN = P0.6, BUTTON = P0.7, DTR = P0.13, INT1 = P0.14) */
 #define LOG_STOP_KEY 7
 #endif
 
