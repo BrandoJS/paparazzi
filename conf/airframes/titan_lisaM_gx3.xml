@@ -104,13 +104,13 @@
 	<define name="BMP_I2C_DEV" value="i2c2"/>
 	<define name="SENSOR_SYNC_SEND"/>
     </load>
-    <!--<load name="airspeed_adc.xml">
+    <load name="airspeed_adc.xml">
       <configure name="ADC_AIRSPEED" value="AD1"/>
       <configure name="AIRSPEED_PIN" value="3"/>
       <define name="AIRSPEED_SCALE" value="0.03986"/>
       <define name="AIRSPEED_BIAS" value="3143"/>
       <define name="SENSOR_SYNC_SEND"/>
-    </load> -->
+    </load><!-- -->
     <load name="sdcard.xml"/> 
       
 </modules>
@@ -162,7 +162,7 @@
 
   <section name="BAT">
     <define name="MILLIAMP_AT_FULL_THROTTLE" value="40000"/>
-
+    <define name="MAX_BAT_LEVEL" value="25.2" unit="V" />
     <define name="CATASTROPHIC_BAT_LEVEL" value="7.2" unit="V"/>
   </section>
 
@@ -181,7 +181,7 @@
   </section>
 
   <section name="VERTICAL CONTROL" prefix="V_CTL_">
-    <define name="POWER_CTL_BAT_NOMINAL" value="10.5" unit="volt"/>
+    <define name="POWER_CTL_BAT_NOMINAL" value="22.2" unit="volt"/>
     <!-- outer loop proportional gain -->
     <define name="ALTITUDE_PGAIN" value="-0.03"/>
     <!-- outer loop saturation -->
@@ -269,8 +269,8 @@
 
     <subsystem name="radio_control" type="ppm"/>  
     
-    <!-- Communication 
-    <subsystem name="telemetry" 	type="transparent">
+    <!-- Communication -->
+    <!--<subsystem name="telemetry" 	type="transparent">
       <configure name="MODEM_PORT"	value="UART2"/>
       <configure name="MODEM_BAUD" 	value="B57600"/>
     </subsystem>-->
