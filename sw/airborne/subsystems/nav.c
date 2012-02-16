@@ -427,6 +427,7 @@ void nav_init(void) {
   nav_ground_speed_pgain = NAV_GROUND_SPEED_PGAIN;
   nav_ground_speed_setpoint = NOMINAL_AIRSPEED;
 #endif
+  
 }
 
 /**

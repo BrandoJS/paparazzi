@@ -49,7 +49,7 @@ float gps_estimator_psi;
 // Positive yaw : clockwise
 
 
-//struct UGEAR ugear;
+uint8_t ugear_error;
 
 struct UGEAR_packet UGEAR_packet;
 
@@ -169,17 +169,7 @@ void UGEAR_packet_read_message(void) {
 
             break;
         case 2:  /*Error Messages*/
-            gps.nb_channels = XSENS_GPSStatus_nch(UGEAR_packet.ugear_msg_buf);
-            uint8_t is;
-            for(is = 0; is < gps.nb_channels; is++) {
-		uint8_t ch = XSENS_GPSStatus_chn(UGEAR_packet.ugear_msg_buf,is);
-                gps.svinfos[ch].svid = XSENS_GPSStatus_svid(UGEAR_packet.ugear_msg_buf, is);
-                gps.svinfos[ch].flags = XSENS_GPSStatus_bitmask(UGEAR_packet.ugear_msg_buf, is);
-                gps.svinfos[ch].qi = XSENS_GPSStatus_qi(UGEAR_packet.ugear_msg_buf, is);
-                gps.svinfos[ch].cno = XSENS_GPSStatus_cnr(UGEAR_packet.ugear_msg_buf, is);
-                gps.svinfos[ch].elev = 0;
-                gps.svinfos[ch].azim = 0;
-            }
+            ugear_error = UGEAR_ERROR(UGEAR_packet.ugear_msg_buf);
             break;
 	default: break;
 

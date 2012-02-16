@@ -164,6 +164,13 @@ void init_ap( void ) {
   mcu_init();
 #endif /* SINGLE_MCU */
 
+#ifdef USE_GX3
+  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
+  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
+    __asm("nop");
+  }
+#endif
+
   /************* Sensors initialization ***************/
 #if USE_GPS
   gps_init();
@@ -568,53 +575,13 @@ void monitor_task( void ) {
     DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
   }
 
-
-#ifndef CONTROL_RATE
-#define CONTROL_RATE 20
-#endif
-
-#if CONTROL_RATE != 60 && CONTROL_RATE != 20
-#error "Only 20 and 60 allowed for CONTROL_RATE"
-#endif
-
-#if CONTROL_RATE == 20
-  if (!_20Hz)
-#endif
-    {
-
-#ifndef AHRS_TRIGGERED_ATTITUDE_LOOP
-      attitude_loop();
-#endif
-
-    }
-
-
-  modules_periodic_task();
-}
-
-
-void init_ap( void ) {
-#ifndef SINGLE_MCU /** init done in main_fbw in single MCU */
-  mcu_init();
-  sys_time_init();
-#endif /* SINGLE_MCU */
-
-#ifdef USE_GX3
-  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
-  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
-    __asm("nop");
-  }
-#endif
-  /************* Sensors initialization ***************/
-#ifdef USE_GPS
-  gps_init();
-#endif
-
-
-#ifdef USE_GPIO
+ #ifdef USE_GPIO
    GpioUpdate1();
-#endif
+#endif 
 }
+
+
+
 
 
 /*********** EVENT ***********************************************************/
