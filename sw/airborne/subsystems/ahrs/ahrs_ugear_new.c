@@ -65,9 +65,9 @@ void ahrs_update_fw_estimator( void )
   gps_estimator_psi = (float)RadOfDeg(course_f);
   
 
-  // export results to estimator (output in rad)
-  estimator_phi   = ahrs_float.ltp_to_body_euler.phi;
-  estimator_theta = ahrs_float.ltp_to_body_euler.theta;
+  // export results to estimator (output in deg)
+  estimator_phi   = ahrs_float.ltp_to_body_euler.phi - ins_roll_neutral;
+  estimator_theta = ahrs_float.ltp_to_body_euler.theta - ins_pitch_neutral;
   estimator_psi = gps_estimator_psi;
 
   
@@ -106,13 +106,13 @@ void ahrs_update_mag(void) {
 
 void UGEAR_packet_read_message(void) {
    
-   int16_t ugear_phi, ugear_psi, ugear_theta;
+   uint32_t ugear_phi, ugear_psi, ugear_theta;
 
     switch (UGEAR_packet.type){
         case 0:  /*gps*/
             gps.tow = UGEAR_NAV_VELNED_ITOW(UGEAR_packet.ugear_msg_buf);
             gps.week = 0; // FIXME
-	    gps.fix = 3;  // FIXME currently forced into 3d fix
+	    gps.fix = UGEAR_NAV_FIX(ugear_msg_buf);  // 
  
 	    gps.ecef_pos.x = 0; // FIXME
 	    gps.ecef_pos.y = 0; // FIXME
@@ -163,9 +163,9 @@ void UGEAR_packet_read_message(void) {
             ugear_phi = UGEAR_IMU_PHI(UGEAR_packet.ugear_msg_buf);
             ugear_psi = UGEAR_IMU_PSI(UGEAR_packet.ugear_msg_buf);
             ugear_theta = UGEAR_IMU_THE(UGEAR_packet.ugear_msg_buf);
-	    ahrs_float.ltp_to_body_euler.phi  = ((float)ugear_phi/10000 - ins_roll_neutral); //ugear outputs degrees
-            ahrs_float.ltp_to_body_euler.psi = 0;
-            ahrs_float.ltp_to_body_euler.theta  = ((float)ugear_theta/10000 - ins_pitch_neutral);
+	    ahrs_float.ltp_to_body_euler.phi  = *(float*)&ugear_phi; //ugear outputs degrees
+            ahrs_float.ltp_to_body_euler.psi = *(float*)&ugear_psi;
+            ahrs_float.ltp_to_body_euler.theta  = *(float*)&ugear_theta;
 
             break;
         case 2:  /*Error Messages*/

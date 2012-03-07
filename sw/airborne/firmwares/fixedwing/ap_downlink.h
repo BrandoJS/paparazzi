@@ -157,11 +157,11 @@ extern uint8_t telemetry_mode_Ap_DefaultChannel;
 #ifdef USE_GX3
 #  include "subsystems/imu.h"
 #  include "subsystems/ahrs/ahrs_gx3.h"
-#  define PERIODIC_SEND_HEADING(_chan) {DOWNLINK_SEND_HEADING(_chan, &gps_estimator_psi, &gx3_estimator_psi)}
-#  define PERIODIC_SEND_IMU_ACCEL(_chan) { struct FloatVect3 accel_float; ACCELS_FLOAT_OF_BFP(accel_float, imu.accel); DOWNLINK_SEND_IMU_ACCEL(_chan, &accel_float.x, &accel_float.y, &accel_float.z)}
-#  define PERIODIC_SEND_IMU_GYRO(_chan) { struct FloatRates gyro_float; RATES_FLOAT_OF_BFP(gyro_float, imu.gyro); DOWNLINK_SEND_IMU_GYRO(_chan, &gyro_float.p, &gyro_float.q, &gyro_float.r)}
+#  define PERIODIC_SEND_HEADING(_trans, _dev) {DOWNLINK_SEND_HEADING(_trans, _dev, &gps_estimator_psi, &gx3_estimator_psi)}
+#  define PERIODIC_SEND_IMU_ACCEL(_trans, _dev) { struct FloatVect3 accel_float; ACCELS_FLOAT_OF_BFP(accel_float, imu.accel); DOWNLINK_SEND_IMU_ACCEL(_trans, _dev, &accel_float.x, &accel_float.y, &accel_float.z)}
+#  define PERIODIC_SEND_IMU_GYRO(_trans, _dev) { struct FloatRates gyro_float; RATES_FLOAT_OF_BFP(gyro_float, imu.gyro); DOWNLINK_SEND_IMU_GYRO(_trans, _dev, &gyro_float.p, &gyro_float.q, &gyro_float.r)}
 #else
-#  define PERIODIC_SEND_HEADING(_chan) {}
+#  define PERIODIC_SEND_HEADING(_trans, _dev) {}
 #ifdef IMU_TYPE_H
 #  ifdef INS_MODULE_H
 #  include "modules/ins/ins_module.h"

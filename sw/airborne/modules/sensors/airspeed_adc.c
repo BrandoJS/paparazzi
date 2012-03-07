@@ -75,7 +75,7 @@ void airspeed_adc_update( void ) {
 #endif
   EstimatorSetAirspeed(airspeed);
 #ifdef SENSOR_SYNC_SEND
-  DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &adc_airspeed_val, &airspeed_ets_offset, &airspeed);
+  //DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &adc_airspeed_val, &airspeed_ets_offset, &airspeed);
 #endif
 #else // SITL
   extern float sim_air_speed;

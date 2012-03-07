@@ -57,9 +57,9 @@
 #define UGEAR_NAV_SOL_PDOP(_ubx_payload) (uint16_t)(*((uint8_t*)_ubx_payload+1+36)|*((uint8_t*)_ubx_payload+1+1+36)<<8)
 #define UGEAR_NAV_SOL_numSV(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload+1+38))
 
-#define UGEAR_IMU_PHI(_ubx_payload) (int16_t)(*((uint8_t*)_ubx_payload)|*((uint8_t*)_ubx_payload+1)<<8)
-#define UGEAR_IMU_THE(_ubx_payload) (int16_t)(*((uint8_t*)_ubx_payload+2)|*((uint8_t*)_ubx_payload+1+2)<<8)
-#define UGEAR_IMU_PSI(_ubx_payload) (int16_t)(*((uint8_t*)_ubx_payload+4)|*((uint8_t*)_ubx_payload+1+4)<<8)
+#define UGEAR_IMU_PHI(_ubx_payload) (uint32_t)((uint32_t)(*((uint8_t*)_ubx_payload+0))|(uint32_t)(*((uint8_t*)_ubx_payload+1))<<8|(uint32_t)(*((uint8_t*)_ubx_payload+2))<<16|(uint32_t)(*((uint8_t*)_ubx_payload+3))<<24)
+#define UGEAR_IMU_THE(_ubx_payload) (uint32_t)((uint32_t)(*((uint8_t*)_ubx_payload+4))|(uint32_t)(*((uint8_t*)_ubx_payload+5))<<8|(uint32_t)(*((uint8_t*)_ubx_payload+6))<<16|(uint32_t)(*((uint8_t*)_ubx_payload+7))<<24)
+#define UGEAR_IMU_PSI(_ubx_payload) (uint32_t)((uint32_t)(*((uint8_t*)_ubx_payload+8))|(uint32_t)(*((uint8_t*)_ubx_payload+9))<<8|(uint32_t)(*((uint8_t*)_ubx_payload+10))<<16|(uint32_t)(*((uint8_t*)_ubx_payload+11))<<24)
 
 #define UGEAR_ERROR(_ubx_payload) (uint8_t)(*((uint8_t*)_ubx_payload))
 

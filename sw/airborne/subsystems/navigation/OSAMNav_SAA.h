@@ -7,6 +7,9 @@
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};
 
+extern bool_t Object_Found(void);
+extern bool_t Object_Gone(void);
+
 extern bool_t FlowerNav(void);
 extern bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP);
 

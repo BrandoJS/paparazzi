@@ -49,8 +49,8 @@
 #define DONE		2
 
 
-
-
+#define GX3_cc
+#define F_UPDATE 512
 
 // Axis definition: X axis pointing forward, Y axis pointing to the right and Z axis pointing down.
 // Positive pitch : nose up
@@ -63,6 +63,7 @@ struct GX3 gx3;
 
 struct GX3_packet GX3_packet;
 
+static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag);
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 
@@ -74,6 +75,7 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 float gps_estimator_psi;
 float gx3_estimator_psi;
 
+int32_t gx3_psi;
 
 // FIXME this is still needed for fixedwing integration
 #include "estimator.h"
@@ -88,14 +90,14 @@ void ahrs_update_fw_estimator( void )
 	course_f -= 360.0;
   }
   gps_estimator_psi = (float)RadOfDeg(course_f);
-  
+  gx3_estimator_psi = (float)RadOfDeg((ahrs.ltp_to_body_euler.psi * .0139882));
 
   compute_body_orientation_and_rates();
 
   // export results to estimator (output in rad)
   estimator_phi   = (float)RadOfDeg((ahrs.ltp_to_body_euler.phi * .0139882) - ins_roll_neutral);
   estimator_theta = (float)RadOfDeg((ahrs.ltp_to_body_euler.theta * .0139882) - ins_pitch_neutral);
-  gx3_estimator_psi   = (float)RadOfDeg(ahrs.ltp_to_body_euler.psi * .0139882  - ahrs_mag_offset) ;  //ahrs_mag_offset in degs
+  //gx3_estimator_psi   = (float)RadOfDeg(ahrs.ltp_to_body_euler.psi * .0139882  - ahrs_mag_offset) ;  //ahrs_mag_offset in degs
 
   estimator_psi = gps_estimator_psi;
 
@@ -134,7 +136,8 @@ void imu_impl_init(void) {
    GX3Link(Transmit(0xc4));
    GX3Link(Transmit(0xc1));
    GX3Link(Transmit(0x29));
-   GX3Link(Transmit(0xc8));
+   //GX3Link(Transmit(0xc8)); // accel,gyro,R
+   GX3Link(Transmit(0xcc)); // accel,gyro,mag,R
 
    
       
@@ -155,6 +158,7 @@ void ahrs_update_accel(void) {
 
 
 void ahrs_update_mag(void) {
+	get_psi_measurement_from_mag(&gx3_psi, ahrs.ltp_to_imu_euler.phi, ahrs.ltp_to_imu_euler.theta, imu.mag);
 }
 
 /*
@@ -175,9 +179,10 @@ void GX3_packet_read_message(void) {
     struct FloatVect3 GX3_accel;
     struct FloatRates GX3_rate;
     struct FloatRMat  GX3_rmat;
+    struct FloatVect3 GX3_mag;
 
 
-
+#ifdef GX3_c8
         GX3_accel.x 	= bef(&GX3_packet.msg_buf[1]);
         GX3_accel.y 	= bef(&GX3_packet.msg_buf[5]);
         GX3_accel.z 	= bef(&GX3_packet.msg_buf[9]);
@@ -193,6 +198,27 @@ void GX3_packet_read_message(void) {
         GX3_rmat.m[6] 	= bef(&GX3_packet.msg_buf[49]);
         GX3_rmat.m[7] 	= bef(&GX3_packet.msg_buf[53]);
         GX3_rmat.m[8] 	= bef(&GX3_packet.msg_buf[57]);
+#endif
+#ifdef GX3_cc
+	GX3_accel.x 	= bef(&GX3_packet.msg_buf[1]);
+        GX3_accel.y 	= bef(&GX3_packet.msg_buf[5]);
+        GX3_accel.z 	= bef(&GX3_packet.msg_buf[9]);
+        GX3_rate.p  	= bef(&GX3_packet.msg_buf[13]);
+        GX3_rate.q  	= bef(&GX3_packet.msg_buf[17]);
+        GX3_rate.r  	= bef(&GX3_packet.msg_buf[21]);
+	GX3_mag.x	= bef(&GX3_packet.msg_buf[29]);
+	GX3_mag.y	= bef(&GX3_packet.msg_buf[33]);
+	GX3_mag.z	= bef(&GX3_packet.msg_buf[37]);
+        GX3_rmat.m[0] 	= bef(&GX3_packet.msg_buf[41]);
+        GX3_rmat.m[1] 	= bef(&GX3_packet.msg_buf[45]);
+        GX3_rmat.m[2] 	= bef(&GX3_packet.msg_buf[49]);
+        GX3_rmat.m[3] 	= bef(&GX3_packet.msg_buf[53]);
+        GX3_rmat.m[4] 	= bef(&GX3_packet.msg_buf[57]);
+        GX3_rmat.m[5] 	= bef(&GX3_packet.msg_buf[61]);
+        GX3_rmat.m[6] 	= bef(&GX3_packet.msg_buf[65]);
+        GX3_rmat.m[7] 	= bef(&GX3_packet.msg_buf[69]);
+        GX3_rmat.m[8] 	= bef(&GX3_packet.msg_buf[73]);
+#endif
 
         /* IMU accel */
 	// GX provides g for accel, rad/s for gyro
@@ -213,6 +239,7 @@ void GX3_packet_read_message(void) {
 	imu.gyro.r = imu.gyro.r + 210;
 	RATES_COPY(ahrs.imu_rate, imu.gyro);
 	       
+	MAGS_BFP_OF_REAL(imu.mag, GX3_mag); //
 
         /* LTP to IMU rotation matrix to Eulers to Quat*/
         RMAT_BFP_OF_REAL(ahrs.ltp_to_imu_rmat, GX3_rmat);
@@ -254,4 +281,32 @@ void GX3_packet_parse( uint8_t c ) {
     GX3_packet.status = 0;
     break;
   }
+}
+
+/* measure psi by projecting magnetic vector in local tangeant plan */
+__attribute__ ((always_inline)) static inline void get_psi_measurement_from_mag(int32_t* psi_meas, int32_t phi_est, int32_t theta_est, struct Int32Vect3 mag) {
+
+  int32_t sphi;
+  PPRZ_ITRIG_SIN(sphi, phi_est);
+  int32_t cphi;
+  PPRZ_ITRIG_COS(cphi, phi_est);
+  int32_t stheta;
+  PPRZ_ITRIG_SIN(stheta, theta_est);
+  int32_t ctheta;
+  PPRZ_ITRIG_COS(ctheta, theta_est);
+
+  int32_t sphi_stheta = (sphi*stheta)>>INT32_TRIG_FRAC;
+  int32_t cphi_stheta = (cphi*stheta)>>INT32_TRIG_FRAC;
+  //int32_t sphi_ctheta = (sphi*ctheta)>>INT32_TRIG_FRAC;
+  //int32_t cphi_ctheta = (cphi*ctheta)>>INT32_TRIG_FRAC;
+
+  const int32_t mn = ctheta * mag.x + sphi_stheta * mag.y + cphi_stheta * mag.z;
+  const int32_t me = 0      * mag.x + cphi        * mag.y - sphi        * mag.z;
+  //const int32_t md =
+  //  -stheta     * imu.mag.x +
+  //  sphi_ctheta * imu.mag.y +
+  //  cphi_ctheta * imu.mag.z;
+  float m_psi = -atan2(me, mn);
+  *psi_meas = ((m_psi - ahrs_mag_offset)*(float)(1<<(INT32_ANGLE_FRAC))*F_UPDATE);
+
 }

@@ -1,4 +1,4 @@
-#include "subsystems/navigation/OSAMNav.h"
+#include "subsystems/navigation/OSAMNav_SAA.h"
 
 #include "subsystems/nav.h"
 #include "estimator.h"

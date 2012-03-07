@@ -50,6 +50,7 @@ extern float ins_pitch_neutral;
 extern float gps_estimator_psi;
 extern float gx3_estimator_psi;
 
+extern int32_t gx3_psi;
 
 void ahrs_update_fw_estimator(void);
 

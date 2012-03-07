@@ -553,6 +553,11 @@
  <!-- 74 is free -->
  <!-- 75 is free -->
 
+  <message name="HEADING" id="75">
+    <field name="GPS" type="float"  unit="deg"/>
+    <field name="GX3" type="float"  unit="deg"/>
+  </message>
+
   <message name="VF_UPDATE" id="76">
     <field name="baro" type="float" unit="m"/>
     <field name="range_meter" type="float" unit="m"/>
