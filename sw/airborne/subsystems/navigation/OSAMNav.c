@@ -127,8 +127,6 @@ bool_t FlowerNav(void)
 			nav_init_stage();
 		}
 		break;
-	default: break;
-
 	default:
 		break;
 	}

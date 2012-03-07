@@ -22,7 +22,7 @@
  */
 
 #define GUIDANCE_H_C
-//#define GUIDANCE_H_USE_REF
+//#define GUIDANCE_H_USE_REF 1
 #include "firmwares/rotorcraft/guidance/guidance_h.h"
 
 #include "subsystems/ahrs.h"
@@ -57,12 +57,27 @@ int32_t guidance_h_igain;
 int32_t guidance_h_ngain;
 int32_t guidance_h_again;
 
+/* warn if some gains are still negative */
+#if (GUIDANCE_H_PGAIN < 0) || \
+  (GUIDANCE_H_DGAIN < 0)   || \
+  (GUIDANCE_H_IGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
+
 #ifndef GUIDANCE_H_NGAIN
 #define GUIDANCE_H_NGAIN 0
+#else
+#if (GUIDANCE_H_NGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 
 #ifndef GUIDANCE_H_AGAIN
 #define GUIDANCE_H_AGAIN 0
+#else
+#if (GUIDANCE_H_AGAIN < 0)
+#warning "ALL control gains are now positive!!!"
+#endif
 #endif
 
 static inline void guidance_h_hover_run(void);
@@ -146,12 +161,12 @@ void guidance_h_read_rc(bool_t  in_flight) {
     break;
 
   case GUIDANCE_H_MODE_HOVER:
-    STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+    stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
     break;
 
   case GUIDANCE_H_MODE_NAV:
     if (radio_control.status == RC_OK) {
-      STABILIZATION_ATTITUDE_READ_RC(guidance_h_rc_sp, in_flight);
+      stabilization_attitude_read_rc_ref(&guidance_h_rc_sp, in_flight);
       guidance_h_rc_sp.psi = 0;
     }
     else {
@@ -193,7 +208,7 @@ void guidance_h_run(bool_t  in_flight) {
       }
       else {
         INT32_VECT2_NED_OF_ENU(guidance_h_pos_sp, navigation_carrot);
-#ifdef GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_REF
         b2_gh_update_ref_from_pos_sp(guidance_h_pos_sp);
 #endif
 #ifndef STABILISATION_ATTITUDE_TYPE_FLOAT
@@ -224,12 +239,13 @@ void guidance_h_run(bool_t  in_flight) {
 __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, ins_ltp_pos, guidance_h_pos_sp);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_sp, ins_ltp_pos);
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
-  VECT2_COPY(guidance_h_speed_err, ins_ltp_speed);
+  guidance_h_speed_err.x = -ins_ltp_speed.x;
+  guidance_h_speed_err.y = -ins_ltp_speed.y;
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -240,12 +256,14 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 
   /* run PID */
   // cmd_earth < 15.17
-  guidance_h_command_earth.x = (guidance_h_pgain<<1)  * guidance_h_pos_err.x +
-                                     guidance_h_dgain * (guidance_h_speed_err.x>>9) +
-                                      guidance_h_igain * (guidance_h_pos_err_sum.x >> 12);
-  guidance_h_command_earth.y = (guidance_h_pgain<<1)  * guidance_h_pos_err.y +
-                                     guidance_h_dgain *( guidance_h_speed_err.y>>9) +
-		                      guidance_h_igain * (guidance_h_pos_err_sum.y >> 12);
+  guidance_h_command_earth.x =
+    guidance_h_pgain * (guidance_h_pos_err.x << (10 - INT32_POS_FRAC)) +
+    guidance_h_dgain * (guidance_h_speed_err.x >> (INT32_SPEED_FRAC - 10)) +
+    guidance_h_igain * (guidance_h_pos_err_sum.x >> (12 + INT32_POS_FRAC - 10));
+  guidance_h_command_earth.y =
+    guidance_h_pgain * (guidance_h_pos_err.y << (10 - INT32_POS_FRAC)) +
+    guidance_h_dgain * (guidance_h_speed_err.y >> (INT32_SPEED_FRAC - 10)) +
+    guidance_h_igain * (guidance_h_pos_err_sum.y >> (12 + INT32_POS_FRAC - 10));
 
   VECT2_STRIM(guidance_h_command_earth, -MAX_BANK, MAX_BANK);
 
@@ -282,7 +300,7 @@ __attribute__ ((always_inline)) static inline void  guidance_h_hover_run(void) {
 __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in_flight) {
 
   /* convert our reference to generic representation */
-#ifdef GUIDANCE_H_USE_REF
+#if GUIDANCE_H_USE_REF
   INT32_VECT2_RSHIFT(guidance_h_pos_ref,   b2_gh_pos_ref,   (B2_GH_POS_REF_FRAC - INT32_POS_FRAC));
   INT32_VECT2_LSHIFT(guidance_h_speed_ref, b2_gh_speed_ref, (INT32_SPEED_FRAC - B2_GH_SPEED_REF_FRAC));
   INT32_VECT2_LSHIFT(guidance_h_accel_ref, b2_gh_accel_ref, (INT32_ACCEL_FRAC - B2_GH_ACCEL_REF_FRAC));
@@ -293,13 +311,13 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
 #endif
 
   /* compute position error    */
-  VECT2_DIFF(guidance_h_pos_err, ins_ltp_pos, guidance_h_pos_ref);
+  VECT2_DIFF(guidance_h_pos_err, guidance_h_pos_ref, ins_ltp_pos);
   /* saturate it               */
   VECT2_STRIM(guidance_h_pos_err, -MAX_POS_ERR, MAX_POS_ERR);
 
   /* compute speed error    */
   //VECT2_COPY(guidance_h_speed_err, ins_ltp_speed);
-  VECT2_DIFF(guidance_h_speed_err, ins_ltp_speed, guidance_h_speed_ref);
+  VECT2_DIFF(guidance_h_speed_err, guidance_h_speed_ref, ins_ltp_speed);
   /* saturate it               */
   VECT2_STRIM(guidance_h_speed_err, -MAX_SPEED_ERR, MAX_SPEED_ERR);
 
@@ -310,6 +328,7 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
     VECT2_ADD(guidance_h_pos_err_sum, guidance_h_pos_err);
     /* saturate it               */
     VECT2_STRIM(guidance_h_pos_err_sum, -MAX_POS_ERR_SUM, MAX_POS_ERR_SUM);
+    INT_VECT2_ZERO(guidance_h_nav_err);
   }
   else { // Tracking algorithm, no integral
     int32_t vect_prod = 0;
@@ -321,8 +340,8 @@ __attribute__ ((always_inline)) static inline void  guidance_h_nav_run(bool_t in
     }
     // multiply by vector orthogonal to speed
     VECT2_ASSIGN(guidance_h_nav_err,
-        vect_prod * (-ins_ltp_speed.y),
-        vect_prod * ins_ltp_speed.x);
+                 vect_prod * ins_ltp_speed.y,
+                 vect_prod * (-ins_ltp_speed.x));
     // divide by 2 times dist ( >> 16 )
     VECT2_SDIV(guidance_h_nav_err, guidance_h_nav_err, dist*dist);
     // *2 ??
