@@ -3,7 +3,7 @@
 <flight_plan alt="1400" ground_alt="1353" lat0="41.815640" lon0="-111.981760" max_dist_from_home="1500" name="Basic" qfu="90" security_height="25">
   <header>
 #include "subsystems/navigation/nav_line.h"
-#include "datalink.h"
+#include "subsystems/datalink/datalink.h"
 #include "subsystems/navigation/OSAMNav.h"
 </header>
   <waypoints>
@@ -15,6 +15,7 @@
     <waypoint name="2" x="40.0" y="-10.8"/>
     <waypoint name="S1" x="-336.7" y="-104.7"/>
     <waypoint name="S2" x="9.6" y="74.2"/>
+    <waypoint name="_BASELEG" x="68.8" y="-13.8"/>
     <waypoint alt="1388.0" name="AF" x="47.3" y="-37.3"/>
     <waypoint alt="1348.0" name="TD" x="-153.0" y="-34.9"/>
     <waypoint name="Center" x="0.0" y="0.0"/>
@@ -60,13 +61,26 @@
       <call fun="InitializeFlower(WP_Center,WP_Edge)"/>
       <call fun="FlowerNav()"/>
     </block>
-    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
-      <call fun="InitializeSkidLanding(WP_AF,WP_TD, DEFAULT_LANDING_CIRCLE_RADIUS)"/>
-      <call fun="SkidLanding()"/>
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png" group="land">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
     </block>
-    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
-      <call fun="InitializeSkidLanding(WP_AF,WP_TD, -DEFAULT_LANDING_CIRCLE_RADIUS)"/>
-      <call fun="SkidLanding()"/>
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png" group="land">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-(nav_radius/fabs(nav_radius))*10), 10 > fabs(estimator_z - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
     </block>
   </blocks>
 </flight_plan>

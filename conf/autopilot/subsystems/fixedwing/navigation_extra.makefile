@@ -13,7 +13,7 @@ $(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/nav_survey_rectangle.c $(SRC_SUBS
 
 #$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/nav_cube.c
 #$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/discsurvey.c
-$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/OSAMNav_SAA.c
+$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/OSAMNav.c
 #$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/snav.c
 #$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/spiral.c
 #$(TARGET).srcs += $(SRC_SUBSYSTEMS)/navigation/poly_survey_adv.c

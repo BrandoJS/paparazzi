@@ -31,7 +31,7 @@
 
 #define UGEAR_SYNC1 0x93
 #define UGEAR_SYNC2 0xE0
-#define UGEAR_MAX_PAYLOAD 40
+#define UGEAR_MAX_PAYLOAD 44
 #define IMU_PACKET_SIZE 12
 #define RAD2DEG 57.3
 #define WrapUp(x) (x < 0 ? x+3600 : x)
@@ -70,6 +70,11 @@ extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
 extern uint8_t ugear_error;
+
+/*define the following varables for communication with ugear by haiyang 20080508*/
+extern float ugear_phi;
+extern float ugear_psi;
+extern float ugear_theta; 
 
 void ahrs_update_fw_estimator(void);
 

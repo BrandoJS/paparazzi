@@ -452,7 +452,7 @@ void navigation_task( void ) {
   CallTCAS();
 #endif
 
-#ifndef PERIOD_NAVIGATION_DefaultChannel_0 // If not sent periodically (in default 0 mode)
+#ifndef PERIOD_NAVIGATION_0 // If not sent periodically (in default 0 mode)
   SEND_NAVIGATION(DefaultChannel, DefaultDevice);
 #endif
 
@@ -572,15 +572,15 @@ void monitor_task( void ) {
       estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
-    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
+    //DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
   }
 
- #ifdef USE_GPIO
+
+
+#ifdef USE_GPIO
    GpioUpdate1();
-#endif 
+#endif
 }
-
-
 
 
 
@@ -599,7 +599,9 @@ void event_task_ap( void ) {
   GpsEvent(on_gps_solution);
   if (GpsIsLost())	{			
 	gps.fix = GPS_FIX_NONE;	
-	//LED_OFF(GPS_LED);		
+	#ifdef GPS_LED
+	  LED_OFF(GPS_LED);
+	#endif		
   }						
 #endif /** USE_GPS */
 

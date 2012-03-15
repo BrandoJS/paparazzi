@@ -127,8 +127,8 @@ bool_t FlowerNav(void)
 			nav_init_stage();
 		}
 		break;
-	default: break;
-
+	default:
+		break;
 	}
         
 	return TRUE;
@@ -846,7 +846,10 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
       line_status = LR12;
       nav_init_stage();
     }
-  default: break;
+
+  default:
+    break;
+
   }
   return TRUE; /* This pattern never ends */
 }

@@ -37,6 +37,7 @@
 
 #include "generated/airframe.h"
 
+
 #ifdef BATT_THRUST_FIX
 #include "subsystems/electrical.h"
 
@@ -53,6 +54,13 @@
 
 #ifndef GUIDANCE_V_MAX_BOUND
 #define GUIDANCE_V_MAX_BOUND 10
+
+/* warn if some gains are still negative */
+#if (GUIDANCE_V_HOVER_KP < 0) ||                   \
+  (GUIDANCE_V_HOVER_KD < 0)   ||                   \
+  (GUIDANCE_V_HOVER_KI < 0)
+#warning "ALL control gains are now positive!!!"
+
 #endif
 
 /* In case Asctec controllers are used without supervision */
@@ -294,6 +302,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zd_ref = gv_zd_ref<<(INT32_SPEED_FRAC - GV_ZD_REF_FRAC);
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
+
   int32_t err_z  =  ins_ltp_pos.z - guidance_v_z_ref;
 
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
@@ -303,6 +312,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   err_zd = vd_tmp + ((err_zd-vd_tmp)>>3); //LPF at 11.6 Hz
   vd_tmp = err_zd;
   
+
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
 
   if (in_flight) {
@@ -337,13 +347,17 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
 #endif
 
   /* our error command                   */
-  guidance_v_fb_cmd = ((-guidance_v_kp * err_z)  >> 12) +
-                            ((-guidance_v_kd * err_zd) >> 21) +
-                            ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  guidance_v_fb_cmd = ((guidance_v_kp * err_z)  >> 12) +
+                      ((guidance_v_kd * err_zd) >> 21) +
+                      ((guidance_v_ki * guidance_v_z_sum_err) >> 21);
+
 
   Bound(guidance_v_fb_cmd,-min_bound,max_bound);
-  guidance_v_delta_t = guidance_v_ff_cmd + guidance_v_fb_cmd;
-  // guidance_v_delta_t = guidance_v_fb_cmd;
+  
+  // z-axis pointing down -> positive error means we need less thrust
+  guidance_v_delta_t = - (guidance_v_ff_cmd + guidance_v_fb_cmd);
+  // guidance_v_delta_t = -guidance_v_fb_cmd;
+
 
 
 }

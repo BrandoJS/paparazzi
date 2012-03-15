@@ -29,7 +29,7 @@
 #include "mcu_periph/uart.h"
 
 #include "subsystems/datalink/downlink.h"
-#include "generated/periodic.h"
+#include "generated/periodic_telemetry.h"
 
 #ifdef RADIO_CONTROL
 #include "subsystems/radio_control.h"
@@ -50,8 +50,6 @@
 #include "subsystems/ahrs.h"
 //FIXME: wtf ??!!
 #include "mcu_periph/i2c_arch.h"
-
-extern uint8_t telemetry_mode_Main_DefaultChannel;
 
 #define PERIODIC_SEND_ALIVE(_trans, _dev) DOWNLINK_SEND_ALIVE(_trans, _dev, 16, MD5SUM)
 
@@ -266,9 +264,9 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stab_att_ref_euler.phi, \
                         &stab_att_ref_euler.theta, \
                         &stab_att_ref_euler.psi, \
-                        &stabilization_att_sum_err.phi, \
-                        &stabilization_att_sum_err.theta, \
-                        &stabilization_att_sum_err.psi, \
+                        &stabilization_att_sum_err_eulers.phi, \
+                        &stabilization_att_sum_err_eulers.theta, \
+                        &stabilization_att_sum_err_eulers.psi, \
                         &stabilization_att_fb_cmd[COMMAND_ROLL], \
                         &stabilization_att_fb_cmd[COMMAND_PITCH], \
                         &stabilization_att_fb_cmd[COMMAND_YAW], \
@@ -277,7 +275,10 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                         &stabilization_att_ff_cmd[COMMAND_YAW], \
                         &stabilization_cmd[COMMAND_ROLL], \
                         &stabilization_cmd[COMMAND_PITCH], \
-                        &stabilization_cmd[COMMAND_YAW]); \
+                        &stabilization_cmd[COMMAND_YAW], \
+                        &ahrs_float.body_rate_d.p, \
+                        &ahrs_float.body_rate_d.q, \
+                        &ahrs_float.body_rate_d.r);   \
   }
 
 #define PERIODIC_SEND_STAB_ATTITUDE_REF(_trans, _dev) {			\
@@ -560,16 +561,17 @@ extern uint8_t telemetry_mode_Main_DefaultChannel;
                        &ins_ltp_accel.z);	\
   }
 
-#define PERIODIC_SEND_INS_REF(_trans, _dev) {				\
-    DOWNLINK_SEND_INS_REF(_trans, _dev,					\
-                &ins_ltp_def.ecef.x,		\
-                &ins_ltp_def.ecef.y,		\
-                &ins_ltp_def.ecef.z,		\
-                &ins_ltp_def.lla.lat,		\
-                &ins_ltp_def.lla.lon,		\
-                &ins_ltp_def.lla.alt,		\
-                &ins_ltp_def.hmsl,		\
-                &ins_qfe);				\
+#define PERIODIC_SEND_INS_REF(_trans, _dev) {       \
+    if (ins_ltp_initialised)                        \
+      DOWNLINK_SEND_INS_REF(_trans, _dev,           \
+                            &ins_ltp_def.ecef.x,    \
+                            &ins_ltp_def.ecef.y,    \
+                            &ins_ltp_def.ecef.z,    \
+                            &ins_ltp_def.lla.lat,   \
+                            &ins_ltp_def.lla.lon,   \
+                            &ins_ltp_def.lla.alt,   \
+                            &ins_ltp_def.hmsl,		\
+                            &ins_qfe);				\
   }
 
 #define PERIODIC_SEND_VERT_LOOP(_trans, _dev) {				\

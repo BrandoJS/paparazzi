@@ -19,12 +19,14 @@
       <subsystem name="radio_control" type="ppm"/>
     </target>
 
+
     <subsystem name="telemetry"     type="transparent"/>
     <subsystem name="actuators"     type="mkk"/>
     <subsystem name="imu"           type="aspirin_v1.5"/>
     <subsystem name="gps"           type="ublox"/>
-    <subsystem name="stabilization" type="euler"/>
+    <subsystem name="stabilization" type="int_quat"/>
     <subsystem name="ahrs"          type="int_cmpl_quat"/>
+
   </firmware>
 
   <firmware name="setup">
@@ -55,7 +57,9 @@
   </firmware>
 
   <modules main_freq="512">
-    <!--load name="sys_mon.xml"/-->
+
+    <load name="sys_mon.xml"/>
+
   </modules>
 
   <commands>
@@ -85,9 +89,24 @@
   </section>
 
   <section name="IMU" prefix="IMU_">
+
+    <define name="GYRO_P_NEUTRAL" value="-33"/>
+    <define name="GYRO_Q_NEUTRAL" value="-10"/>
+    <define name="GYRO_R_NEUTRAL" value="-25"/>
+    <define name="GYRO_P_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+
     <define name="ACCEL_X_NEUTRAL" value="11"/>
     <define name="ACCEL_Y_NEUTRAL" value="11"/>
     <define name="ACCEL_Z_NEUTRAL" value="-25"/>
+    <define name="ACCEL_X_SENS" value="38.332217432" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="37.7201584738" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.2816836007" integer="16"/>
+
 
     <define name="MAG_X_NEUTRAL" value="-98"/>
     <define name="MAG_Y_NEUTRAL" value="-252"/>
@@ -96,9 +115,11 @@
     <define name="MAG_Y_SENS" value="4.07651737489" integer="16"/>
     <define name="MAG_Z_SENS" value="3.77693466173" integer="16"/>
 
+
     <define name="BODY_TO_IMU_PHI"   value="0." unit="deg"/>
     <define name="BODY_TO_IMU_THETA" value="0." unit="deg"/>
     <define name="BODY_TO_IMU_PSI"   value="-45." unit="deg"/>
+
   </section>
 
   <section name="AHRS" prefix="AHRS_">
@@ -124,13 +145,15 @@
     <define name="REF_TAU" value="4" />
 
     <!-- feedback -->
-    <define name="GAIN_P" value="-400" />
-    <define name="GAIN_Q" value="-400" />
-    <define name="GAIN_R" value="-350" />
 
-    <define name="IGAIN_P" value="-75" />
-    <define name="IGAIN_Q" value="-75" />
-    <define name="IGAIN_R" value="-50" />
+    <define name="GAIN_P" value="400" />
+    <define name="GAIN_Q" value="400" />
+    <define name="GAIN_R" value="350" />
+
+    <define name="IGAIN_P" value="75" />
+    <define name="IGAIN_Q" value="75" />
+    <define name="IGAIN_R" value="50" />
+
 
     <!-- feedforward -->
     <define name="DDGAIN_P" value="300" />
@@ -141,12 +164,19 @@
 
   <section name="STABILIZATION_ATTITUDE" prefix="STABILIZATION_ATTITUDE_">
     <!-- setpoints -->
+
     <define name="SP_MAX_PHI"     value="45." unit="deg"/>
     <define name="SP_MAX_THETA"   value="45." unit="deg"/>
+    <define name="SP_MAX_PSI"     value="45." unit="deg"/>
+    <define name="SP_MAX_P"       value="180." unit="deg/s"/>
+    <define name="SP_MAX_Q"       value="180." unit="deg/s"/>
     <define name="SP_MAX_R"       value="90." unit="deg/s"/>
+    <define name="DEADBAND_A"     value="250"/>
+    <define name="DEADBAND_E"     value="250"/>
     <define name="DEADBAND_R"     value="250"/>
 
     <!-- reference -->
+
     <define name="REF_OMEGA_P"  value="800" unit="deg/s"/>
     <define name="REF_ZETA_P"   value="0.85"/>
     <define name="REF_MAX_P"    value="400." unit="deg/s"/>
@@ -163,22 +193,23 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="-1000"/>
-    <define name="PHI_DGAIN"  value="-400"/>
-    <define name="PHI_IGAIN"  value="-200"/>
+    <define name="PHI_PGAIN"  value="1000"/>
+    <define name="PHI_DGAIN"  value="400"/>
+    <define name="PHI_IGAIN"  value="200"/>
 
-    <define name="THETA_PGAIN"  value="-1000"/>
-    <define name="THETA_DGAIN"  value="-400"/>
-    <define name="THETA_IGAIN"  value="-200"/>
+    <define name="THETA_PGAIN"  value="1000"/>
+    <define name="THETA_DGAIN"  value="400"/>
+    <define name="THETA_IGAIN"  value="200"/>
 
-    <define name="PSI_PGAIN"  value="-1000"/>
-    <define name="PSI_DGAIN"  value="-400"/>
-    <define name="PSI_IGAIN"  value="-10"/>
+    <define name="PSI_PGAIN"  value="1000"/>
+    <define name="PSI_DGAIN"  value="400"/>
+    <define name="PSI_IGAIN"  value="10"/>
 
     <!-- feedforward -->
-    <define name="PHI_DDGAIN"   value=" 300"/>
-    <define name="THETA_DDGAIN" value=" 300"/>
-    <define name="PSI_DDGAIN"   value=" 300"/>
+    <define name="PHI_DDGAIN"   value="300"/>
+    <define name="THETA_DDGAIN" value="300"/>
+    <define name="PSI_DDGAIN"   value="300"/>
+
   </section>
 
   <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -187,9 +218,11 @@
     <define name="MIN_ERR_ZD"  value="SPEED_BFP_OF_REAL(-10.)"/>
     <define name="MAX_ERR_ZD"  value="SPEED_BFP_OF_REAL( 10.)"/>
     <define name="MAX_SUM_ERR" value="2000000"/>
-    <define name="HOVER_KP"    value="-150"/>
-    <define name="HOVER_KD"    value="-80"/>
-    <define name="HOVER_KI"    value="-20"/>
+
+    <define name="HOVER_KP"    value="150"/>
+    <define name="HOVER_KD"    value="80"/>
+    <define name="HOVER_KI"    value="20"/>
+
     <!-- 1.5m/s for full stick : BOOZ_SPEED_I_OF_F(1.5) / (MAX_PPRZ/2) -->
     <define name="RC_CLIMB_COEF" value ="163"/>
     <!-- BOOZ_SPEED_I_OF_F(1.5) * 20% -->
@@ -198,9 +231,11 @@
   </section>
 
   <section name="GUIDANCE_H" prefix="GUIDANCE_H_">
-    <define name="PGAIN" value="-100"/>
-    <define name="DGAIN" value="-100"/>
-    <define name="IGAIN" value="-0"/>
+
+    <define name="PGAIN" value="100"/>
+    <define name="DGAIN" value="100"/>
+    <define name="IGAIN" value="0"/>
+
   </section>
 
   <section name="SIMULATOR" prefix="NPS_">

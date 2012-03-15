@@ -17,7 +17,7 @@
     <waypoint alt="1388.0" name="AF" x="47.3" y="-37.3"/>
     <waypoint alt="1348.0" name="TD" x="-153.0" y="-34.9"/>
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
-    <waypoint alt="1350" name="Bungee" x="0.2" y="16.4"/>
+    <waypoint alt="1350.0" name="Bungee" x="-23.2" y="5.8"/>
     <waypoint name="Center" x="0.0" y="0.0"/>
     <waypoint name="Edge" x="300.0" y="0.0"/>
   </waypoints>
@@ -29,7 +29,6 @@
     </block>
     <block name="Geo init">
       <while cond="LessThan(NavBlockTime(), 10)"/>
-      <call fun="NavSetGroundReferenceHere()"/>
     </block>
     <block name="Holding point">
       <set value="1" var="kill_throttle"/>
@@ -47,6 +46,11 @@
     </block>
     <block group="base_pattern" name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
       <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block group="base_pattern" name="MOB" strip_button="Circle here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <circle radius="nav_radius" wp="MOB"/>
     </block>
     <block group="extra_pattern" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
       <call fun="nav_line_init()"/>
@@ -67,6 +71,5 @@
       <call fun="InitializeSkidLanding(WP_AF,WP_TD, -DEFAULT_LANDING_CIRCLE_RADIUS)"/>
       <call fun="SkidLanding()"/>
     </block>
-    
   </blocks>
 </flight_plan>
