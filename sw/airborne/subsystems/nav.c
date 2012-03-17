@@ -397,6 +397,10 @@ void nav_periodic_task(void) {
 
   compute_dist2_to_home();
   dist2_to_wp = 0.;
+  
+  if (kill_throttle == 0)
+	compute_dist();
+
 
   auto_nav(); /* From flight_plan.h */
 
@@ -422,6 +426,8 @@ void nav_init(void) {
   nav_radius = DEFAULT_CIRCLE_RADIUS;
   nav_survey_shift = 2*DEFAULT_CIRCLE_RADIUS;
   nav_mode = NAV_MODE_COURSE;
+
+  dist_trav = 0;
 
 #ifdef NAV_GROUND_SPEED_PGAIN
   nav_ground_speed_pgain = ABS(NAV_GROUND_SPEED_PGAIN);

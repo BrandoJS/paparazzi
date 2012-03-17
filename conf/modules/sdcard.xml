@@ -5,7 +5,7 @@
     <file name="sdcard.h"/>
   </header>
   <init fun="init_sdcard()"/>
-  <periodic fun="periodic_sdcard()" period="0.03" autorun="FALSE"/>
+  <periodic fun="periodic_sdcard()" period="0.05" autorun="FALSE"/>
   <makefile target="ap">
     <define name="SDC_PORT" value="UART5"/>
     <define name="SDC_BAUD" value="115200"/>

@@ -553,9 +553,11 @@
  <!-- 74 is free -->
  <!-- 75 is free -->
 
-  <message name="HEADING" id="75">
-    <field name="GPS" type="float"  unit="deg"/>
-    <field name="GX3" type="float"  unit="deg"/>
+  <message name="POSITION" id="75">
+    <field name="pos_x" type="float" unit="m"/>
+    <field name="pos_y" type="float" unit="m"/>
+    <field name="z" type="float" unit="m"/>
+    <field name="dist_traveled" type="float" unit="km"/>
   </message>
 
   <message name="VF_UPDATE" id="76">

@@ -60,26 +60,24 @@
 
 <section name="BAT">
 	<define name="MILLIAMP_AT_FULL_THROTTLE" value="45000"/>
-	<define name="CATASTROPHIC_BAT_LEVEL" value="20.0" unit="V"/>
-	<define name="LOW_BAT_LEVEL" value="22.2" unit="V"/>
-    	<define name="CRITIC_BAT_LEVEL" value="21.5" unit="V"/>
+	<define name="CATASTROPHIC_BAT_LEVEL" value="19.3" unit="V"/>
 	<define name="MAX_BAT_LEVEL" value="25.2" unit="V" />
 </section>
 
 <section name="MISC">
-	<define name="NOMINAL_AIRSPEED" 	value="16." 	unit="m/s"/>
+	<define name="NOMINAL_AIRSPEED" 	value="17." 	unit="m/s"/>
 	<define name="CARROT" 			value="5." 	unit="s"/>
 	<define name="KILL_MODE_DISTANCE" 	value="(1.5*MAX_DIST_FROM_HOME)"/>
 	<define name="CONTROL_RATE" 		value="60" 	unit="Hz"/>
 	<define name="XBEE_INIT" 		value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 	<define name="ALT_KALMAN_ENABLED" 	value="TRUE"/>
-	<define name="DEFAULT_CIRCLE_RADIUS" 	value="100."/>
-	<define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="100"/>
+	<define name="DEFAULT_CIRCLE_RADIUS" 	value="80."/>
+	<define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="80"/>
 </section>
 
 <!-- Vertical Control done only with Throttle -->
 <section name="VERTICAL CONTROL" prefix="V_CTL_">
-	<define name="POWER_CTL_BAT_NOMINAL" 	value="23.0" unit="volt"/>
+	<define name="POWER_CTL_BAT_NOMINAL" 	value="22.2" unit="volt"/>
 	<define name="ALTITUDE_PGAIN" 		value="0.03"/> 	<!-- outer loop proportional gain -->
 	<define name="ALTITUDE_MAX_CLIMB" 	value="2."/>	<!-- outer loop saturation -->
 

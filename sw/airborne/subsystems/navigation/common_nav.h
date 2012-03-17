@@ -33,6 +33,10 @@ extern float dist2_to_home;
 extern float dist2_to_wp;
 extern bool_t too_far_from_home;
 
+extern float dist_trav;
+extern float last_x;
+extern float last_y;
+
 struct point {
   float x;
   float y;

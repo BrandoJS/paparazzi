@@ -30,6 +30,10 @@
 
 float dist2_to_home;
 float dist2_to_wp;
+float dist_trav;
+
+float last_x;
+float last_y; 
 
 bool_t too_far_from_home;
 
@@ -109,4 +113,14 @@ void nav_move_waypoint(uint8_t wp_id, float ux, float uy, float alt) {
     waypoints[wp_id].y = waypoints[WP_HOME].y + dy;
     waypoints[wp_id].a = alt;
   }
+}
+
+void compute_dist(void) {
+  
+  float ph_x = last_x - estimator_x;
+  float ph_y = last_y - estimator_y;
+  last_x = estimator_x;
+  last_y = estimator_y;
+  dist_trav = dist_trav + sqrt(ph_x*ph_x + ph_y *ph_y)/1000.0;
+  
 }

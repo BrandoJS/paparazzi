@@ -1,6 +1,6 @@
 <!DOCTYPE airframe SYSTEM "airframe.dtd">
 
-<!-- Minion Airframe 
+<!-- Titan Airframe 
 	(aileron, elevator, rudder, flaps)
      TWOG
      UGEAR 2.0
@@ -11,11 +11,11 @@
 
 
 <servos>
-	<servo name="THROTTLE"	no="0" min="1000" neutral="1000" max="2000"/>
+	<servo name="THROTTLE"	no="1" min="1000" neutral="1000" max="2000"/>
 	<servo name="AILERON"  	no="2" min="2000" neutral="1460" max="1000"/> <!-- REVERSED -->
 	<servo name="ELEVATOR" 	no="3" min="1000" neutral="1550" max="2000"/>
 	<servo name="RUDDER" 	no="4" min="2000" neutral="1470" max="1000"/> <!-- REVERSED -->
-	<servo name="FLAP"	no="6" min="1000" neutral="1500" max="2000"/>
+	<servo name="FLAP"	no="5" min="1000" neutral="1500" max="2000"/>
 </servos>
 
 <commands>
@@ -59,7 +59,7 @@
 </section>
 
 <section name="BAT">
-	<define name="MILLIAMP_AT_FULL_THROTTLE" value="45000"/>
+	<define name="MILLIAMP_AT_FULL_THROTTLE" value="65000"/>
 	<define name="CATASTROPHIC_BAT_LEVEL" value="20.0" unit="V"/>
 	<define name="LOW_BAT_LEVEL" value="22.2" unit="V"/>
     	<define name="CRITIC_BAT_LEVEL" value="21.5" unit="V"/>
@@ -67,14 +67,14 @@
 </section>
 
 <section name="MISC">
-	<define name="NOMINAL_AIRSPEED" 	value="16." 	unit="m/s"/>
+	<define name="NOMINAL_AIRSPEED" 	value="17." 	unit="m/s"/>
 	<define name="CARROT" 			value="5." 	unit="s"/>
 	<define name="KILL_MODE_DISTANCE" 	value="(1.5*MAX_DIST_FROM_HOME)"/>
 	<define name="CONTROL_RATE" 		value="60" 	unit="Hz"/>
 	<define name="XBEE_INIT" 		value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
 	<define name="ALT_KALMAN_ENABLED" 	value="TRUE"/>
-	<define name="DEFAULT_CIRCLE_RADIUS" 	value="100."/>
-	<define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="100"/>
+	<define name="DEFAULT_CIRCLE_RADIUS" 	value="80."/>
+	<define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="80"/>
 </section>
 
 <!-- Vertical Control done only with Throttle -->
@@ -141,7 +141,7 @@
   <firmware name="fixedwing">
     <target name="sim" 			board="pc" />
     <target name="jsbsim"       	board="pc"/>
-    <target name="ap" 			board="twog_1.0"/>
+    <target name="ap" 			board="lisa_m_1.0"/>
 
     <subsystem name="control"/>
 
@@ -157,7 +157,7 @@
 
 <!-- Sensors -->
     <subsystem name="ahrs"      type="ugear">
-	<configure name="UGEAR_PORT" value="UART0"/>
+	<configure name="UGEAR_PORT" value="UART1"/>
     </subsystem>
     <subsystem name="gps"       type="ugear"/>
     <subsystem name="navigation" type="extra"/>
@@ -169,9 +169,15 @@
     <define name="SixCellBatt"/>
     <define name="SYS_TIME_LED" value="1"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
+  
+    <define name="USE_UART5"/>
+     <define name="UART5_BAUD" value="115200"/>
+     <define name="SDC_LINK" value="UART5"/><!-- -->
+
   </firmware>
 
   <modules>
+    <load name="sdcard.xml"/> 
     <!-- No Modules -->
   </modules>
     

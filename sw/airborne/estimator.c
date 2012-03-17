@@ -98,6 +98,7 @@ void estimator_init( void ) {
 #endif
 
   estimator_flight_time = 0;
+  dist_trav = 0;
 
   // FIXME? Set initial airspeed to zero if USE_AIRSPEED ?
   EstimatorSetAirspeed( NOMINAL_AIRSPEED );
@@ -215,6 +216,7 @@ void estimator_update_state_gps( void ) {
   EstimatorSetSpeedPol(fspeed, fcourse, fclimb);
 
   // Heading estimation now in ahrs_infrared
+  
 
 }
 
