@@ -47,7 +47,6 @@ enum oval_status { OR12, OC2, OR21, OC1 };
 
 extern float cur_pos_x;
 extern float cur_pos_y;
-extern float last_x, last_y;
 
 extern float desired_x, desired_y, nav_altitude, flight_altitude, nav_glide_pitch_trim;
 

@@ -67,7 +67,7 @@ void AOA_adc_init( void ) {
 #endif
 }
 
-void AOA_adc_update( void ) {
+void AOA_adc_update( void ) {  //10 Hz
 #ifndef SITL
 	adc_AOA_val = buf_AOA.sum / buf_AOA.av_nb_sample;
 
@@ -75,7 +75,7 @@ void AOA_adc_update( void ) {
 	AOA = AOA_filter * AOA_old + (1 - AOA_filter) * (adc_AOA_val*(2*M_PI)/1024-M_PI+AOA_offset);
 	AOA_old = AOA;
 #endif
-	RunOnceEvery(30, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA));
+	RunOnceEvery(4, DOWNLINK_SEND_AOA_adc(DefaultChannel, DefaultDevice, &adc_AOA_val, &AOA)); // .4s
 
 #ifdef USE_AOA
 	EstimatorSetAOA(AOA);

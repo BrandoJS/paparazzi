@@ -21,6 +21,7 @@
  */
 
 #include "modules/sensors/airspeed_adc.h"
+#include "modules/sensors/baro_bmp.h"
 #include "mcu_periph/adc.h"
 #include BOARD_CONFIG
 #include "generated/airframe.h"
@@ -53,6 +54,8 @@ struct adc_buf buf_airspeed;
 
 float airspeed_scale;
 uint16_t airspeed_bias;
+float rho;
+float true_airspeed;
 
 void airspeed_adc_init( void ) {
   airspeed_scale = AIRSPEED_SCALE;
@@ -66,16 +69,28 @@ void airspeed_adc_update( void ) {
 #ifndef SITL
   adc_airspeed_val = buf_airspeed.sum / buf_airspeed.av_nb_sample;
 #ifdef AIRSPEED_QUADRATIC_SCALE
-  float airspeed = (adc_airspeed_val - AIRSPEED_BIAS);
+  float airspeed = (adc_airspeed_val - airspeed_bias);
   if (airspeed <= 0.0f)
     airspeed = 0.0f;
   airspeed = sqrtf(airspeed) * AIRSPEED_QUADRATIC_SCALE;
 #else
-  float airspeed = AIRSPEED_SCALE * (adc_airspeed_val - AIRSPEED_BIAS);
+  float pas = airspeed_scale * (adc_airspeed_val - airspeed_bias);
+  float airspeed = sqrtf(2*pas/1.225);
+  if (pas < 0)
+	airspeed = 0;
+  //uint16_t past = (uint16_t)(pas*10);
+#endif
+/* True Airspeed Measurement with baro */
+#ifdef USE_BARO
+  rho = baro_bmp_pressure/(287.058*(baro_bmp_temperature/10.+273.15));
+  true_airspeed = airspeed*sqrtf(1.225/rho);
+#else
+  rho = 1.225;
+  true_airspeed = airspeed;
 #endif
   EstimatorSetAirspeed(airspeed);
 #ifdef SENSOR_SYNC_SEND
-  //DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, &adc_airspeed_val, &airspeed_ets_offset, &airspeed);
+  //DOWNLINK_SEND_AIRSPEED_ETS(DefaultChannel, DefaultDevice, &adc_airspeed_val, &past, &airspeed);
 #endif
 #else // SITL
   extern float sim_air_speed;

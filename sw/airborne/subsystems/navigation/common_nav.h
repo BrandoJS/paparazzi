@@ -62,6 +62,7 @@ extern uint8_t nav_utm_zone0;
 
 
 void compute_dist2_to_home(void);
+void compute_dist(void);
 unit_t nav_reset_reference( void ) __attribute__ ((unused));
 unit_t nav_update_waypoints_alt( void ) __attribute__ ((unused));
 void common_nav_periodic_task_4Hz(void);

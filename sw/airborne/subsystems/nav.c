@@ -43,7 +43,6 @@
 
 enum oval_status oval_status;
 
-float last_x, last_y;
 
 /** Index of last waypoint. Used only in "go" stage in "route" horiz mode */
 static uint8_t last_wp __attribute__ ((unused));

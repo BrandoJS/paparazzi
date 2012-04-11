@@ -535,7 +535,14 @@
     <field name="Err_Pos" type="float"></field>
   </message>
 
- <!-- 68 is free -->
+  <message name="AOA_SS_adc" id="68">
+	<field name="adc1Val" 	type="uint16"></field>
+	<field name="AOA1" 	type="float" unit="rad"></field>
+	<field name="adc2Val" 	type="uint16"></field>
+	<field name="AOA2" 	type="float" unit="rad"></field>
+	<field name="adc3Val" 	type="uint16"></field>
+	<field name="SS" 	type="float" unit="rad"></field>
+  </message>
 
 	<message name="AOA_adc" id="69">
 		<field name="adcVal" type="uint16"></field>
@@ -551,6 +558,12 @@
  <!-- 72 is free -->
  <!-- 73 is free -->
  <!-- 74 is free -->
+
+  <message name="AIRSPEED_IND" id="74">
+    <field name="ind_airspeed" type="float" unit="m/s"/>
+    <field name="true_airspeed" type="float" unit="m/s"/>
+    <field name="air_density"  type="float" />
+  </message>
  <!-- 75 is free -->
 
   <message name="POSITION" id="75">

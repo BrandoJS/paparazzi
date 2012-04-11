@@ -1,6 +1,10 @@
 /*
  * Copyright (C) 2010 The Paparazzi Team
  *
+ * Autor: Bruzzlee
+ * Angle of Attack ADC Sensor
+ * US DIGITAL MA3-A10-236-N
+ *
  * This file is part of paparazzi.
  *
  * paparazzi is free software; you can redistribute it and/or modify
@@ -20,21 +24,19 @@
  *
  */
 
-#ifndef AIRSPEED_ADC_H
-#define AIRSPEED_ADC_H
+#ifndef AOA_SS_ADC_H
+#define AOA_SS_ADC_H
 
 #include <inttypes.h>
 
-extern uint16_t adc_airspeed_val;
-extern uint16_t airspeed_ets_offset;
+extern uint16_t adc_AOA1_val;
+extern uint16_t adc_AOA2_val;
+extern uint16_t adc_SS_val;
+extern float AOA1_offset, AOA1_filter;
+extern float AOA2_offset, AOA2_filter;
+extern float SS_offset, SS_filter;
 
-extern float airspeed_scale;
-extern uint16_t airspeed_bias;
+void AOA_SS_adc_init( void );
+void AOA_SS_adc_update( void );
 
-extern float rho;
-extern float true_airspeed;
-
-void airspeed_adc_init( void );
-void airspeed_adc_update( void );
-
-#endif /* AIRSPEED_ADC_H */
+#endif /* AOA_ADC_H */
