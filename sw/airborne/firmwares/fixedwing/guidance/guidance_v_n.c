@@ -1,6 +1,4 @@
 /*
- * $Id: $
- *
  * Copyright (C) 2010 ENAC
  *
  * This file is part of paparazzi.
@@ -19,12 +17,11 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
- *
  */
 
 /**
- *  \file v_ctl_ctl_n
- *  \brief Vertical control for fixed wing vehicles.
+ *  @file firmwares/fixedwing/guidance/guidance_v_n.c
+ *  "New" vertical control for fixed wing vehicles.
  *
  */
 
@@ -56,6 +53,8 @@ uint8_t v_ctl_auto_throttle_submode;
 /* "auto throttle" inner loop parameters */
 float v_ctl_auto_throttle_cruise_throttle;
 float v_ctl_auto_throttle_nominal_cruise_throttle;
+float v_ctl_auto_throttle_min_cruise_throttle;
+float v_ctl_auto_throttle_max_cruise_throttle;
 float v_ctl_auto_throttle_climb_throttle_increment;
 float v_ctl_auto_throttle_pgain;
 float v_ctl_auto_throttle_igain;
@@ -133,6 +132,8 @@ void v_ctl_init( void ) {
   /* "auto throttle" inner loop parameters */
   v_ctl_auto_throttle_nominal_cruise_throttle = V_CTL_AUTO_THROTTLE_NOMINAL_CRUISE_THROTTLE;
   v_ctl_auto_throttle_cruise_throttle = v_ctl_auto_throttle_nominal_cruise_throttle;
+  v_ctl_auto_throttle_min_cruise_throttle = V_CTL_AUTO_THROTTLE_MIN_CRUISE_THROTTLE;
+  v_ctl_auto_throttle_max_cruise_throttle = V_CTL_AUTO_THROTTLE_MAX_CRUISE_THROTTLE;
   v_ctl_auto_throttle_climb_throttle_increment = V_CTL_AUTO_THROTTLE_CLIMB_THROTTLE_INCREMENT;
   v_ctl_auto_throttle_pgain = V_CTL_AUTO_THROTTLE_PGAIN;
   v_ctl_auto_throttle_igain = V_CTL_AUTO_THROTTLE_IGAIN;

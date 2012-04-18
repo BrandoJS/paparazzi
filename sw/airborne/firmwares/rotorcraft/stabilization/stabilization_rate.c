@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (C) 2008-2009 Antoine Drouin <poinix@gmail.com>
  * Copyright (C) 2010 Felix Ruess <felix.ruess@gmail.com>
  *
@@ -20,6 +18,12 @@
  * along with paparazzi; see the file COPYING.  If not, write to
  * the Free Software Foundation, 59 Temple Place - Suite 330,
  * Boston, MA 02111-1307, USA.
+ */
+
+/** @file stabilization_rate.c
+ *  Rate stabilization for rotorcrafts.
+ *
+ *  Control loops for angular velocity.
  */
 
 #include "firmwares/rotorcraft/stabilization.h"
@@ -142,7 +146,7 @@ void stabilization_rate_init(void) {
 void stabilization_rate_read_rc( void ) {
 
   if(ROLL_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.p = (int32_t)-radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
+    stabilization_rate_sp.p = (int32_t)radio_control.values[RADIO_ROLL] * STABILIZATION_RATE_SP_MAX_P / MAX_PPRZ;
   else
     stabilization_rate_sp.p = 0;
 
@@ -152,7 +156,7 @@ void stabilization_rate_read_rc( void ) {
     stabilization_rate_sp.q = 0;
 
   if(YAW_RATE_DEADBAND_EXCEEDED())
-    stabilization_rate_sp.r = (int32_t)-radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
+    stabilization_rate_sp.r = (int32_t)radio_control.values[RADIO_YAW] * STABILIZATION_RATE_SP_MAX_R / MAX_PPRZ;
   else
     stabilization_rate_sp.r = 0;
 
@@ -179,7 +183,7 @@ void stabilization_rate_run(bool_t in_flight) {
   RATES_ADD(stabilization_rate_ref, _delta_ref);
 
   /* compute feed-forward command */
-  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 14);
+  RATES_EWMULT_RSHIFT(stabilization_rate_ff_cmd, stabilization_rate_ddgain, stabilization_rate_refdot, 9);
 
 
   /* compute feed-back command */
@@ -209,13 +213,18 @@ void stabilization_rate_run(bool_t in_flight) {
   stabilization_rate_fb_cmd.r = stabilization_rate_gain.r * _error.r +
     OFFSET_AND_ROUND2((stabilization_rate_igain.r  * stabilization_rate_sum_err.r), 10);
 
-  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 16;
-  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 16;
-  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 16;
+  stabilization_rate_fb_cmd.p = stabilization_rate_fb_cmd.p >> 11;
+  stabilization_rate_fb_cmd.q = stabilization_rate_fb_cmd.q >> 11;
+  stabilization_rate_fb_cmd.r = stabilization_rate_fb_cmd.r >> 11;
 
   /* sum to final command */
   stabilization_cmd[COMMAND_ROLL]  = stabilization_rate_ff_cmd.p + stabilization_rate_fb_cmd.p;
   stabilization_cmd[COMMAND_PITCH] = stabilization_rate_ff_cmd.q + stabilization_rate_fb_cmd.q;
   stabilization_cmd[COMMAND_YAW]   = stabilization_rate_ff_cmd.r + stabilization_rate_fb_cmd.r;
+
+  /* bound the result */
+  BoundAbs(stabilization_cmd[COMMAND_ROLL], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_PITCH], MAX_PPRZ);
+  BoundAbs(stabilization_cmd[COMMAND_YAW], MAX_PPRZ);
 
 }

@@ -1,7 +1,7 @@
 # attitude estimation for fixedwings via GX3
 
 ifndef GX3_PORT
-  GX3_PORT=UART2
+  GX3_PORT=UART3
 endif
 ifndef GX3_BAUD
   GX3_BAUD=B115200

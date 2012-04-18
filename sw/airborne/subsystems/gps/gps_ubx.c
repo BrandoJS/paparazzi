@@ -24,8 +24,9 @@
 
 #include "led.h"
 
-#ifdef GPS_USE_LATLONG
-#include "subsystems/nav.h"
+#if GPS_USE_LATLONG
+/* currently needed to get nav_utm_zone0 */
+#include "subsystems/navigation/common_nav.h"
 #include "math/pprz_geodetic_float.h"
 #endif
 
@@ -124,7 +125,7 @@ void gps_ubx_read_message(void) {
       gps.lla_pos.lon = RadOfDeg(UBX_NAV_POSLLH_LON(gps_ubx.msg_buf));
       gps.lla_pos.alt = UBX_NAV_POSLLH_HEIGHT(gps_ubx.msg_buf);
       gps.hmsl        = UBX_NAV_POSLLH_HMSL(gps_ubx.msg_buf);
-#ifdef GPS_USE_LATLONG
+#if GPS_USE_LATLONG
       /* Computes from (lat, long) in the referenced UTM zone */
       struct LlaCoor_f lla_f;
       lla_f.lat = ((float) gps.lla_pos.lat) / 1e7;
@@ -163,6 +164,7 @@ void gps_ubx_read_message(void) {
       // solution: First to radians, and then scale to 1e-7 radians
       // First x 10 for loosing less resolution, then to radians, then multiply x 10 again
       gps.course = (RadOfDeg(UBX_NAV_VELNED_Heading(gps_ubx.msg_buf)*10)) * 10;
+      gps.cacc = (RadOfDeg(UBX_NAV_VELNED_CAcc(gps_ubx.msg_buf)*10)) * 10;
       gps.tow = UBX_NAV_VELNED_ITOW(gps_ubx.msg_buf);
       gps_ubx.have_velned = 1;
     }

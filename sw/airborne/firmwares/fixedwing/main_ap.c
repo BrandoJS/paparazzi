@@ -81,6 +81,11 @@
 #include "gpio.h"
 #include "led.h"
 
+#if defined RADIO_CONTROL
+#pragma message "CAUTION! radio control roll channel input has been changed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when banking right!"
+#endif
+
+
 
 #if USE_AHRS
 #if USE_IMU
@@ -357,7 +362,7 @@ static inline void telecommand_task( void ) {
    */
   if (pprz_mode == PPRZ_MODE_AUTO1) {
     /** Roll is bounded between [-AUTO1_MAX_ROLL;AUTO1_MAX_ROLL] */
-    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., -AUTO1_MAX_ROLL);
+    h_ctl_roll_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_ROLL], 0., AUTO1_MAX_ROLL);
 
     /** Pitch is bounded between [-AUTO1_MAX_PITCH;AUTO1_MAX_PITCH] */
     h_ctl_pitch_setpoint = FLOAT_OF_PPRZ(fbw_state->channels[RADIO_PITCH], 0., AUTO1_MAX_PITCH);
@@ -409,7 +414,7 @@ void reporting_task( void ) {
 
 
 #ifdef FAILSAFE_DELAY_WITHOUT_GPS
-#define GpsTimeoutError (cpu_time_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
+#define GpsTimeoutError (sys_time.nb_sec - gps.last_fix_time > FAILSAFE_DELAY_WITHOUT_GPS)
 #endif
 
 /**
@@ -512,7 +517,7 @@ void attitude_loop( void ) {
   h_ctl_attitude_loop(); /* Set  h_ctl_aileron_setpoint & h_ctl_elevator_setpoint */
   v_ctl_throttle_slew();
   ap_state->commands[COMMAND_THROTTLE] = v_ctl_throttle_slewed;
-  ap_state->commands[COMMAND_ROLL] = h_ctl_aileron_setpoint;
+  ap_state->commands[COMMAND_ROLL] = -h_ctl_aileron_setpoint;
 
   ap_state->commands[COMMAND_PITCH] = h_ctl_elevator_setpoint;
 
@@ -572,7 +577,10 @@ void monitor_task( void ) {
       estimator_hspeed_mod > MIN_SPEED_FOR_TAKEOFF) {
     estimator_flight_time = 1;
     launch = TRUE; /* Not set in non auto launch */
-    //DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &cpu_time_sec);
+
+    uint16_t time_sec = sys_time.nb_sec;
+    DOWNLINK_SEND_TAKEOFF(DefaultChannel, DefaultDevice, &time_sec);
+
   }
 
 
@@ -731,11 +739,10 @@ static inline void on_gyro_event( void ) {
 
 static inline void on_mag_event(void)
 {
-#ifdef IMU_MAG_X_SIGN
+#if USE_MAGNETOMETER
   ImuScaleMag(imu);
   if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag();
-//    ahrs_update_fw_estimator();
   }
 #endif
 }

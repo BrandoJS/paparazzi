@@ -57,6 +57,7 @@
 #define PERIODIC_SEND_ROTORCRAFT_STATUS(_trans, _dev) {			\
     uint32_t imu_nb_err = 0;						\
     uint8_t _twi_blmc_nb_err = 0;					\
+    uint16_t time_sec = sys_time.nb_sec; \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,				\
                     &imu_nb_err,			\
                     &_twi_blmc_nb_err,			\
@@ -69,7 +70,7 @@
                     &guidance_h_mode,			\
                     &guidance_v_mode,			\
                     &electrical.vsupply,		\
-                    &sys_time.nb_sec			\
+                    &time_sec			\
                     );					\
   }
 #else /* !USE_GPS */
@@ -77,6 +78,7 @@
     uint32_t imu_nb_err = 0;						\
     uint8_t twi_blmc_nb_err = 0;					\
     uint8_t  fix = GPS_FIX_NONE;					\
+    uint16_t time_sec = sys_time.nb_sec;                            \
     DOWNLINK_SEND_ROTORCRAFT_STATUS(_trans, _dev,					\
                   &imu_nb_err,				\
                   &twi_blmc_nb_err,				\
@@ -89,7 +91,7 @@
                   &guidance_h_mode,			\
                   &guidance_v_mode,			\
                   &electrical.vsupply,		\
-                  &sys_time.nb_sec    \
+                  &time_sec    \
                   );					\
   }
 #endif /* USE_GPS */
@@ -314,12 +316,12 @@
   }
 
 
-#define PERIODIC_SEND_BOOZ2_CMD(_trans, _dev) {				\
-    DOWNLINK_SEND_BOOZ2_CMD(_trans, _dev,					\
-                &stabilization_cmd[COMMAND_ROLL],	\
-                &stabilization_cmd[COMMAND_PITCH],	\
-                &stabilization_cmd[COMMAND_YAW],	\
-                &stabilization_cmd[COMMAND_THRUST]);	\
+#define PERIODIC_SEND_ROTORCRAFT_CMD(_trans, _dev) {                    \
+    DOWNLINK_SEND_ROTORCRAFT_CMD(_trans, _dev,                          \
+                                 &stabilization_cmd[COMMAND_ROLL],      \
+                                 &stabilization_cmd[COMMAND_PITCH],     \
+                                 &stabilization_cmd[COMMAND_YAW],       \
+                                 &stabilization_cmd[COMMAND_THRUST]);   \
   }
 
 
@@ -475,8 +477,8 @@
 
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
-#define PERIODIC_SEND_VFF(_chan) {		\
-    DOWNLINK_SEND_VFF(_chan,			\
+#define PERIODIC_SEND_VFF(_trans, _dev) {		\
+    DOWNLINK_SEND_VFF(_trans, _dev,			\
 			    &ins_baro_abs,	\
 			    &accz_raw,	\
 			    &accz_filtered,     \
@@ -517,11 +519,11 @@
                                 &b2_hff_state.yP[1][1]);    \
   }
 #ifdef GPS_LAG
-#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {	\
-    DOWNLINK_SEND_HFF_GPS(_trans, _dev,			\
-                              &b2_hff_rb_last->lag_counter,		\
-                              &lag_counter_err,	\
-                              &save_counter);	\
+#define PERIODIC_SEND_HFF_GPS(_trans, _dev) {               \
+    DOWNLINK_SEND_HFF_GPS(_trans, _dev,                     \
+                          &(b2_hff_rb_last->lag_counter),   \
+                          &lag_counter_err,                 \
+                          &save_counter);                   \
   }
 #else
 #define PERIODIC_SEND_HFF_GPS(_trans, _dev) {}
@@ -671,14 +673,6 @@
                            &gps.num_sv,             \
                            &gps.fix);               \
     static uint8_t i;                               \
-<<<<<<< HEAD
-	if ((gps.fix != GPS_FIX_3D) && (i >= gps.nb_channels)) i = 0;                                    \
-    	if (i >= gps.nb_channels * 2) i = 0;                                    \
-    	if (i < gps.nb_channels && gps.svinfos[i].cno > 0) { \
-      	DOWNLINK_SEND_SVINFO(DefaultChannel, &i, &gps.svinfos[i].svid, &gps.svinfos[i].flags, &gps.svinfos[i].qi, &gps.svinfos[i].cno, &gps.svinfos[i].elev, &gps.svinfos[i].azim); \
-    	}                                                                   \
-    	i++;                                                                \
-=======
     static uint8_t last_cnos[GPS_NB_CHANNELS];      \
     if (i == gps.nb_channels) i = 0;                \
     if (i < gps.nb_channels && gps.svinfos[i].cno > 0 && gps.svinfos[i].cno != last_cnos[i]) { \
@@ -686,7 +680,6 @@
       last_cnos[i] = gps.svinfos[i].cno;                                \
     }                                                                   \
     i++;                                                                \
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
   }
 #else
 #define PERIODIC_SEND_GPS_INT(_trans, _dev) {}
@@ -731,22 +724,21 @@
 #define PERIODIC_SEND_BOOZ2_CAM(_trans, _dev) {}
 #endif
 
-#define PERIODIC_SEND_BOOZ2_TUNE_HOVER(_trans, _dev) {                     \
-    DOWNLINK_SEND_BOOZ2_TUNE_HOVER(_trans, _dev,                       \
-                   &radio_control.values[RADIO_ROLL],  \
-                   &radio_control.values[RADIO_PITCH], \
-                   &radio_control.values[RADIO_YAW],   \
-                   &stabilization_cmd[COMMAND_ROLL],      \
-                   &stabilization_cmd[COMMAND_PITCH],     \
-                   &stabilization_cmd[COMMAND_YAW],       \
-                   &stabilization_cmd[COMMAND_THRUST],    \
-                   &ahrs.ltp_to_imu_euler.phi,         \
-                   &ahrs.ltp_to_imu_euler.theta,           \
-                   &ahrs.ltp_to_imu_euler.psi,         \
-                   &ahrs.ltp_to_body_euler.phi,        \
-                   &ahrs.ltp_to_body_euler.theta,          \
-                   &ahrs.ltp_to_body_euler.psi         \
-                   );                          \
+#define PERIODIC_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev) {             \
+    DOWNLINK_SEND_ROTORCRAFT_TUNE_HOVER(_trans, _dev,                   \
+                                        &radio_control.values[RADIO_ROLL], \
+                                        &radio_control.values[RADIO_PITCH], \
+                                        &radio_control.values[RADIO_YAW], \
+                                        &stabilization_cmd[COMMAND_ROLL], \
+                                        &stabilization_cmd[COMMAND_PITCH], \
+                                        &stabilization_cmd[COMMAND_YAW], \
+                                        &stabilization_cmd[COMMAND_THRUST], \
+                                        &ahrs.ltp_to_imu_euler.phi,     \
+                                        &ahrs.ltp_to_imu_euler.theta,   \
+                                        &ahrs.ltp_to_imu_euler.psi,     \
+                                        &ahrs.ltp_to_body_euler.phi,    \
+                                        &ahrs.ltp_to_body_euler.theta,  \
+                                        &ahrs.ltp_to_body_euler.psi);   \
   }
 
 #define PERIODIC_SEND_I2C_ERRORS(_trans, _dev) {                       \
@@ -761,21 +753,16 @@
                    );                          \
   }
 
-<<<<<<< HEAD
 
 #ifdef USE_SONAR
 #include "modules/sonar/sonar_maxbotix.h"
-#define PERIODIC_SEND_SONAR(_chan) DOWNLINK_SEND_SONAR(_chan,&sonar_meas,&sonar_filtered,&ins_sonar_offset,&d_sonar);
+#define PERIODIC_SEND_SONAR(_trans, _dev) DOWNLINK_SEND_SONAR(_trans, _dev,&sonar_meas,&sonar_filtered,&ins_sonar_offset,&d_sonar);
 #else
-#define PERIODIC_SEND_SONAR(_chan) {}
-=======
-//TODO replace by BOOZ_EXTRA_ADC
-#ifdef BOOZ2_SONAR
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) DOWNLINK_SEND_BOOZ2_SONAR(_trans, _dev,&booz2_adc_1,&booz2_adc_2,&booz2_adc_3,&booz2_adc_4);
-#else
-#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
->>>>>>> 127a2406d3b7b27f3a39455faa1a4b688db7d353
+#define PERIODIC_SEND_SONAR(_trans, _dev) {}
 #endif
+
+// FIXME: still used?? or replace by EXTRA_ADC
+#define PERIODIC_SEND_BOOZ2_SONAR(_trans, _dev) {}
 
 #ifdef BOOZ2_TRACK_CAM
 #include "cam_track.h"
@@ -795,5 +782,20 @@
 
 #include "generated/settings.h"
 #define PERIODIC_SEND_DL_VALUE(_trans, _dev) PeriodicSendDlValue(_trans, _dev)
+
+
+#ifdef USE_GX3
+#define PERIODIC_SEND_DEBUG_STARK(_trans, _dev) DOWNLINK_SEND_DEBUG_STARK(_trans, _dev,\
+    &GX3_freq,			\
+    &AHRS_freq,			\
+    &GX3_packet.chksm_error,	\
+    &GX3_packet.hdr_error,	\
+    &GX3_time,			\
+    &GX3_chksm,			\
+    &GX3_calcsm)
+#else
+#define PERIODIC_SEND_DEBUG_STARK(_trans, _dev) {}
+#endif
+
 
 #endif /* TELEMETRY_H */

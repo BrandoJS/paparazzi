@@ -30,19 +30,20 @@
 
 #define GX3Buffer() GX3Link(ChAvailable())
 
-struct GX3 {
-  struct FloatVect3 	G_acc;    /* GX3 accel		*/
-  struct FloatRates	G_gyr;    /* GX3 rates		*/
-  struct FloatRMat	G_rmat;    /* GX3 rmat		*/
-  
-};
-
-extern struct GX3 gx3;
 
 extern struct GX3_packet GX3_packet;
 
 extern void GX3_packet_read_message(void);
 extern void GX3_packet_parse(uint8_t c);
+extern float GX3_freq;
+extern float AHRS_freq;
+
+extern bool_t gx3_delay_done;
+extern uint32_t GX3_time;
+extern uint32_t GX3_ltime;
+extern uint16_t GX3_chksm;
+extern uint16_t GX3_calcsm;
+extern uint32_t gx3_stop_time;
 
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
@@ -79,6 +80,8 @@ static inline bool_t GX3_verify_chk(volatile uint8_t *buff_add) {
 
 struct GX3_packet {
   bool_t  msg_available;
+  uint32_t chksm_error;
+  uint32_t hdr_error;
   uint8_t msg_buf[GX3_MAX_PAYLOAD] __attribute__ ((aligned));
 
   uint8_t  status;
@@ -86,6 +89,8 @@ struct GX3_packet {
 
 };
 
+#define GX3_TIME(_ubx_payload) (uint32_t)((uint32_t)(*((uint8_t*)_ubx_payload+62+3))|(uint32_t)(*((uint8_t*)_ubx_payload+62+2))<<8|(uint32_t)(*((uint8_t*)_ubx_payload+62+1))<<16|(uint32_t)(*((uint8_t*)_ubx_payload+62+0))<<24)
+#define GX3_CHKSM(_ubx_payload) (uint16_t)((uint16_t)(*((uint8_t*)_ubx_payload+66+1))|(uint16_t)(*((uint8_t*)_ubx_payload+66+0))<<8)
 
 
 #define AhrsEvent(_sol_available_callback) {				\

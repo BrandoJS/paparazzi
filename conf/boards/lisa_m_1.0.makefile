@@ -1,7 +1,8 @@
+# Hey Emacs, this is a -*- makefile -*-
 #
 # lisa_m_1.0.makefile
 #
-# http://paparazzi.enac.fr/wiki/User/LisaM
+# http://paparazzi.enac.fr/wiki/Lisa/M
 #
 
 BOARD=lisa_m
@@ -52,8 +53,16 @@ SYS_TIME_LED = 1
 endif
 
 
-RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART5
+#
+# default uart configuration
+#
+ifndef RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT
+RADIO_CONTROL_SPEKTRUM_PRIMARY_PORT   = UART3
+endif
+
+ifndef RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT
 RADIO_CONTROL_SPEKTRUM_SECONDARY_PORT = UART5
+endif
 
 ifndef MODEM_PORT
 MODEM_PORT=UART2
@@ -69,17 +78,6 @@ endif
 ifndef GPS_BAUD
 GPS_BAUD=B38400
 endif
-
-
-#
-# this is the DRDY pin of a max1168 on a booz IMU
-#
-# v 1.0
-#
-MAX_1168_DRDY_PORT = _GPIOD
-MAX_1168_DRDY_PORT_SOURCE = PortSourceGPIOD
-# v1.1
-#MAX_1168_DRDY_PORT = GPIOB
 
 
 

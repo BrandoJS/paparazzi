@@ -1,26 +1,26 @@
 /*
- * $Id$
- *
- * Copyright (C) 2008-2010 The Paparazzi Team
- *
- * This file is part of Paparazzi.
- *
- * Paparazzi is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2, or (at your option)
- * any later version.
- *
- * Paparazzi is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with Paparazzi; see the file COPYING.  If not, write to
- * the Free Software Foundation, 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- *
- */
+* $Id$
+*
+* Copyright (C) 2008-2010 The Paparazzi Team
+*
+* This file is part of Paparazzi.
+*
+* Paparazzi is free software; you can redistribute it and/or modify
+* it under the terms of the GNU General Public License as published by
+* the Free Software Foundation; either version 2, or (at your option)
+* any later version.
+*
+* Paparazzi is distributed in the hope that it will be useful,
+* but WITHOUT ANY WARRANTY; without even the implied warranty of
+* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+* GNU General Public License for more details.
+*
+* You should have received a copy of the GNU General Public License
+* along with Paparazzi; see the file COPYING. If not, write to
+* the Free Software Foundation, 59 Temple Place - Suite 330,
+* Boston, MA 02111-1307, USA.
+*
+*/
 
 #define MODULES_C
 
@@ -37,7 +37,11 @@
 
 #include "firmwares/rotorcraft/commands.h"
 #include "firmwares/rotorcraft/actuators.h"
+
+#if defined RADIO_CONTROL
 #include "subsystems/radio_control.h"
+#pragma message "CAUTION! RadioControl roll and yaw channel inputs have been reversed to follow aerospace sign conventions.\n You will have to change your radio control xml file to get a positive value when pushing roll stick right and a positive value when pushing yaw stick right!"
+#endif
 
 #include "subsystems/imu.h"
 #include "subsystems/gps.h"
@@ -63,7 +67,9 @@
 
 #include "generated/modules.h"
 
-#ifdef USE_IMU
+#if USE_GX3
+static inline void on_gx3_event( void );
+#else
 static inline void on_gyro_event( void );
 static inline void on_accel_event( void );
 static inline void on_mag_event( void );
@@ -71,16 +77,16 @@ static inline void on_mag_event( void );
 static inline void on_baro_abs_event( void );
 static inline void on_baro_dif_event( void );
 static inline void on_gps_event( void );
-static inline void on_ahrs_event( void );
+
 
 
 
 tid_t main_periodic_tid; ///< id for main_periodic() timer
-tid_t failsafe_tid;      ///< id for failsafe_check() timer
+tid_t failsafe_tid; ///< id for failsafe_check() timer
 tid_t radio_control_tid; ///< id for radio_control_periodic_task() timer
-tid_t electrical_tid;    ///< id for electrical_periodic() timer
-tid_t baro_tid;          ///< id for baro_periodic() timer
-tid_t telemetry_tid;     ///< id for telemetry_periodic() timer
+tid_t electrical_tid; ///< id for electrical_periodic() timer
+tid_t baro_tid; ///< id for baro_periodic() timer
+tid_t telemetry_tid; ///< id for telemetry_periodic() timer
 
 #ifndef SITL
 int main( void ) {
@@ -98,16 +104,6 @@ STATIC_INLINE void main_init( void ) {
 
   mcu_init();
 
-  sys_time_init();
-
-#ifdef USE_GX3
-  /* IF THIS IS NEEDED SOME PERHIPHERAL THEN PLEASE MOVE IT THERE */
-  for (uint32_t startup_counter=0; startup_counter<2000000; startup_counter++){
-    __asm("nop");
-  }
-#endif
-
-
   electrical_init();
 
   actuators_init();
@@ -118,9 +114,7 @@ STATIC_INLINE void main_init( void ) {
 #endif
 
   baro_init();
-#ifndef USE_GX3
   imu_init();
-#endif
   autopilot_init();
   nav_init();
   guidance_h_init();
@@ -167,12 +161,14 @@ STATIC_INLINE void handle_periodic_tasks( void ) {
 }
 
 STATIC_INLINE void main_periodic( void ) {
-#ifdef USE_IMU
+
+#if USE_GX3
+#else
   imu_periodic();
 #endif
   /* run control loops */
   autopilot_periodic();
-  /* set actuators     */
+  /* set actuators */
   actuators_set(autopilot_motors_on);
 
   modules_periodic_task();
@@ -213,11 +209,10 @@ STATIC_INLINE void main_event( void ) {
   if (autopilot_rc) {
     RadioControlEvent(autopilot_on_rc_frame);
   }
-#ifdef USE_IMU
+#if USE_GX3
+  AhrsEvent(on_gx3_event);
+#else
   ImuEvent(on_gyro_event, on_accel_event, on_mag_event);
-#endif
-#ifdef USE_GX3
-AhrsEvent(on_ahrs_event);
 #endif
   BaroEvent(on_baro_abs_event, on_baro_dif_event);
 
@@ -233,7 +228,13 @@ AhrsEvent(on_ahrs_event);
 
 }
 
-#ifdef USE_IMU
+#if USE_GX3
+static inline void on_gx3_event( void ) {
+
+}
+
+#else
+
 static inline void on_accel_event( void ) {
   ImuScaleAccel(imu);
 
@@ -265,13 +266,20 @@ static inline void on_gyro_event( void ) {
 
 static inline void on_mag_event(void) {
   ImuScaleMag(imu);
-  if (ahrs.status == AHRS_RUNNING)
+
+#if USE_MAGNETOMETER
+  if (ahrs.status == AHRS_RUNNING) {
     ahrs_update_mag();
+  }
+#endif
+
 #ifdef USE_VEHICLE_INTERFACE
   vi_notify_mag_available();
 #endif
 }
-#endif
+
+
+#endif //USE_GX3
 
 static inline void on_baro_abs_event( void ) {
   ins_update_baro();
@@ -292,11 +300,6 @@ static inline void on_gps_event(void) {
 #endif
 }
 
-static inline void on_ahrs_event(void)
-{
-  if (ahrs.status == AHRS_UNINIT) {
-    ahrs_aligner_run();
-  }
 
-}
+
 

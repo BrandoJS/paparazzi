@@ -169,8 +169,9 @@ void ahrs_propagate(void) {
 #endif
 #if USE_NOISE_CUT
   }
-#endif
   RATES_COPY(last_uf_rate, uf_rate);
+#endif
+  
 
 
   /* integrate eulers */
@@ -218,8 +219,9 @@ void ahrs_update_accel(void) {
     get_phi_theta_measurement_fom_accel(&ahrs_impl.measurement.phi, &ahrs_impl.measurement.theta, imu.accel);
 #if USE_NOISE_CUT
   }
-#endif
   VECT3_COPY(last_accel, imu.accel);
+#endif
+  
 }
 
 

@@ -39,6 +39,7 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
+
 #ifdef USE_SONAR
 #include "generated/modules.h"
 #endif
@@ -155,36 +156,36 @@ void ins_realign_v(float z) {
 
 void ins_propagate() {
   /* untilt accels */
-  struct Int32Vect3 accel_body;
-  INT32_RMAT_TRANSP_VMULT(accel_body, imu.body_to_imu_rmat, imu.accel);
-  struct Int32Vect3 accel_ltp;
-  INT32_RMAT_TRANSP_VMULT(accel_ltp, ahrs.ltp_to_body_rmat, accel_body);
-  accz_raw = (int32_t)accel_ltp.z;
-  accz_filtered = accz_filtered + (((int32_t)accel_ltp.z-accz_filtered)>>5) ; //LPF at 2.62Hz 
-   
-
-  float z_accel_float = ACCEL_FLOAT_OF_BFP(accel_ltp.z);
+  struct Int32Vect3 accel_meas_body;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
+  struct Int32Vect3 accel_meas_ltp;
+  INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
+  
+  accz_raw = (int32_t)accel_meas_ltp.z;
+  accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>2) ; //LPF at 2.62Hz
 
 #if USE_VFF
+  float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accz_filtered);
   if (baro.status == BS_RUNNING && ins_baro_initialised) {
-    vff_propagate(z_accel_float);
+    vff_propagate(z_accel_meas_float);
     ins_ltp_accel.z = ACCEL_BFP_OF_REAL(vff_zdotdot);
     ins_ltp_speed.z = SPEED_BFP_OF_REAL(vff_zdot);
     ins_ltp_pos.z   = POS_BFP_OF_REAL(vff_z);
   }
   else { // feed accel from the sensors
-    ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
+    // subtract -9.81m/s2 (acceleration measured due to gravity, but vehivle not accelerating in ltp)
+    ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
   }
 #else
-  ins_ltp_accel.z = ACCEL_BFP_OF_REAL(z_accel_float);
+  ins_ltp_accel.z = accel_meas_ltp.z + ACCEL_BFP_OF_REAL(9.81);
 #endif /* USE_VFF */
 
 #if USE_HFF
   /* propagate horizontal filter */
   b2_hff_propagate();
 #else
-  ins_ltp_accel.x = accel_ltp.x;
-  ins_ltp_accel.y = accel_ltp.y;
+  ins_ltp_accel.x = accel_meas_ltp.x;
+  ins_ltp_accel.y = accel_meas_ltp.y;
 #endif /* USE_HFF */
 
   INT32_VECT3_ENU_OF_NED(ins_enu_pos, ins_ltp_pos);
@@ -205,18 +206,11 @@ void ins_update_baro() {
       ins_baro_initialised = TRUE;
     }
     ins_baro_alt = ((baro_filtered - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
- 
-    float baro_float = POS_FLOAT_OF_BFP(baro_filtered);
-    baro_float = baro_float/101325.0;
-    ins_baro_abs = 44330.*(1-pow(baro_float,.1903));
-
     float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
-
       ins_qfe = baro_filtered;
 #ifdef USE_SONAR
-
       ins_sonar_offset = sonar_meas;
 #endif
       vff_realign(0.);
