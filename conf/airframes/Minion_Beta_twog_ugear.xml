@@ -72,7 +72,8 @@
 	<define name="CARROT" 			value="5." 	unit="s"/>
 	<define name="KILL_MODE_DISTANCE" 	value="(1.5*MAX_DIST_FROM_HOME)"/>
 	<define name="CONTROL_RATE" 		value="60" 	unit="Hz"/>
-	<define name="XBEE_INIT" 		value="&quot;ATPL2\rATRN5\rATTT80\r&quot;"/>
+	<define name="XBEE_INIT" 		value="&quot;ATRN5\rATTT80\r&quot;"/> 
+        <!--<define name="NO_XBEE_API_INIT"/>-->
 	<define name="ALT_KALMAN_ENABLED" 	value="TRUE"/>
 	<define name="DEFAULT_CIRCLE_RADIUS" 	value="80."/>
 	<define name="DEFAULT_LANDING_CIRCLE_RADIUS" value="80"/>
@@ -153,13 +154,13 @@
     <subsystem name="control"/>
 
 <!-- Communication -->
-    <!--<subsystem name="telemetry" 	type="xbee_api">
+    <subsystem name="telemetry" 	type="xbee_api">
+      <configure name="MODEM_BAUD" 		value="B9600"/>
+    </subsystem>
+   
+    <!--<subsystem name="telemetry" 	type="transparent">
       <configure name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>-->
-   
-    <subsystem name="telemetry" 	type="transparent">
-      <configure name="MODEM_BAUD" 		value="B57600"/>
-    </subsystem>
     <subsystem name="radio_control" type="ppm"/>
 
 <!-- Sensors -->
@@ -195,10 +196,11 @@
       <define name="AOA1_FILTER" value="0.0"/>   
       <define name="AOA2_OFFSET" value="0.0"/>   
       <define name="AOA2_FILTER" value="0.0"/> 
-      <define name="SS_OFFSET" value="0.0"/>   
+      <define name="SS_OFFSET" value="-1.24"/>   
       <define name="SS_FILTER" value="0.0"/> 
        
     </load>
+    <load name="sys_mon.xml"/>
   </modules>
     
 

@@ -66,6 +66,7 @@ uint16_t adc_SS_val;
 #define ADC_CHANNEL_SS_NB_SAMPLES DEFAULT_AV_NB_SAMPLE
 #endif
 
+#endif
 struct adc_buf buf_AOA1;
 float AOA1_offset, AOA1_filter;
 float AOA1, AOA1_old;
@@ -75,10 +76,11 @@ float AOA2, AOA2_old;
 struct adc_buf buf_SS;
 float SS_offset, SS_filter;
 float SS, SS_old;
-#endif
+
 
 
 void AOA_SS_adc_init( void ) {
+
 	AOA1_offset = AOA1_OFFSET;
 	AOA1_filter = AOA1_FILTER;
 	AOA1_old = 0;
@@ -108,9 +110,9 @@ void AOA_SS_adc_update( void ) {  //10 Hz
 	AOA2_old = AOA2;
 	SS = SS_filter * SS_old + (1 - SS_filter) * (adc_SS_val*(2*M_PI)/1024-M_PI+SS_offset);
 	SS_old = SS;
-#endif
-	RunOnceEvery(4, DOWNLINK_SEND_AOA_SS_adc(DefaultChannel, DefaultDevice, &adc_AOA1_val, &AOA1, &adc_AOA2_val, &AOA2, &adc_SS_val, &SS)); // .4s
 
+	RunOnceEvery(4, DOWNLINK_SEND_AOA_SS_adc(DefaultChannel, DefaultDevice, &adc_AOA1_val, &AOA1, &adc_AOA2_val, &AOA2, &adc_SS_val, &SS)); // .4s
+#endif
 #ifdef USE_AOA
 	//EstimatorSetAOA(AOA);
 #endif

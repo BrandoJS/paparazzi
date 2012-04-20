@@ -36,6 +36,7 @@ extern float AOA1_offset, AOA1_filter;
 extern float AOA2_offset, AOA2_filter;
 extern float SS_offset, SS_filter;
 
+
 void AOA_SS_adc_init( void );
 void AOA_SS_adc_update( void );
 
