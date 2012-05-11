@@ -158,7 +158,8 @@ type aircraft = {
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float;
-    inflight_calib : inflight_calib
+    inflight_calib : inflight_calib;
+    mutable airspeed : float
   }
 
 let max_nb_dl_setting_values = 256 (** indexed iwth an uint8 (messages.xml)  *)
@@ -189,5 +190,6 @@ let new_aircraft = fun id name fp airframe ->
     horizontal_mode = 0;
     waypoints = Hashtbl.create 3; survey = None; last_msg_date = 0.; dist_to_wp = 0.;
     time_since_last_survey_msg = 1729.;
-    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.}
+    inflight_calib = { if_mode = 1 ; if_val1 = 0.; if_val2 = 0.};
+    airspeed=0.
   }

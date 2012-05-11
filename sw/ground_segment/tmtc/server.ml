@@ -232,6 +232,8 @@ let send_svsinfo = fun a ->
 	    f "cno" cno; f "elev" elev; f "azim" azim] in
   Ground_Pprz.message_send my_id "SVSINFO" vs
 
+
+
 let send_horiz_status = fun a ->
   match a.horiz_mode with
     Circle (geo, r) ->
@@ -396,6 +398,7 @@ let send_aircraft_msg = fun ac ->
     send_fbw a;
     send_svsinfo a;
     send_horiz_status a;
+    
 
     a.time_since_last_survey_msg <- a.time_since_last_survey_msg +. float aircraft_msg_period /. 1000.;
     if a.time_since_last_survey_msg > 5. then (* FIXME Two missed messages *)
@@ -515,6 +518,25 @@ let check_alerts = fun a ->
   else if a.bat < critic_level then send "CRITIC"
   else if a.bat < warning_level then send "WARNING"
 
+let check_alertsa = fun a ->
+  let airspeed_section = ExtXml.child a.airframe ~select:(fun x -> Xml.attrib x "name" = "AIRSPEED_WARNING") "section" in
+  let fvalue = fun name default ->
+    try ExtXml.float_attrib (ExtXml.child airspeed_section ~select:(fun x -> ExtXml.attrib x "name" = name) "define") "value" with _ -> default in
+
+  let catastrophic_level = fvalue "CATASTROPHIC_AIRSPEED" 9.
+  and critic_level = fvalue "CRITIC_AIRSPEED" 10.
+  and warning_level = fvalue "WARNING_AIRSPEED" 16. in
+
+  let send = fun level ->
+    let vs = [ "ac_id", Pprz.String a.id;
+	       "level", Pprz.String level;
+	       "value", Pprz.Float a.airspeed] in
+    Alerts_Pprz.message_send my_id "AIRSPEED_ALERT" vs in
+  if a.agl>20. then
+	if a.airspeed < catastrophic_level then send "OHGAWD"
+  	else if a.airspeed < critic_level then send "CRITIC"
+  	else if a.airspeed < warning_level then send "WARNING"
+
 let wind_clear = fun _sender vs ->
   Wind.clear (Pprz.string_assoc "ac_id" vs)
 
@@ -559,6 +581,7 @@ let register_aircraft = fun name a ->
   Hashtbl.add aircrafts name a;
   register_periodic a (periodic aircraft_msg_period (fun () -> send_aircraft_msg name));
   register_periodic a (periodic aircraft_alerts_period (fun () -> check_alerts a));
+  register_periodic a (periodic aircraft_alerts_period (fun () -> check_alertsa a));
   periodic_airprox_check name;
   register_periodic a (periodic wind_msg_period (fun () -> send_wind a));
   Wind.new_ac name 36;

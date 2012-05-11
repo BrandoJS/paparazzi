@@ -30,6 +30,7 @@ extern bool_t VerticalRaster(uint8_t wp1, uint8_t wp2, float radius, float AltSw
 
 extern bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After);
 extern bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After);
+void OSAMNavGlide(uint8_t From_WP, uint8_t To_WP);
 
 void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
 void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);

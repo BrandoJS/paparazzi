@@ -537,11 +537,11 @@
 
   <message name="AOA_SS_adc" id="68">
 	<field name="adc1Val" 	type="uint16"></field>
-	<field name="AOA1" 	type="float" unit="rad"></field>
+	<field name="AOA1" 	type="float" unit="rad" alt_unit="deg"></field>
 	<field name="adc2Val" 	type="uint16"></field>
-	<field name="AOA2" 	type="float" unit="rad"></field>
+	<field name="AOA2" 	type="float" unit="rad" alt_unit="deg"></field>
 	<field name="adc3Val" 	type="uint16"></field>
-	<field name="SS" 	type="float" unit="rad"></field>
+	<field name="SS" 	type="float" unit="rad" alt_unit="deg"></field>
   </message>
 
 	<message name="AOA_adc" id="69">
@@ -2459,6 +2459,11 @@
    <message name="AIR_PROX" id="2">
       <field name="ac_id" type="string"/>
       <field name="level" type="string" values="CATASTROPHIC|CRITIC|WARNING"/>
+  </message>
+  <message name="AIRSPEED_ALERT" id="3">
+      <field name="ac_id" type="string"/>
+      <field name="level" type="string" values="OHGAWD|CRITIC|WARNING"/>
+      <field name="value" type="float"/>
   </message>
 </class>
 

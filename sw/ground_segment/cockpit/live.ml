@@ -322,7 +322,7 @@ let mark = fun (geomap:G.widget) ac_id track plugin_frame ->
 
 (** Light display of attributes in the flight plan. *)
 let attributes_pretty_printer = fun attribs ->
-  (* Remove the optional attributes *)
+  (* Remove the optional attributes\A0*)
   let valid = fun a ->
     let a = String.lowercase a in
     a <> "no" && a <> "strip_icon" && a <> "strip_button" && a <> "pre_call"
@@ -871,7 +871,7 @@ let check_approaching = fun ac geo alert ->
   | Some ac_pos ->
       let d = LL.wgs84_distance ac_pos geo in
       if d < ac.speed *. approaching_alert_time then
-    log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name)
+	log_and_say alert ac.ac_name (sprintf "%s, approaching" ac.ac_name) 
 
 
 let ac_alt_graph = [14,0;-5,0;-7,-6]
@@ -1162,8 +1162,8 @@ let listen_flight_params = fun geomap auto_center_new_ac alert alt_graph ->
     and geo2 = { posn_lat = (Deg>>Rad)(a "segment2_lat"); posn_long = (Deg>>Rad)(a "segment2_long") } in
     ac.track#draw_segment geo1 geo2;
 
-    (* Check if approaching the end of the segment *)
-    check_approaching ac geo2 alert
+    (* Check if approaching the end of the segment 
+    check_approaching ac geo2 alert*)
   in
   safe_bind "SEGMENT_STATUS" get_segment_status;
 
@@ -1247,6 +1247,16 @@ let get_alert_bat_low = fun a _sender vs ->
 let listen_alert = fun a ->
   alert_bind "BAT_LOW" (get_alert_bat_low a)
 
+(* airspeed warning *)
+let get_as = fun a _sender vs ->
+  let ac = get_ac vs in
+  let air = Pprz.float_assoc "value" vs in
+  let level = Pprz.string_assoc "level" vs in
+  log_and_say a ac.ac_name (sprintf "%s Airspeed Low %.0f" level air)
+
+let listen_alerta = fun a ->
+  alert_bind "AIRSPEED_ALERT" (get_as a)
+
 let get_svsinfo = fun alarm _sender vs ->
   let ac = get_ac vs in
   let gps_page = ac.gps_page in
@@ -1282,9 +1292,12 @@ let get_ts = fun _sender vs ->
   ac.strip#set_label "telemetry_status" (if t > 2. then sprintf "%.0f" t else "   ");
   ac.strip#set_color "telemetry_status" (if t > 5. then alert_color else ok_color)
 
-
 let listen_telemetry_status = fun () ->
   safe_bind "TELEMETRY_STATUS" get_ts
+
+
+
+
 
 
 let mark_dcshot = fun (geomap:G.widget) _sender vs ->
@@ -1341,11 +1354,12 @@ let listen_acs_and_msgs = fun geomap ac_notebook my_alert auto_center_new_ac alt
   listen_wind_msg geomap;
   listen_fbw_msg my_alert;
   listen_engine_status_msg ();
-  listen_if_calib_msg ();
+  listen_if_calib_msg (); 
   listen_waypoint_moved ();
   listen_svsinfo my_alert;
   listen_telemetry_status ();
   listen_alert my_alert;
+  listen_alerta my_alert;
   listen_error my_alert;
   listen_tcas my_alert;
   listen_dcshot geomap;

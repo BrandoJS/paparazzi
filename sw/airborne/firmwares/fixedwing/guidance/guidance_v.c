@@ -263,7 +263,7 @@ inline static void v_ctl_climb_auto_throttle_loop(void) {
      + v_ctl_auto_throttle_dgain * d_err);
 
   /* pitch pre-command */
-  float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint + d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
+  float v_ctl_pitch_of_vz = (v_ctl_climb_setpoint - d_err * v_ctl_auto_throttle_pitch_of_vz_dgain) * v_ctl_auto_throttle_pitch_of_vz_pgain;
 
 #if defined AGR_CLIMB
   switch (v_ctl_auto_throttle_submode) {
@@ -372,7 +372,7 @@ inline static void v_ctl_climb_auto_pitch_loop(void) {
   v_ctl_auto_pitch_sum_err += err;
   BoundAbs(v_ctl_auto_pitch_sum_err, V_CTL_AUTO_PITCH_MAX_SUM_ERR);
   nav_pitch = -v_ctl_auto_pitch_pgain *
-    (err + v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
+    (err - v_ctl_auto_pitch_igain * v_ctl_auto_pitch_sum_err);
   Bound(nav_pitch, V_CTL_AUTO_PITCH_MIN_PITCH, V_CTL_AUTO_PITCH_MAX_PITCH);
 }
 #endif

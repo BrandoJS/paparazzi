@@ -1,0 +1,4 @@
+<map file="CurtisCreek.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 41.613274	-111.577108"/>
+  <point x="3065" y="2300" geo="WGS84 41.594821	-111.544222"/>
+</map>

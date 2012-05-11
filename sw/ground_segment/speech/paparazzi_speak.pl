@@ -158,7 +158,7 @@ sub ivyOnCalibContrast() {
 
 sub ivyOnTakeOff() {
   my ($self, $sender) = @_;
-  $self->speak('<VOLUME LEVEL=\"loud\"><EMP>Take Off</EMP></VOLUME>');
+  $self->speak('<VOLUME LEVEL=\"loud\"><EMP>OH GAAAAWD Take Off</EMP></VOLUME>');
 }
 
 sub speak() {

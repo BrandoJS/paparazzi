@@ -1,0 +1,21 @@
+<layout width="1280" height="709">
+  <columns>
+    <rows SIZE="400">
+      <widget NAME="strips" SIZE="400"/>
+      <widget NAME="aircraft"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+        <papget type="message_field" display="gauge" x="754" y="54">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="min" value="0"/>
+          <property name="max" value="25"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Airspeed"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>

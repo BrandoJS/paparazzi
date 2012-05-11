@@ -124,7 +124,8 @@ type aircraft = {
     mutable last_msg_date : float;
     mutable time_since_last_survey_msg : float;
     mutable dist_to_wp : float;
-    inflight_calib : inflight_calib
+    inflight_calib : inflight_calib;
+    mutable airspeed : float
 }
 
 val new_aircraft : string -> string -> Xml.xml -> Xml.xml -> aircraft

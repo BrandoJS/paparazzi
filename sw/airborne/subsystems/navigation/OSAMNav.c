@@ -1083,7 +1083,8 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 	case FLLine:
 
 		NavVerticalAutoThrottleMode(0); /* No pitch */
-		NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
+		//NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
+		OSAMNavGlide(From_WP, To_WP);
 
 		nav_route_xy(FLFROMWP.x,FLFROMWP.y,FLTOWP.x,FLTOWP.y);
 
@@ -1107,6 +1108,27 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 	}
 	return TRUE;
 
+}
+
+void OSAMNavGlide(uint8_t From_WP, uint8_t To_WP) 
+{
+  struct Point2D p_from;
+  struct Point2D p_to;
+  struct Point2D now;
+
+  float start_alt = waypoints[From_WP].a;
+  float diff_alt = waypoints[To_WP].a - start_alt;
+  p_from.x = waypoints[From_WP].x;
+  p_from.y = waypoints[From_WP].y;
+  p_to.x = waypoints[To_WP].x;
+  p_to.y = waypoints[To_WP].y;
+  now.x = estimator_x;
+  now.y = estimator_y;
+  
+  float EndDist = DistanceEquation(p_from,p_to);
+  float HereDist = DistanceEquation(p_from,now);
+  float alt = start_alt + (HereDist/EndDist) * diff_alt;
+  NavVerticalAltitudeMode(alt, 0);
 }
 
 static uint8_t FLBlockCount = 0;

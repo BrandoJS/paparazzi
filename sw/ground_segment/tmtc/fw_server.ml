@@ -246,6 +246,8 @@ let log_and_parse = fun ac_name (a:Aircraft.aircraft) msg values ->
         azim = ivalue "Azim";
         age = 0
       }
+  | "AIRSPEED_IND" ->
+      a.airspeed <- (fvalue "ind_airspeed")
   | "CIRCLE" ->
       begin
         match a.nav_ref, a.horizontal_mode with
