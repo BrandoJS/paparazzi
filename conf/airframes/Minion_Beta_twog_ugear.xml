@@ -68,7 +68,7 @@
 </section>
 
 <section name="AIRSPEED_WARNING">
-	<define name="WARNING_AIRSPEED" value="13"/>
+	<define name="WARNING_AIRSPEED" value="12"/>
 	<define name="CRITIC_AIRSPEED"  value="10"/>
 	<define name="CATASTROPHIC_AIRSPEED"	value="8"/>
 </section>
