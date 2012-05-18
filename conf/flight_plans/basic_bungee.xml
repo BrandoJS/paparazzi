@@ -9,15 +9,15 @@
   <waypoints>
     <waypoint name="HOME" x="0" y="0"/>
     <waypoint name="STDBY" x="3.6" y="-116.3"/>
-    <waypoint name="1" x="-180.0" y="-59.6"/>
-    <waypoint name="2" x="16.1" y="-60.4"/>
+    <waypoint name="1" x="-267.5" y="-146.3"/>
+    <waypoint name="2" x="30.3" y="-143.7"/>
     <waypoint name="MOB" x="137.0" y="-11.6"/>
-    <waypoint name="S1" x="-336.7" y="-104.7"/>
-    <waypoint name="S2" x="-0.1" y="24.8"/>
+    <waypoint name="S1" x="-329.2" y="-249.0"/>
+    <waypoint name="S2" x="-20.6" y="-82.8"/>
     <waypoint alt="1388.0" name="AF" x="47.3" y="-37.3"/>
     <waypoint alt="1348.0" name="TD" x="-153.0" y="-34.9"/>
     <waypoint name="_BASELEG" x="168.8" y="-13.8"/>
-    <waypoint alt="1350.0" name="Bungee" x="107.1" y="-153.3"/>
+    <waypoint alt="1350.0" name="Bungee" x="117.0" y="-157.9"/>
     <waypoint name="Center" x="-27.9" y="-7.4"/>
     <waypoint name="Edge" x="300.0" y="0.0"/>
   </waypoints>

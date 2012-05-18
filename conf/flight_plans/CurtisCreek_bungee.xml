@@ -8,20 +8,21 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="12.4" y="115.4"/>
-    <waypoint alt="1734.0" name="Bungee" x="-531.7" y="-5.4"/>
-    <waypoint alt="1980.0" name="STDBY" x="-530.1" y="155.0"/>
+    <waypoint alt="1734.0" name="Bungee" x="-456.6" y="12.9"/>
+    <waypoint alt="1980.0" name="STDBY" x="-599.3" y="93.7"/>
     <waypoint alt="1930.0" name="R1" x="-1324.5" y="-611.5"/>
     <waypoint alt="1930.0" name="R2" x="-687.4" y="-109.7"/>
     <waypoint alt="1980.0" name="R3" x="415.0" y="91.4"/>
     <waypoint name="1" x="-1018.1" y="-169.0"/>
-    <waypoint name="2" x="-224.6" y="255.5"/>
-    <waypoint name="MOB" x="137.0" y="-11.6"/>
+    <waypoint name="2" x="-48.2" y="611.4"/>
+    <waypoint alt="1860.0" name="MOB" x="137.0" y="-11.6"/>
     <waypoint name="_P1" x="-1916.6" y="942.0"/>
     <waypoint name="_P2" x="814.0" y="925.9"/>
     <waypoint name="_P3" x="807.5" y="-1134.8"/>
     <waypoint name="_P4" x="-1929.4" y="-1115.7"/>
     <waypoint alt="1814.0" name="AF" x="-510.4" y="134.9"/>
     <waypoint alt="1730.0" name="TD" x="-41.3" y="147.2"/>
+    <waypoint alt="1840.0" name="STBY2" x="-756.2" y="22.9"/>
   </waypoints>
   <sectors>
     <sector name="FlightArea">
@@ -49,6 +50,9 @@
     <block name="Takeoff" strip_button="Takeoff (wp_CLIMB)" strip_icon="takeoff.png">
       <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
       <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Wait">
+      <circle radius="nav_radius" wp="STBY2"/>
     </block>
     <block group="home" name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>

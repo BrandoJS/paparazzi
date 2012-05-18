@@ -304,7 +304,7 @@ bool_t BungeeTakeoff(void)
 	case Throttle:
 		//Follow Launch Line
 		NavVerticalAutoThrottleMode(AGR_CLIMB_PITCH);
-		NavVerticalThrottleMode(9600*(1));
+		NavVerticalThrottleMode(9600*(.8));
 		nav_route_xy(initialx,initialy,throttlePx,throttlePy);
 		kill_throttle = 0;
 
@@ -871,7 +871,7 @@ Landing Routine
 #define Landing_AFHeight 50
 #endif
 #ifndef Landing_FinalHeight
-#define Landing_FinalHeight 5
+#define Landing_FinalHeight 50
 #endif
 #ifndef Landing_FinalStageTime
 #define Landing_FinalStageTime 5
@@ -965,7 +965,7 @@ bool_t SkidLanding(void)
 	break;
 
 	case Approach:
-		kill_throttle = 1;
+		//kill_throttle = 1;
 		NavVerticalAutoThrottleMode(0); /* No pitch */
   		NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
 		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
@@ -1216,6 +1216,37 @@ float EvaluateLineForX(float y, struct Line L)
 float DistanceEquation(struct Point2D p1,struct Point2D p2)
 {
 	return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
+}
+
+float baseleg_out_qdr2;
+bool_t nav_compute_baseleg_2(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius ) {
+  nav_radius = radius;
+
+  float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
+  float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
+
+  /* Unit vector from AF to TD */
+  float d = sqrt(x_0*x_0+y_0*y_0);
+  float x_1 = x_0 / d;
+  float y_1 = y_0 / d;
+
+  float target_dist = 7*(waypoints[wp_af].a-waypoints[wp_td].a);
+
+  /* Ensure TD is at least 7*agl m away - glide slope of 14deg*/
+  if (d<target_dist) {
+  	waypoints[wp_td].x = waypoints[wp_af].x + target_dist*x_0/d;
+	waypoints[wp_td].y = waypoints[wp_af].y + target_dist*y_0/d;
+  }
+
+
+  waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
+  waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
+  waypoints[wp_baseleg].a = waypoints[wp_af].a;
+  baseleg_out_qdr2 = M_PI - atan2(-y_1, -x_1);
+  if (nav_radius < 0)
+    baseleg_out_qdr2 += M_PI;
+
+  return FALSE;
 }
 
 

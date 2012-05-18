@@ -224,6 +224,8 @@ static inline bool_t nav_compute_baseleg(uint8_t wp_af, uint8_t wp_td, uint8_t w
   float x_1 = x_0 / d;
   float y_1 = y_0 / d;
 
+
+
   waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
   waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
   waypoints[wp_baseleg].a = waypoints[wp_af].a;

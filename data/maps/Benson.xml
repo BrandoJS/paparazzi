@@ -1,0 +1,4 @@
+<map file="Benson.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 41.786826	-111.944144"/>
+  <point x="4101" y="3588" geo="WGS84 41.758110	-111.900140"/>
+</map>

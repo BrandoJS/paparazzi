@@ -15,6 +15,13 @@
           <property name="size" value="50."/>
           <property name="text" value="Airspeed"/>
         </papget>
+      <papget type="message_field" display="text" x="358" y="108">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="format" value="%.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
       <papget type="message_field" display="gauge" x="470" y="60">
         <property name="field" value="ESTIMATOR:z_dot"/>
         <property name="min" value="-10"/>

@@ -32,6 +32,9 @@ extern bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Spa
 extern bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After);
 void OSAMNavGlide(uint8_t From_WP, uint8_t To_WP);
 
+extern float baseleg_out_qdr2;
+extern bool_t nav_compute_baseleg_2(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius );
+
 void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
 void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);
 

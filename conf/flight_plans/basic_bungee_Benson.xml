@@ -38,7 +38,7 @@
       <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
       <call fun="BungeeTakeoff()"/>
     </block>
-    <block group="home" key="<Control>a" name="Standby" strip_button="Standby" strip_icon="home.png">
+    <block group="home" key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
       <circle radius="nav_radius" wp="STDBY"/>
     </block>
     <block group="base_pattern" key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
