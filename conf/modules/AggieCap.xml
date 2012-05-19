@@ -1,0 +1,25 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<module name="AggieCap" dir="AggieCap">
+  <header>
+    <file name="aggie_cap.h"/>
+  </header>
+  <init fun="init_aggie_cap()"/>
+  <periodic fun="periodic_aggie_cap()" period=".01" autorun="TRUE"/>
+  <makefile target="ap">
+        <define name="USE_UART1"/>
+        <define name="AGC_LINK" value="UART1"/>
+	<define name="AGC_PORT" value="UART1"/>
+    	<define name="AGC_BAUD" value="115200"/>
+     <file name="aggie_cap.c"/>
+  </makefile>
+</module>
+
+<!-- 
+  <modules main_freq="512">
+    <load name="AggieCap.xml">
+	<define name="CAM_DELAY" value="400"/>  delay between camera shots in centiseconds (x10ms)) 
+    </load>
+  </modules>
+
+-->

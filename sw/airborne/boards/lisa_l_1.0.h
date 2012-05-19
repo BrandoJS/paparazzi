@@ -14,6 +14,9 @@
 #define LED_1_BANK
 #define LED_STP08
 
+/* Onboard Power Switches */
+#define SW_BANK 
+
 // FIXME, this is just to make it compile
 #define POWER_SWITCH_LED 5
 

@@ -108,6 +108,33 @@ extern uint8_t led_status[NB_LED];
     }								\
   }
 
+
+#ifdef BOARD_LISA_L
+/* set pin as output for switch control only for LisaL*/
+#define SW_INIT() {					        \
+    GPIO_InitTypeDef GPIO_InitStructure; 		        \
+    RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);	\
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;	                \
+    GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;	        \
+    GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;	        \
+    GPIO_Init(GPIOC, &GPIO_InitStructure);                      \
+    GPIO_InitStructure.GPIO_Pin = GPIO_Pin_1;			\
+    GPIO_Init(GPIOC, &GPIO_InitStructure);                      \
+  }
+
+#define SW1_ON() {GPIOC->BSRR = GPIO_Pin_2;}
+#define SW1_OFF() { GPIOC->BRR  = GPIO_Pin_2;}
+#define SW2_ON() {GPIOC->BSRR = GPIO_Pin_1;}
+#define SW2_OFF() { GPIOC->BRR  = GPIO_Pin_1;}
+
+//Unused
+#define SW1_TOGGLE() {	}
+#define SW1_PERIODIC() {}
+#define SW2_TOGGLE() {	}
+#define SW2_PERIODIC() {}
+
+#endif //LisaL
+
 #endif /* LED_STP08 */
 
 #endif /* LED_HW_H */

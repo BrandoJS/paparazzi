@@ -178,10 +178,7 @@
     <subsystem name="telemetry" 	type="xbee_api">
       <configure name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
-   
-    <!--<subsystem name="telemetry" 	type="transparent">
-      <configure name="MODEM_BAUD" 		value="B9600"/>
-    </subsystem>-->
+  
     <subsystem name="radio_control" type="ppm"/>
 
 <!-- Sensors -->
