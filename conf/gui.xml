@@ -39,13 +39,13 @@
     <resource name="normal_font"  value="bleriot-radar-m10"/>
     <resource name="small_font"   value="bleriot-radar-m8"/>
   </section>
-<!--
+<!-- 
   <section name="map">
      <resource name="grid" value="yes"/>
-     <resource name="      map="no"
-     <resource name="      max_dist_from_home_mask="no"
-     <resource name="      max_dist_from_home_circle="yes"
-     <resource name="      grid_only_on_map="no"
+     <resource name="map" value="no"/>
+     <resource name="max_dist_from_home_mask" value="no"/>
+     <resource name="max_dist_from_home_circle" value="yes"/>
+     <resource name="grid_only_on_map" ="no"
      <resource name="      grid_step="100"
     />
     <palette
@@ -63,6 +63,6 @@
       back_screen="black"
       track="blue"
     />
-  </map>
+  </map> 
 -->
 </gui>

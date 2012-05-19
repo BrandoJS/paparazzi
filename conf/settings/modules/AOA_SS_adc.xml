@@ -1,0 +1,15 @@
+<!DOCTYPE settings SYSTEM "../settings.dtd">
+
+<settings>
+	<dl_settings>
+		<dl_settings NAME="AOA_SS">
+			<dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="AOA1_offset" shortname="AOA1_offset" module="modules/sensors/AOA_SS_adc" param="AOA1_OFFSET"/>
+			<dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="AOA1_filter" shortname="AOA1_filter" module="modules/sensors/AOA_SS_adc" param="AOA1_FILTER"/>
+			<dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="AOA2_offset" shortname="AOA2_offset" module="modules/sensors/AOA_SS_adc" param="AOA2_OFFSET"/>
+			<dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="AOA2_filter" shortname="AOA2_filter" module="modules/sensors/AOA_SS_adc" param="AOA2_FILTER"/>
+			<dl_setting MAX="4" MIN="-4" STEP="0.0001" VAR="SS_offset" shortname="SS_offset" module="modules/sensors/AOA_SS_adc" param="SS_OFFSET"/>
+			<dl_setting MAX="0.95" MIN="0" STEP="0.001" VAR="SS_filter" shortname="SS_filter" module="modules/sensors/AOA_SS_adc" param="SS_FILTER"/>
+			
+		</dl_settings>
+	</dl_settings>
+</settings>

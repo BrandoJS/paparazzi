@@ -160,11 +160,12 @@ void ins_propagate() {
   INT32_RMAT_TRANSP_VMULT(accel_meas_body, imu.body_to_imu_rmat, imu.accel);
   struct Int32Vect3 accel_meas_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
-  
+ 
+#if USE_VFF 
   accz_raw = (int32_t)accel_meas_ltp.z;
   accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>2) ; //LPF at 2.62Hz
 
-#if USE_VFF
+
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accz_filtered);
   if (baro.status == BS_RUNNING && ins_baro_initialised) {
     vff_propagate(z_accel_meas_float);
@@ -205,8 +206,7 @@ void ins_update_baro() {
       ins_qfe = baro_filtered;
       ins_baro_initialised = TRUE;
     }
-    ins_baro_alt = ((baro_filtered - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
-    float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
+
     if (ins_vf_realign) {
       ins_vf_realign = FALSE;
       ins_qfe = baro_filtered;
@@ -221,7 +221,11 @@ void ins_update_baro() {
       ins_enu_speed.z = -ins_ltp_speed.z;
       ins_enu_accel.z = -ins_ltp_accel.z;
     }
-    vff_update(alt_float);
+    else { /* not realigning, so normal update with baro measurement */
+      ins_baro_alt = ((baro_filtered - ins_qfe) * INS_BARO_SENS_NUM)/INS_BARO_SENS_DEN;
+      float alt_float = POS_FLOAT_OF_BFP(ins_baro_alt);
+      vff_update(alt_float);
+    }
   }
 #endif
 }
