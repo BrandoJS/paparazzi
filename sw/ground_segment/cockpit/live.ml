@@ -1252,7 +1252,7 @@ let get_as = fun a _sender vs ->
   let ac = get_ac vs in
   let air = Pprz.float_assoc "value" vs in
   let level = Pprz.string_assoc "level" vs in
-  log_and_say a ac.ac_name (sprintf "%s Airspeed Low %.0f" level air)
+  log_and_say a ac.ac_name (sprintf "%s Airspeed %.0f" level air)
 
 let listen_alerta = fun a ->
   alert_bind "AIRSPEED_ALERT" (get_as a)

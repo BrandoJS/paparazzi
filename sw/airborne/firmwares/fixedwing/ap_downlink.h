@@ -310,10 +310,13 @@
 #endif
 
 #ifdef AIRSPEED_SCALE
-#include "modules/sensors/airspeed_adc.h"
+#include "modules/sensors/airspeed_adc_adv.h"
 #define PERIODIC_SEND_AIRSPEED_IND(_trans, _dev) DOWNLINK_SEND_AIRSPEED_IND (_trans, _dev, &estimator_airspeed, &true_airspeed, &rho)
 #else
-#define PERIODIC_SEND_AIRSPEED_IND(_trans, _dev) {}
+#define PERIODIC_SEND_AIRSPEED_IND(_trans, _dev) { \
+	float gspeed = (float) gps.gspeed/100; \
+	float r = 0.0; \
+	DOWNLINK_SEND_AIRSPEED_IND (_trans, _dev, &gspeed, &estimator_airspeed, &r)}
 #endif
 
 #define PERIODIC_SEND_ENERGY(_trans, _dev) Downlink({ const int16_t e = energy; const float vsup = ((float)vsupply) / 10.0f; const float curs = ((float) current)/1000.0f;  const float power = vsup * curs; DOWNLINK_SEND_ENERGY(_trans, _dev, &vsup, &curs, &e, &power); })

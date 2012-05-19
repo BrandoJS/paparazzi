@@ -189,7 +189,7 @@
 	<define name="SENSOR_SYNC_SEND"/>
     </load>
     <load name="airspeed_adc_adv.xml">
-      <configure name="ADC_AIRSPEED" value="AD1"/>
+      <configure name="ADC_AIRSPEED" value="ADC_3"/>
       <configure name="AIRSPEED_PIN" value="3"/>
       <define name="AIRSPEED_SCALE" value="1.101"/>
       <define name="AIRSPEED_BIAS" value="2109"/>
