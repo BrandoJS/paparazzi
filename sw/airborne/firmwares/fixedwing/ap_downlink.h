@@ -324,4 +324,12 @@
 
 #define PERIODIC_SEND_POSITION(_trans, _dev) DOWNLINK_SEND_POSITION(_trans, _dev, &estimator_x, &estimator_y, &estimator_z, &dist_trav)
 
+#ifdef FLAPS_MIN
+#include "modules/core/flaps.h"
+#include "commands.h"
+#define PERIODIC_SEND_FLAPS(_trans, _dev) DOWNLINK_SEND_FLAPS (_trans, _dev, &flaps_engaged, &(commands[COMMAND_FLAP]))
+#else
+#define PERIODIC_SEND_FLAPS(_trans, _dev) {}
+#endif
+
 #endif /* AP_DOWNLINK_H */

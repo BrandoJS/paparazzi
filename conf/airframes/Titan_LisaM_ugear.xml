@@ -156,10 +156,7 @@
     <subsystem name="telemetry" 	type="xbee_api">
       <configure name="MODEM_BAUD" 		value="B9600"/>
     </subsystem>
-   
-    <!--<subsystem name="telemetry" 	type="transparent">
-      <configure name="MODEM_BAUD" 		value="B57600"/>
-    </subsystem>-->
+
     <subsystem name="radio_control" type="ppm"/>
 
 <!-- Sensors -->
@@ -177,24 +174,25 @@
     <define name="SYS_TIME_LED" value="1"/>
     <define name="TUNE_AGRESSIVE_CLIMB"/>
   
-    <define name="USE_UART5"/>
-     <define name="UART5_BAUD" value="115200"/>
-     <define name="SDC_LINK" value="UART5"/> <!-- -->
+     <!-- -->
 
   </firmware>
 
   <modules>
+    <load name="flaps.xml">
+      <define name="FLAPS_MIN" value="-9600"/>
+      <define name="FLAPS_MAX" value="800"/>
+    </load>
     <load name="sdcard.xml"/><!-- -->
     <load name="baro_bmp.xml">
 	<define name="BMP_I2C_DEV" value="i2c2"/>
 	<define name="SENSOR_SYNC_SEND"/>
     </load>
-    <load name="airspeed_adc.xml">
+    <load name="airspeed_adc_adv.xml">
       <configure name="ADC_AIRSPEED" value="AD1"/>
       <configure name="AIRSPEED_PIN" value="3"/>
       <define name="AIRSPEED_SCALE" value="1.101"/>
       <define name="AIRSPEED_BIAS" value="2109"/>
-      <define name="SENSOR_SYNC_SEND"/>
     </load><!-- -->
   </modules>
     

@@ -565,6 +565,11 @@
     <field name="GX3_calcm"	type="uint16"/>
   </message>
  <!-- 71 is free -->
+
+  <message name="FLAPS" id="72">
+     <field name="flaps_engaged" type="uint8" values="OFF|ON"/>
+     <field name="flaps_pos"     type="int16" unit="ticks"/>
+  </message>
  <!-- 72 is free -->
  <!-- 73 is free -->
  <!-- 74 is free -->

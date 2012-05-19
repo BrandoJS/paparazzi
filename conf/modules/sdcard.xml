@@ -7,6 +7,9 @@
   <init fun="init_sdcard()"/>
   <periodic fun="periodic_sdcard()" period="0.05" autorun="FALSE"/>
   <makefile target="ap">
+    <define name="USE_UART5"/>
+    <define name="UART5_BAUD" value="115200"/>
+    <define name="SDC_LINK" value="UART5"/>
     <define name="SDC_PORT" value="UART5"/>
     <define name="SDC_BAUD" value="115200"/>
     <!--<raw>
