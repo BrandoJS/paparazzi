@@ -214,6 +214,10 @@
 
 <!-- Modules -->
   <modules>
+    <load name="flaps.xml">
+      <define name="FLAPS_MIN" value="-9600"/>
+      <define name="FLAPS_MAX" value="800"/>
+    </load>
     <!-- Airspeed Sensor -->
     <load name="airspeed_adc_adv.xml">
       <configure name="ADC_AIRSPEED" value="ADC_3"/>

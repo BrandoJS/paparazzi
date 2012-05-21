@@ -1,0 +1,42 @@
+<layout width="1278" height="709">
+  <columns>
+    <rows SIZE="470">
+      <widget NAME="strips" SIZE="225"/>
+      <widget NAME="aircraft" SIZE="350"/>
+      <widget NAME="alarms"/>
+    </rows>
+    <rows>
+      <widget NAME="map2d">
+        <papget type="message_field" display="gauge" x="380" y="60">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="min" value="0"/>
+          <property name="max" value="25"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Airspeed"/>
+        </papget>
+        <papget type="message_field" display="gauge" x="470" y="60">
+          <property name="scale" value="1"/>
+          <property name="field" value="ESTIMATOR:z_dot"/>
+          <property name="min" value="-10"/>
+          <property name="max" value="10"/>
+          <property name="size" value="50."/>
+          <property name="text" value="Climb Rate"/>
+        </papget>
+        <papget type="message_field" display="led" x="602" y="23">
+          <property name="scale" value="1."/>
+          <property name="field" value="FLAPS:flaps_engaged"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Flaps"/>
+        </papget>
+        <papget type="message_field" display="text" x="358" y="108">
+          <property name="scale" value="1."/>
+          <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
+          <property name="format" value="%.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+      </widget>
+    </rows>
+  </columns>
+</layout>
