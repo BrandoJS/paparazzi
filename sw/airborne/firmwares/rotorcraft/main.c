@@ -113,7 +113,7 @@ STATIC_INLINE void main_init( void ) {
   xbee_init();
 #endif
 
-  baro_init();
+  
   imu_init();
   autopilot_init();
   nav_init();
@@ -123,7 +123,7 @@ STATIC_INLINE void main_init( void ) {
 
   ahrs_aligner_init();
   ahrs_init();
-
+baro_init();
   ins_init();
 
 #if USE_GPS

@@ -60,6 +60,7 @@ struct GpsUbx {
 
 extern struct GpsUbx gps_ubx;
 
+extern uint32_t gps_count;
 
 /*
  * This part is used by the autopilot to read data from a uart

@@ -1,6 +1,6 @@
 
 
-<airframe name="lisaL_MKK">
+<airframe name="lisaM_MKK">
 
   <servos min="0" neutral="0" max="0xff">
     <servo name="FRONT"   no="0" min="0" neutral="0" max="255"/>
@@ -51,6 +51,36 @@
 <!-- from IMU calibration file -->
   <section name="IMU" prefix="IMU_">
     <define name="MAG_OFFSET" value="-.296706" />
+
+    <define name="GYRO_P_NEUTRAL" value="48"/>
+    <define name="GYRO_Q_NEUTRAL" value="-28"/>
+    <define name="GYRO_R_NEUTRAL" value="7"/>
+    <define name="GYRO_P_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_Q_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_R_SENS" value="4.412" integer="16"/>
+    <define name="GYRO_PQ_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_PR_SENS" value="0.0" integer="16"/>
+    <define name="GYRO_QR_SENS" value="0.0" integer="16"/>
+    
+    <define name="ACCEL_X_NEUTRAL" value="4"/>
+    <define name="ACCEL_Y_NEUTRAL" value="6"/>
+    <define name="ACCEL_Z_NEUTRAL" value="-10"/>
+    <define name="ACCEL_X_SENS" value="37.7635998957" integer="16"/>
+    <define name="ACCEL_Y_SENS" value="36.9082018246" integer="16"/>
+    <define name="ACCEL_Z_SENS" value="39.2157000000" integer="16"/>
+    <define name="ACCEL_XY_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_XZ_SENS" value="0.0" integer="16"/>
+    <define name="ACCEL_YZ_SENS" value="0.0" integer="16"/>
+    
+    <define name="MAG_X_NEUTRAL" value="-42"/>
+    <define name="MAG_Y_NEUTRAL" value="10"/>
+    <define name="MAG_Z_NEUTRAL" value="-55"/>
+    <define name="MAG_X_SENS" value="4.11425178549" integer="16"/>
+    <define name="MAG_Y_SENS" value="4.39461207401" integer="16"/>
+    <define name="MAG_Z_SENS" value="4.09787178392" integer="16"/>
+    <define name="MAG_XY_SENS" value="0.0" integer="16"/>
+    <define name="MAG_XZ_SENS" value="0.0" integer="16"/>
+    <define name="MAG_YZ_SENS" value="0.0" integer="16"/>
 
     <define name="BODY_TO_IMU_PHI"   value="RadOfDeg(   0. )"/>
     <define name="BODY_TO_IMU_THETA" value="RadOfDeg(   0. )"/>
@@ -107,17 +137,17 @@
     <define name="REF_MAX_RDOT" value="RadOfDeg(1800.)"/>
 
     <!-- feedback -->
-    <define name="PHI_PGAIN"  value="800"/>
-    <define name="PHI_DGAIN"  value="500"/>
-    <define name="PHI_IGAIN"  value="200"/>
+    <define name="PHI_PGAIN"  value="1007"/>
+    <define name="PHI_DGAIN"  value="750"/>
+    <define name="PHI_IGAIN"  value="100"/>
 
     <define name="THETA_PGAIN"  value="800"/>
-    <define name="THETA_DGAIN"  value="500"/>
-    <define name="THETA_IGAIN"  value="200"/>
+    <define name="THETA_DGAIN"  value="930"/>
+    <define name="THETA_IGAIN"  value="221"/>
 
     <define name="PSI_PGAIN"  value="900"/>
-    <define name="PSI_DGAIN"  value="200"/>
-    <define name="PSI_IGAIN"  value="100"/>
+    <define name="PSI_DGAIN"  value="500"/>
+    <define name="PSI_IGAIN"  value="200"/>
 
     <!-- feedforward -->
     <define name="PHI_DDGAIN"   value=" 200"/>
@@ -127,7 +157,7 @@
   </section>
 
   <section name="INS" prefix="INS_">
-    <define name="BARO_SENS" value="20." integer="16"/>
+    <define name="BARO_SENS" value="10." integer="16"/>
   </section>
 
  <section name="GUIDANCE_V" prefix="GUIDANCE_V_">
@@ -170,13 +200,6 @@
 
  <modules main_freq="512">
    <load name="sys_mon.xml"/><!-- -->
-   <load name="l_light.xml">
-       <configure name="LIGHT_1_MODE_DEFAULT" value="5"/>
-       <configure name="LIGHT_2_MODE_DEFAULT" value="0"/>
-   </load>
-   <load name="AggieCap.xml">
-	<define name="CAM_DELAY" value="400"/> <!--delay between camera shots in centiseconds (x10ms)) -->
-    </load>
  </modules>
 
   <firmware name="rotorcraft">
@@ -194,17 +217,12 @@
 
     <!--<subsystem name="imu"           type="aspirin_v1.5"/>-->
     <subsystem name="ins"	    type="hff"/>
-    <subsystem name="gps"           type="ublox">
-       <define name="GPS_PORT"	value="UART1"/>
-       <define name="GPS_BAUD"	value="B38400"/>
-    </subsystem>
-
+    <subsystem name="gps"           type="ublox"/>
     <subsystem name="stabilization" type="euler"/>
     <subsystem name="ahrs"          type="gx3">
 	<define name="GX3_BAUD" value="B115200"/>
     </subsystem>
 
-    
     <!-- Additional Parameters 
     <define name="USE_ADAPT_HOVER"/>  USE ADAPTIVE ALGORITHM FOR HOVER CONTROL 
     
@@ -212,12 +230,14 @@
     <define name="USE_INS_NAV_INIT"/> Use Flight plan to initialize INS - otherwise use GPS after lock
     <define name="USE_GPS_ACC4R"/>  USE GPS For R Matrix for HFF
     -->
-    <!-- <define name="BARO_LOW_GAIN"/>  Use to adjust baro gain -->
+    <!-- <define name="BARO_LOW_GAIN"/> 	 For sea level -->
+    <define name="ACTUATORS_START_DELAY" value="2"/>
+    <define name="USE_NOISE_FILTER"/>   <!-- int_cmpl_euler Acc filter -->
+    <define name="USE_NOISE_CUT"/>      <!-- Use Noise Cut for int_cmpl_euler filter -->
     <define name="GUIDANCE_H_USE_REF"/> <!-- Use Model to calculate sp/acc setpoints for better control -->
     <define name="KILL_AS_FAILSAFE" /> 	<!-- Sets failsafe mode as kill motors - otherwise keep level and climb -->
     <define name="BATT_THRUST_FIX"/>   	<!-- Adjust nominal thrust based on battery level -->
-    <!--<define name="USE_NEW_I2C_DRIVER" value="1"/>-->
-    
+
   </firmware>
 
 

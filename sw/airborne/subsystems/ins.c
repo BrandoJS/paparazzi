@@ -39,7 +39,7 @@
 #include "subsystems/ins/hf_float.h"
 #endif
 
-
+#include "led.h"
 #ifdef USE_SONAR
 #include "generated/modules.h"
 #endif
@@ -163,7 +163,7 @@ void ins_propagate() {
  
 #if USE_VFF 
   accz_raw = (int32_t)accel_meas_ltp.z;
-  accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>2) ; //LPF at 2.62Hz
+  accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>1) ; //LPF 
 
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accz_filtered);
@@ -195,10 +195,10 @@ void ins_propagate() {
 }
 
 void ins_update_baro() {
-
+  //LED_TOGGLE(4);
 #ifdef USE_VFF
   
-  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>3) ; //LPF at 7Hz
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>1) ; //LPF 
   
 
   if (baro.status == BS_RUNNING) {

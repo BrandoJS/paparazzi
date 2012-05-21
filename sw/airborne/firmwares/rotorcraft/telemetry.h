@@ -865,7 +865,7 @@
     &AHRS_freq,			\
     &GX3_packet.chksm_error,	\
     &GX3_packet.hdr_error,	\
-    &GX3_time,			\
+    &gps_count,			\
     &GX3_chksm,			\
     &GX3_calcsm)
 #else

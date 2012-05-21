@@ -1,4 +1,4 @@
-
+#include "led.h"
 #include "subsystems/sensors/baro.h"
 
 struct Baro baro;
@@ -24,6 +24,7 @@ void baro_init(void) {
 
 
 void baro_periodic(void) {
+  
   // check i2c_done
   if (!i2c_idle(&i2c2)) return;
 
@@ -31,6 +32,7 @@ void baro_periodic(void) {
   case LBS_UNINITIALIZED:
     baro_board_send_reset();
     baro_board.status = LBS_RESETED;
+
     break;
   case LBS_RESETED:
     baro_board_send_config_abs();
@@ -51,13 +53,17 @@ void baro_periodic(void) {
     break;
   case LBS_INITIALIZING_DIFF_1:
     baro.status = BS_RUNNING;
+    
   case LBS_READ_DIFF:
     baro_board_read_from_current_register(BARO_ABS_ADDR);
     baro_board.status = LBS_READING_ABS;
+    //LED_TOGGLE(6);
     break;
   case LBS_READ_ABS:
     baro_board_read_from_current_register(BARO_DIFF_ADDR);
     baro_board.status = LBS_READING_DIFF;
+    LED_TOGGLE(6);
+      					
     break;
   default:
     break;

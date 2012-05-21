@@ -17,8 +17,9 @@
       <message name="INS"          		period="0.55"/>
       <message name="STAB_ATTITUDE"     	period="0.30"/>
       <!--<message name="SONAR"			period="0.55"/>-->
-      <message name="ROTORCRAFT_CMD"           	period="0.10"/>
-       <message name="DEBUG_STARK"		period="0.20"/> 
+      <message name="ROTORCRAFT_CMD"           	period="0.30"/>
+      <!--<message name="DEBUG_STARK"		period="2.20"/>  
+      <message name="I2C_ERRORS"                period="6."/>-->
     </mode>
 
     <mode name="ppm">

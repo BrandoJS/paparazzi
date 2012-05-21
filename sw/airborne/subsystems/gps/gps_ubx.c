@@ -23,6 +23,16 @@
 #include "subsystems/gps.h"
 
 #include "led.h"
+#include <stdint.h>
+#include <stm32/gpio.h>
+#include <stm32/rcc.h>
+#include <stm32/tim.h>
+#include <stm32/misc.h>
+#include <stm32/usart.h>
+
+#include "mcu_periph/uart.h"
+#include "pprz_baudrate.h"
+
 
 #if GPS_USE_LATLONG
 /* currently needed to get nav_utm_zone0 */
@@ -79,6 +89,7 @@
 
 
 struct GpsUbx gps_ubx;
+uint32_t gps_count;
 
 void gps_impl_init(void) {
    gps_ubx.status = UNINIT;
@@ -86,6 +97,10 @@ void gps_impl_init(void) {
    gps_ubx.error_cnt = 0;
    gps_ubx.error_last = GPS_UBX_ERR_NONE;
    gps_ubx.have_velned = 0;
+   gps_count = 0;
+
+
+
 }
 
 
@@ -93,6 +108,7 @@ void gps_ubx_read_message(void) {
 
   if (gps_ubx.msg_class == UBX_NAV_ID) {
     if (gps_ubx.msg_id == UBX_NAV_SOL_ID) {
+      
 #ifdef GPS_TIMESTAMP
       /* get hardware clock ticks */
       SysTimeTimerStart(gps.t0);
@@ -255,6 +271,7 @@ void gps_ubx_parse( uint8_t c ) {
       goto error;
     }
     gps_ubx.msg_available = TRUE;
+    gps_count = gps_count + 1;
     goto restart;
     break;
   default:
