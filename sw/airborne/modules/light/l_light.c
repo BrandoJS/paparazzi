@@ -38,6 +38,7 @@ uint8_t light_2_mode;
 
 
 void init_light(void) {
+  #ifndef SITL
   //Initialize Switches
   SW_INIT();
   SW1_OFF();
@@ -45,11 +46,12 @@ void init_light(void) {
 
   light_1_mode = LIGHT_1_MODE_DEFAULT;
   light_2_mode = LIGHT_2_MODE_DEFAULT;
-
+  #endif
 }
 
 void periodic_light(void)
-{
+{  
+  #ifndef SITL
   static uint8_t counter_1 = 0;
   static uint8_t counter_2 = 0;
 
@@ -146,4 +148,6 @@ void periodic_light(void)
   }
   counter_1++;
   counter_2++;
+
+  #endif
 }

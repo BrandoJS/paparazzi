@@ -232,7 +232,7 @@ STATIC_INLINE void main_event( void ) {
 
 #if USE_GX3
 static inline void on_gx3_event( void ) {
-
+   ins_propagate();
 }
 
 #else

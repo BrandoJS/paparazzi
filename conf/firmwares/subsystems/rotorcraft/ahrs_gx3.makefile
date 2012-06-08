@@ -8,10 +8,10 @@ ifndef GX3_BAUD
 endif
 
 
-$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_gx3.h\"
+
 
 ifeq ($(TARGET), ap)
-
+$(TARGET).CFLAGS += -DAHRS_TYPE_H=\"subsystems/ahrs/ahrs_gx3.h\"
 ap.CFLAGS += -DUSE_GX3
 ap.CFLAGS += -DUSE_AHRS
 
@@ -30,6 +30,8 @@ ap.CFLAGS += -DUSE_$(GX3_PORT) -D$(GX3_PORT)_BAUD=$(GX3_BAUD)
 ap.CFLAGS += -DUSE_GX3 -DGX3_LINK=$(GX3_PORT) 
 
 endif
+
+
 
 
 

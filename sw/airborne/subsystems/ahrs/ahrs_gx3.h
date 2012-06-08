@@ -45,6 +45,8 @@ extern uint16_t GX3_chksm;
 extern uint16_t GX3_calcsm;
 extern uint32_t gx3_stop_time;
 
+extern int32_t gx3_accz;
+
 extern float ins_roll_neutral;
 extern float ins_pitch_neutral;
 
@@ -52,6 +54,10 @@ extern float gps_estimator_psi;
 extern float gx3_estimator_psi;
 
 extern int32_t gx3_psi;
+
+extern float gx3p;
+extern float gx3q;
+extern float gx3r;
 
 void ahrs_update_fw_estimator(void);
 

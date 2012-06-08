@@ -57,6 +57,8 @@ uint8_t cam_on;
 
 
 void init_aggie_cap(void) {
+
+	#ifndef SITL
 	camera_mode = 4;//CAMERA_MODE_DEFAULT;
 	image_count = 0;
 	cam_on = 0;
@@ -74,11 +76,13 @@ void init_aggie_cap(void) {
 	IMU_buf[3] = IMU_HEADER_SIZE;	
 	GPS_buf[3] = GPS_HEADER_SIZE;	
 	COM_buf[3] = COM_HEADER_SIZE;	
-
+	#endif
 }
 
 void periodic_aggie_cap(void)
 {
+  #ifndef SITL 
+
   static uint16_t counter_sw2 = 0;
   
   
@@ -135,7 +139,7 @@ void periodic_aggie_cap(void)
   
   } //End time modulation
   counter_sw2++;
-   
+   #endif
 }
 
 
@@ -151,9 +155,10 @@ void ugearCOM(uint8_t command) {
 void ugearIMU(void) {
   uint8_t cksum0, cksum1;
   
-  image_phi = (int16_t)( (float)ahrs.ltp_to_body_euler.phi*2.422866068);
-  image_the = (int16_t)( (float)ahrs.ltp_to_body_euler.theta*2.422866068);
-  image_psi = (int16_t)( (float)ahrs.ltp_to_body_euler.psi*2.422866068);
+//Got rid of the casts here for new UGear parsing. 6/04/12 CC
+  image_phi = /*(int16_t)*/( (float)ahrs.ltp_to_body_euler.phi*2.422866068);
+  image_the = /*(int16_t)*/( (float)ahrs.ltp_to_body_euler.theta*2.422866068);
+  image_psi = /*(int16_t)*/((float)ahrs.ltp_to_body_euler.psi*2.422866068);
 
   IMU_buf[4] = 0xFF&image_phi;
   IMU_buf[5] = 0xFF&(image_phi>>8);

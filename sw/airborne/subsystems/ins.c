@@ -31,6 +31,8 @@
 
 #include "subsystems/ahrs.h"
 
+#include "subsystems/ahrs/ahrs_gx3.h"
+
 #if USE_VFF
 #include "subsystems/ins/vf_float.h"
 #endif
@@ -161,9 +163,11 @@ void ins_propagate() {
   struct Int32Vect3 accel_meas_ltp;
   INT32_RMAT_TRANSP_VMULT(accel_meas_ltp, ahrs.ltp_to_body_rmat, accel_meas_body);
  
-#if USE_VFF 
-  accz_raw = (int32_t)accel_meas_ltp.z;
-  accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>1) ; //LPF 
+#if USE_VFF
+   //accz_raw = gx3_accz; 
+   //ins_baro_abs = (float)imu.accel.z;
+  accz_raw = (int32_t)((float)accel_meas_ltp.z*0.96792);
+  accz_filtered = accz_filtered + ((accz_raw-accz_filtered)>>4) ; //LPF 
 
 
   float z_accel_meas_float = ACCEL_FLOAT_OF_BFP(accz_filtered);
@@ -198,7 +202,7 @@ void ins_update_baro() {
   //LED_TOGGLE(4);
 #ifdef USE_VFF
   
-  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>1) ; //LPF 
+  baro_filtered = baro_filtered + (((int32_t)baro.absolute-baro_filtered)>>2) ; //LPF 
   
 
   if (baro.status == BS_RUNNING) {

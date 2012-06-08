@@ -13,34 +13,44 @@ static inline void i2c_reset_init(struct i2c_periph *p);
 
 #define I2C_BUSY 0x20
 
+// If a hard reset cannot free up SDA, SCL lines abort. Previously stm32 would hang
+// when lines stuck i.e. no pullups on I2C lines
+#define I2C_MAX_RESET_FAIL_COUNT 20
+
 #ifdef DEBUG_I2C
-#define SPURIOUS_INTERRUPT(_status, _event) { while(1); }
-#define OUT_OF_SYNC_STATE_MACHINE(_status, _event) { while(1); }
+#define SPURIOUS_INTERRUPT(_periph, _status, _event) { while(1); }
+#define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { while(1); }
 #else
-#define SPURIOUS_INTERRUPT(_status, _event) {}
+#define SPURIOUS_INTERRUPT(_periph, _status, _event) { abort_and_reset(_periph); }
 #define SPURIOUS_INTERRUPT2(_periph, _status, _event) { if (_status == I2CAddrWrSent) abort_and_reset(_periph);}
 #define OUT_OF_SYNC_STATE_MACHINE(_periph, _status, _event) { abort_and_reset(_periph);}
 #endif
 
 #ifdef USE_I2C1
+#ifndef I2C1_BITRATE
+#define I2C1_BITRATE 200000
+#endif
 static I2C_InitTypeDef  I2C1_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 200000
+      .I2C_ClockSpeed = I2C1_BITRATE
 };
 #endif
 
 #ifdef USE_I2C2
+#ifndef I2C2_BITRATE
+#define I2C2_BITRATE 300000
+#endif
 static I2C_InitTypeDef  I2C2_InitStruct = {
       .I2C_Mode = I2C_Mode_I2C,
       .I2C_DutyCycle = I2C_DutyCycle_2,
       .I2C_OwnAddress1 = 0x00,
       .I2C_Ack = I2C_Ack_Enable,
       .I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit,
-      .I2C_ClockSpeed = 300000
+      .I2C_ClockSpeed = I2C2_BITRATE
 };
 #endif
 
@@ -76,7 +86,6 @@ static inline void abort_and_reset(struct i2c_periph *p) {
     end_of_transaction(p);
 }
 
-#ifdef USE_I2C2
 static inline void on_status_start_requested(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
 static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_transaction* trans, uint32_t event);
@@ -101,8 +110,9 @@ static inline void on_status_start_requested(struct i2c_periph *periph, struct i
       periph->status = I2CAddrWrSent;
     }
   }
-  //else
-    //SPURIOUS_INTERRUPT(I2CStartRequested, event);
+  //  else
+  //    SPURIOUS_INTERRUPT(periph, I2CStartRequested, event);
+  // FIXME: this one seems to get called all the time with mkk controllers
 }
 
 /*
@@ -130,8 +140,11 @@ static inline void on_status_addr_wr_sent(struct i2c_periph *periph, struct i2c_
       }
     }
   }
-  else
+  else {
     SPURIOUS_INTERRUPT2(periph, I2CAddrWrSent, event);
+    // FIXME: this was where the code would break with mkk controllers on april 10 2011
+    // now have SPURIOUS_INTERRUPT call abort_and_reset
+  }
 }
 
 /*
@@ -164,7 +177,7 @@ static inline void on_status_sending_byte(struct i2c_periph *periph, struct i2c_
     }
   }
   else
-    SPURIOUS_INTERRUPT(I2CSendingByte, event);
+    SPURIOUS_INTERRUPT(periph, I2CSendingByte, event);
 }
 
 /*
@@ -211,7 +224,7 @@ static inline void on_status_addr_rd_sent(struct i2c_periph *periph, struct i2c_
     }
   }
   else
-    SPURIOUS_INTERRUPT(I2CAddrRdSent, event);
+    SPURIOUS_INTERRUPT(periph, I2CAddrRdSent, event);
 }
 
 
@@ -227,8 +240,8 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
       trans->buf[periph->idx_buf] = read_byte;
       periph->idx_buf++;
       if (periph->idx_buf >= trans->len_r-1) {                    // We're reading our last byte
-        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);                  // give them a nack once it's done
-        I2C_GenerateSTOP(periph->reg_addr, ENABLE);                        // and follow with a stop
+        I2C_AcknowledgeConfig(periph->reg_addr, DISABLE);         // give them a nack once it's done
+        I2C_GenerateSTOP(periph->reg_addr, ENABLE);               // and follow with a stop
         /* Make sure that the STOP bit is cleared by Hardware */
         static __IO uint8_t counter = 0;
         while ((regs->CR1 & 0x200) == 0x200) {
@@ -240,7 +253,7 @@ static inline void on_status_reading_byte(struct i2c_periph *periph, struct i2c_
     } // else { something very wrong has happened }
   }
   else
-    SPURIOUS_INTERRUPT(I2CReadingByte, event);
+    SPURIOUS_INTERRUPT(periph, I2CReadingByte, event);
 }
 
 /*
@@ -260,7 +273,7 @@ static inline void on_status_reading_last_byte(struct i2c_periph *periph, struct
     periph->status = I2CStopRequested;
   }
   else
-    SPURIOUS_INTERRUPT(I2CReadingLastByte, event);
+    SPURIOUS_INTERRUPT(periph, I2CReadingLastByte, event);
 }
 
 /*
@@ -273,8 +286,6 @@ static inline void on_status_restart_requested(struct i2c_periph *periph, struct
     periph->status = I2CAddrRdSent;
   }
 }
-
-
 
 void i2c_event(void)
 {
@@ -355,61 +366,73 @@ static inline void i2c_error(struct i2c_periph *p)
 
 static inline void i2c_hard_reset(struct i2c_periph *p)
 {
+  uint8_t timeout_fails=0;
   I2C_TypeDef *regs = (I2C_TypeDef *) p->reg_addr;
 
-	I2C_DeInit(p->reg_addr);
+  I2C_DeInit(p->reg_addr);
 
   GPIO_InitTypeDef GPIO_InitStructure;
   GPIO_InitStructure.GPIO_Pin = p->scl_pin | p->sda_pin;
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_10MHz;
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
-	GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_OD;
+  GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	while(GPIO_ReadInputDataBit(GPIOB, p->sda_pin) == Bit_RESET) {
-		// Raise SCL, wait until SCL is high (in case of clock stretching)
-		GPIO_SetBits(GPIOB, p->scl_pin);
-		while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
+  while((GPIO_ReadInputDataBit(GPIOB, p->sda_pin) == Bit_RESET) && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
+    // Raise SCL, wait until SCL is high (in case of clock stretching)
+    GPIO_SetBits(GPIOB, p->scl_pin);
+    while ((GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET) && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
+      i2c_delay();
+      timeout_fails++;
+    }
     i2c_delay();
-		
-		// Lower SCL, wait
-		GPIO_ResetBits(GPIOB, p->scl_pin);
+
+    // Lower SCL, wait
+    GPIO_ResetBits(GPIOB, p->scl_pin);
     i2c_delay();
-		
-		// Raise SCL, wait
-		GPIO_SetBits(GPIOB, p->scl_pin);
+
+    // Raise SCL, wait
+    GPIO_SetBits(GPIOB, p->scl_pin);
     i2c_delay();
-	}
-		
-	// Generate a start condition followed by a stop condition
-	GPIO_SetBits(GPIOB, p->scl_pin);
+    timeout_fails++;
+  }
+
+  // Generate a start condition followed by a stop condition
+  GPIO_SetBits(GPIOB, p->scl_pin);
   i2c_delay();
-	GPIO_ResetBits(GPIOB, p->sda_pin);
+  GPIO_ResetBits(GPIOB, p->sda_pin);
   i2c_delay();
-	GPIO_ResetBits(GPIOB, p->sda_pin);
+  GPIO_ResetBits(GPIOB, p->sda_pin);
   i2c_delay();
 
-	// Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
-	GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
-	while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET);
+  // Raise both SCL and SDA and wait for SCL high (in case of clock stretching)
+  GPIO_SetBits(GPIOB, p->scl_pin | p->sda_pin);
+  while (GPIO_ReadInputDataBit(GPIOB, p->scl_pin) == Bit_RESET && timeout_fails < I2C_MAX_RESET_FAIL_COUNT) {
+    i2c_delay();
+    timeout_fails++;
+  }
 
-	// Wait for SDA to be high
-	while (GPIO_ReadInputDataBit(GPIOB, p->sda_pin) != Bit_SET);
+  // Wait for SDA to be high
+  while (GPIO_ReadInputDataBit(GPIOB, p->sda_pin) != Bit_SET && timeout_fails < I2C_MAX_RESET_FAIL_COUNT)
+  {
+    i2c_delay();
+    timeout_fails++;
+  }
 
-	// SCL and SDA should be high at this point, bus should be free
-	// Return the GPIO pins to the alternate function
-	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
-	GPIO_Init(GPIOB, &GPIO_InitStructure);
+  // SCL and SDA should be high at this point, bus should be free
+  // Return the GPIO pins to the alternate function
+  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_OD;
+  GPIO_Init(GPIOB, &GPIO_InitStructure);
 
-	I2C_DeInit(p->reg_addr);
+  I2C_DeInit(p->reg_addr);
 
   i2c_apply_config(p);
 
-	if (regs->SR2 & I2C_BUSY) {
-		// Reset the I2C block
-		I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
-		I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
-	}
+  if (regs->SR2 & I2C_BUSY) {
+    // Reset the I2C block
+    I2C_SoftwareResetCmd(p->reg_addr, ENABLE);
+    I2C_SoftwareResetCmd(p->reg_addr, DISABLE);
+  }
 }
 
 static inline void i2c_reset_init(struct i2c_periph *p)
@@ -423,35 +446,13 @@ static inline void i2c_reset_init(struct i2c_periph *p)
   // enable error interrupts
   I2C_ITConfig(p->reg_addr, I2C_IT_ERR, ENABLE);
 }
-#endif
+
 
 #ifdef USE_I2C1
 
 struct i2c_errors i2c1_errors;
 
 #include "my_debug_servo.h"
-
-#define I2C1_ABORT_AND_RESET() {					\
-    struct i2c_transaction* trans2 = i2c1.trans[i2c1.trans_extract_idx]; \
-    trans2->status = I2CTransFailed;					\
-    I2C_ITConfig(I2C1, I2C_IT_EVT | I2C_IT_BUF | I2C_IT_ERR, DISABLE);	\
-    I2C_Cmd(I2C1, DISABLE);						\
-    I2C_DeInit(I2C1);							\
-    I2C_Cmd(I2C1, ENABLE);						\
-    i2c_apply_config(&i2c1); \
-    I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);				\
-    end_of_transaction(&i2c1); \
-  }
-
-//
-// I2C1 base 0x40005400
-//
-//   I2C1 CR1 0x40005400
-//   I2C1 CR2 0x40005404
-//
-// I2C2 base 0x40005800
-//
-
 
 void i2c1_hw_init(void) {
 
@@ -464,6 +465,7 @@ void i2c1_hw_init(void) {
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c1_errors);
 
+  /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
   I2C_DeInit(I2C1);
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -499,14 +501,8 @@ void i2c1_hw_init(void) {
 
   /* I2C configuration ----------------------------------------------------------*/
 
-  /* I2C Peripheral Enable */
-  //I2C_Cmd(I2C1, ENABLE);
-  /* Apply I2C configuration after enabling it */
-  //i2c_apply_config(&i2c1);
 
-  /* Enable I2C1 error interrupts */
-  //I2C_ITConfig(I2C1, I2C_IT_ERR, ENABLE);
-  
+  /* Reset and initialize I2C HW */
   i2c_reset_init(&i2c1);
 
 }
@@ -521,40 +517,7 @@ void i2c1_ev_irq_handler(void) {
 
 
 void i2c1_er_irq_handler(void) {
-
-  if (I2C_GetITStatus(I2C1, I2C_IT_AF)) {   /* Acknowledge failure */
-    i2c1_errors.ack_fail_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_AF);
-    //I2C_GenerateSTOP(I2C1, ENABLE);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_BERR)) {   /* Misplaced Start or Stop condition */
-    i2c1_errors.miss_start_stop_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_BERR);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_ARLO)) {   /* Arbitration lost */
-    i2c1_errors.arb_lost_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_ARLO);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_OVR)) {    /* Overrun/Underrun */
-    i2c1_errors.over_under_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_OVR);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_PECERR)) { /* PEC Error in reception */
-    i2c1_errors.pec_recep_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_PECERR);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_TIMEOUT)) { /* Timeout or Tlow error */
-    i2c1_errors.timeout_tlow_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_TIMEOUT);
-  }
-  if (I2C_GetITStatus(I2C1, I2C_IT_SMBALERT)) { /* SMBus alert */
-    i2c1_errors.smbus_alert_cnt++;
-    I2C_ClearITPendingBit(I2C1, I2C_IT_SMBALERT);
-  }
-
-  I2C1_ABORT_AND_RESET();
-  //abort_and_reset(&i2c1);
-
+  i2c_error(&i2c1);
 }
 
 #endif /* USE_I2C1 */
@@ -589,7 +552,7 @@ void i2c2_hw_init(void) {
   /* zeros error counter */
   ZEROS_ERR_COUNTER(i2c2_errors);
 
-  /* reset periphearl to default state ( sometimes not achieved on reset :(  ) */
+  /* reset peripheral to default state ( sometimes not achieved on reset :(  ) */
   I2C_DeInit(I2C2);
 
   NVIC_PriorityGroupConfig(NVIC_PriorityGroup_0);
@@ -671,7 +634,6 @@ bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t) {
 static void start_transaction(struct i2c_periph* p) {
   p->idx_buf = 0;
   p->status = I2CStartRequested;
-  //  I2C_ZERO_EVENTS();
   I2C_ITConfig(p->reg_addr, I2C_IT_EVT, ENABLE);
   I2C_GenerateSTART(p->reg_addr, ENABLE);
 }

@@ -86,6 +86,10 @@ int32_t guidance_v_ki;
 int32_t guidance_v_z_sum_err;
 
 
+int32_t min_bound;
+int32_t max_bound;
+int32_t vd_tmp;
+
 #define GuidanceVSetRef(_pos, _speed, _accel) { \
 gv_set_ref(_pos, _speed, _accel); \
 guidance_v_z_ref = _pos; \
@@ -110,6 +114,9 @@ void guidance_v_init(void) {
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
   guidance_v_nominal_throttle = GUIDANCE_V_NOMINAL_HOVER_THROTTLE * MAX_PPRZ;
 #endif
+
+  min_bound = 10;
+  max_bound = 10;
 
   gv_adapt_init();
 }
@@ -262,6 +269,14 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   guidance_v_zdd_ref = gv_zdd_ref<<(INT32_ACCEL_FRAC - GV_ZDD_REF_FRAC);
   /* compute the error to our reference */
   int32_t err_z = guidance_v_z_ref - ins_ltp_pos.z;
+  
+  //static int32_t vd_tmp = 0;
+  
+  //low pass smoothing filter - bstark
+  err_z = vd_tmp + ((err_z-vd_tmp)>>3);
+  vd_tmp = err_z;
+
+
   Bound(err_z, GUIDANCE_V_MIN_ERR_Z, GUIDANCE_V_MAX_ERR_Z);
   int32_t err_zd = guidance_v_zd_ref - ins_ltp_speed.z;
   Bound(err_zd, GUIDANCE_V_MIN_ERR_ZD, GUIDANCE_V_MAX_ERR_ZD);
@@ -274,6 +289,7 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
     guidance_v_z_sum_err = 0;
 
   /* our nominal command : (g + zdd)*m */
+#ifdef BATT_THRUST_FIX
 #ifdef GUIDANCE_V_NOMINAL_HOVER_THROTTLE
   const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
 #else
@@ -290,14 +306,26 @@ __attribute__ ((always_inline)) static inline void run_hover_loop(bool_t in_flig
   if (cphitheta < MAX_BANK_COEF) cphitheta = MAX_BANK_COEF;
   /* feed forward command */
   guidance_v_ff_cmd = (guidance_v_ff_cmd << INT32_TRIG_FRAC) / cphitheta;
+#else
+  const int32_t inv_m = BFP_OF_REAL(9.81/guidance_v_nominal_throttle, FF_CMD_FRAC);
+  const int32_t g_m_zdd = (int32_t)BFP_OF_REAL(9.81, FF_CMD_FRAC) -
+                          (guidance_v_zdd_ref<<(FF_CMD_FRAC - INT32_ACCEL_FRAC));
 
+  //int32_t vs_add = (158-electrical.vsupply);
+  //Bound(vs_add,0,25);
+  
+  //guidance_v_ff_cmd = g_m_zdd / inv_m + vs_add*GUIDANCE_V_GAIN_SCALER;
+  guidance_v_ff_cmd = g_m_zdd / inv_m;
+#endif
 
   /* our error feed back command */
   /* z-axis pointing down -> positive error means we need less thrust */
   guidance_v_fb_cmd = ((-guidance_v_kp * err_z) >> 12) +
                       ((-guidance_v_kd * err_zd) >> 21) +
                       ((-guidance_v_ki * guidance_v_z_sum_err) >> 21);
+  
 
+  Bound(guidance_v_fb_cmd, -min_bound, max_bound);
   guidance_v_delta_t = guidance_v_ff_cmd + (guidance_v_fb_cmd * GUIDANCE_V_GAIN_SCALER);
 
   /* bound the result */

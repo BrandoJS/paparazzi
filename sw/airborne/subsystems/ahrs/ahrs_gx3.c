@@ -56,9 +56,14 @@ uint16_t GX3_chksm;
 uint16_t GX3_calcsm;
 uint32_t gx3_stop_time;
 
+int32_t gx3_accz;
+
 float AHRS_freq;
 float GX3_freq;
 
+float gx3p;
+float gx3q;
+float gx3r;
 
 #ifdef AHRS_UPDATE_FW_ESTIMATOR
 
@@ -69,6 +74,8 @@ float ins_pitch_neutral = INS_PITCH_NEUTRAL_DEFAULT;
 // for heading message
 float gps_estimator_psi;
 float gx3_estimator_psi;
+
+
 
 int32_t gx3_psi;
 
@@ -121,6 +128,10 @@ void ahrs_init(void) {
   GX3_freq = 0;
   GX3_ltime = 0;
   AHRS_freq = 0;
+  
+  gx3p = 0;
+  gx3q = 0;
+  gx3r = 0;
 
   
   //Needed to set orientations
@@ -233,8 +244,19 @@ void GX3_packet_read_message(void) {
 	// GX provides g for accel, rad/s for gyro
         VECT3_SMUL(GX3_accel,GX3_accel, 9.80665); //Convert g into m/s2
         ACCELS_BFP_OF_REAL(imu.accel, GX3_accel); //
+        gx3_accz = imu.accel.z;
 
 	/* IMU rate */
+
+        /*Comment Out Low Pass Filter if it doesn't work */
+        gx3p = gx3p + ((GX3_rate.p-gx3p)*.5);
+        gx3q = gx3q + ((GX3_rate.q-gx3q)*.5);
+        gx3r = gx3r + ((GX3_rate.r-gx3r)*.5);
+        GX3_rate.p = gx3p;
+        GX3_rate.q = gx3q;
+        GX3_rate.r = gx3r;
+        /* End Low Pass Filter */
+
 	RATES_BFP_OF_REAL(imu.gyro, GX3_rate);
         RATES_BFP_OF_REAL(ahrs.imu_rate, GX3_rate);
 	       

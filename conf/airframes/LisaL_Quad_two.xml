@@ -42,7 +42,7 @@
     <define name="THRUST_COEF" value="{  256,  256,  256,  256,  256,  256,  256,  256 }"/>-->
     <define name="ROLL_COEF"   value="{    0, -256,    0,  256 }"/>
     <define name="PITCH_COEF"  value="{  256,    0, -256,    0 }"/>
-    <define name="YAW_COEF"    value="{  -256, 256,  -256, 256 }"/>
+    <define name="YAW_COEF"    value="{  256, -256,  256, -256 }"/>
     <define name="THRUST_COEF" value="{  256,  256,  256,  256 }"/>
 
 <!-- bstark 11/4/10 Motors are defined clockwise -->
@@ -142,7 +142,7 @@
     <define name="PHI_IGAIN"  value="90"/>
 
     <define name="THETA_PGAIN"  value="749"/>
-    <define name="THETA_DGAIN"  value="670"/>
+    <define name="THETA_DGAIN"  value="704"/>
     <define name="THETA_IGAIN"  value="90"/>
 
     <define name="PSI_PGAIN"  value="900"/>
@@ -245,7 +245,7 @@
     <!-- Additional Parameters  -->
       
     <!-- <define name="BARO_LOW_GAIN"/>  Use to adjust baro gain -->
-    <define name="ACTUATORS_START_DELAY" value="2"/>
+    <define name="ACTUATORS_START_DELAY" value="1"/> <!-- -->
     <define name="GUIDANCE_H_USE_REF"/> <!-- Use Model to calculate sp/acc setpoints for better control -->
     <define name="KILL_AS_FAILSAFE" /> 	<!-- Sets failsafe mode as kill motors - otherwise keep level and climb -->
     <define name="BATT_THRUST_FIX"/>   	<!-- Adjust nominal thrust based on battery level -->

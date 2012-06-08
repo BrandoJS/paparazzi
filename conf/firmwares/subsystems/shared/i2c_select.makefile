@@ -7,7 +7,7 @@ ifeq ($(ARCH), stm32)
 ifeq ($(USE_NEW_I2C_DRIVER), 1)
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.rewritten.c
 else
-$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c
+$(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.new2.c
 endif
 else
 $(TARGET).srcs += $(SRC_ARCH)/mcu_periph/i2c_arch.c

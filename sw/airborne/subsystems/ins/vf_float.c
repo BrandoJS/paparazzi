@@ -35,11 +35,12 @@ temps :
 /* initial covariance diagonal */
 #define INIT_PXX 1.
 /* process noise */
-#define ACCEL_NOISE 0.8
-#define Qzz       ACCEL_NOISE/512./512./2.
-#define Qzdotzdot ACCEL_NOISE/512.
-#define Qbiasbias 1e-6
-#define R 0.2
+#define ACCEL_NOISE .5
+#define Qzz       ACCEL_NOISE/125./125./2.
+#define Qzdotzdot ACCEL_NOISE/125.
+#define Qbiasbias 1e-7
+#define R 1
+
 
 float vff_z;
 float vff_bias;
@@ -60,6 +61,9 @@ void vff_init(float init_z, float init_zdot, float init_bias) {
       vff_P[i][j] = 0.;
     vff_P[i][i] = INIT_PXX;
   }
+  //vff_P[0][0] = .22;
+  //vff_P[1][1] = 2.35;
+  //vff_P[2][2] = .075;
 
 }
 
