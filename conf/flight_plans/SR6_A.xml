@@ -1,0 +1,90 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="2580" ground_alt="1734" lat0="39.929123" lon0="-111.084169" max_dist_from_home="30000" name="SR6" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="2575.0" name="HOME" x="1917.4" y="-433.6"/>
+    <waypoint name="Truck" x="1997.2" y="-450.2"/>
+    <waypoint alt="2250.0" name="Bungee" x="1857.5" y="-458.5"/>
+    <waypoint alt="2575.0" name="STDBY" x="1734.9" y="-751.5"/>
+    <waypoint alt="2050.0" name="RechargeSTDBY" x="-21484.1" y="5500.5"/>
+    <waypoint alt="2575.0" name="R1" x="1691.5" y="-1067.7"/>
+    <waypoint alt="2575.0" name="R2" x="760.5" y="-75.2"/>
+    <waypoint alt="2575.0" name="R3" x="-3.6" y="-55.1"/>
+    <waypoint alt="2550.0" name="R4" x="-762.4" y="467.7"/>
+    <waypoint alt="2450.0" name="R5" x="-3670.2" y="540.3"/>
+    <waypoint alt="2400.0" name="R6" x="-4572.9" y="838.8"/>
+    <waypoint alt="2275.0" name="R7" x="-8461.5" y="-35.9"/>
+    <waypoint alt="2275.0" name="R8" x="-9819.2" y="153.4"/>
+    <waypoint alt="2200.0" name="R9" x="-9802.7" y="1287.6"/>
+    <waypoint alt="2200.0" name="R10" x="-10649.1" y="2016.5"/>
+    <waypoint alt="2175.0" name="R11" x="-12828.0" y="2886.0"/>
+    <waypoint alt="2175.0" name="R12" x="-14063.5" y="3078.5"/>
+    <waypoint alt="2150.0" name="R13" x="-15152.3" y="2687.2"/>
+    <waypoint alt="2150.0" name="R14" x="-15601.6" y="2822.8"/>
+    <waypoint alt="2125.0" name="R15" x="-16111.6" y="2529.2"/>
+    <waypoint alt="2125.0" name="R16" x="-17376.1" y="2550.9"/>
+    <waypoint alt="2100.0" name="R17" x="-18457.6" y="3039.0"/>
+    <waypoint alt="2075.0" name="R18" x="-19338.1" y="4160.3"/>
+    <waypoint alt="2075.0" name="R19" x="-20088.4" y="4017.4"/>
+    <waypoint alt="2050.0" name="R19a" x="-21875.1" y="5125.6"/>
+    <waypoint name="_P1" x="-25807.8" y="3956.3"/>
+    <waypoint name="_P2" x="-22290.4" y="11077.3"/>
+    <waypoint name="_P3" x="4451.6" y="1312.3"/>
+    <waypoint name="_P4" x="1215.5" y="-6512.7"/>
+    <waypoint alt="2317.0" name="AF" x="1900.4" y="-913.8"/>
+    <waypoint alt="2267.0" name="TD" x="1797.8" y="-631.9"/>
+    <waypoint alt="1810.0" name="RechargeAF" x="-21553.6" y="5572.5"/>
+    <waypoint alt="1769.0" name="RechargeTD" x="-21350.8" y="5739.2"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="To Truck"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Land CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Map Part A">
+      <call fun="FlightLineBlock(WP_R1,WP_R19a,nav_radius,100,100)"/>
+      <deroute block="Recharge Standby"/>
+    </block>
+    <block name="Recharge Standby">
+      <circle radius="-nav_radius" wp="RechargeSTDBY"/>
+    </block>
+    <block name="Land Recharge CW">
+      <call fun="InitializeSkidLanding(WP_RechargeAF, WP_RechargeTD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land Recharge CCW">
+      <call fun="InitializeSkidLanding(WP_RechargeAF, WP_RechargeTD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="To Truck" strip_button="To Truck" strip_icon="home.png">
+      <circle radius="nav_radius" wp="Truck"/>
+    </block>
+  </blocks>
+</flight_plan>

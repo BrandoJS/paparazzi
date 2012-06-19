@@ -1,0 +1,46 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="2006" ground_alt="1805" lat0="42.115105" lon0="-111.277277" max_dist_from_home="4000" name="MudLake" security_height="10">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "traffic_info.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-224.8" y="83.5"/>
+    <waypoint alt="1805.0" name="Bungee" x="-249.9" y="5.8"/>
+    <waypoint name="STDBY" x="-360.7" y="-43.0"/>
+    <waypoint name="1" x="329.4" y="2778.3"/>
+    <waypoint name="2" x="297.3" y="-29.6"/>
+    <waypoint alt="1825.0" name="AF" x="-419.9" y="-2.6"/>
+    <waypoint alt="1805.0" name="TD" x="-270.0" y="2.6"/>
+  </waypoints>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="StandbyLeft">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Test">
+      <circle radius="nav_radius" wp="HOME" throttle="1" vmode="throttle"/>
+    </block>
+    <block name="VerticalRaster" strip_button="VerticalRaster" strip_icon="line.png">
+      <call fun="InitializeVerticalRaster()"/>
+      <call fun="VerticalRaster(WP_1, WP_2, nav_radius,100)"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

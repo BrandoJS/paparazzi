@@ -1,0 +1,106 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="2006" ground_alt="1805" lat0="42.115105" lon0="-111.277277" max_dist_from_home="9000" name="MudLake" security_height="10">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "traffic_info.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-224.8" y="83.5"/>
+    <waypoint alt="1805.0" name="Bungee" x="-243.3" y="8.0"/>
+    <waypoint name="STDBY" x="-360.7" y="-43.0"/>
+    <waypoint alt="2800.0" name="S11" x="-1638.5" y="7785.5"/>
+    <waypoint alt="2800.0" name="_S12" x="-1258.4" y="3880.5"/>
+    <waypoint alt="2800.0" name="_S13" x="-3721.4" y="3831.9"/>
+    <waypoint alt="2800.0" name="_S14" x="-4139.8" y="6285.1"/>
+    <waypoint alt="2800.0" name="_S15" x="-3216.5" y="6340.8"/>
+    <waypoint alt="2800.0" name="S21" x="-1638.5" y="7785.5"/>
+    <waypoint alt="2800.0" name="_S22" x="335.5" y="7247.4"/>
+    <waypoint alt="2800.0" name="_S23" x="872.6" y="3925.2"/>
+    <waypoint alt="2800.0" name="_S24" x="-1258.4" y="3880.5"/>
+    <waypoint alt="2800.0" name="S31" x="-1258.4" y="3880.5"/>
+    <waypoint alt="2800.0" name="_S32" x="-928.9" y="228.2"/>
+    <waypoint alt="2800.0" name="_S33" x="-3210.8" y="766.0"/>
+    <waypoint alt="2800.0" name="_S34" x="-3721.4" y="3831.9"/>
+    <waypoint alt="2800.0" name="S44" x="924.7" y="-708.0"/>
+    <waypoint alt="2800.0" name="_S45" x="-929.3" y="228.4"/>
+    <waypoint alt="2800.0" name="_S41" x="-1258.4" y="3880.5"/>
+    <waypoint alt="2800.0" name="_S42" x="872.6" y="3925.2"/>
+    <waypoint alt="2800.0" name="_S43" x="1193.2" y="1983.8"/>
+    <waypoint alt="1835.0" name="AF" x="-419.9" y="-2.6"/>
+    <waypoint alt="1805.0" name="TD" x="-270.0" y="2.6"/>
+  </waypoints>
+  <sectors>
+    <sector name="Section1">
+      <corner name="S11"/>
+      <corner name="_S12"/>
+      <corner name="_S13"/>
+      <corner name="_S14"/>
+      <corner name="_S15"/>
+    </sector>
+    <sector name="Section2">
+      <corner name="S21"/>
+      <corner name="_S22"/>
+      <corner name="_S23"/>
+      <corner name="_S24"/>
+    </sector>
+    <sector name="Section3">
+      <corner name="S31"/>
+      <corner name="_S32"/>
+      <corner name="_S33"/>
+      <corner name="_S34"/>
+    </sector>
+    <sector name="Section4">
+      <corner name="S44"/>
+      <corner name="_S45"/>
+      <corner name="_S41"/>
+      <corner name="_S42"/>
+      <corner name="_S43"/>
+    </sector>
+  </sectors>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo1000">
+      <for from="1" to="7" var="i">
+        <circle alt="2000+100*$i" radius="nav_radius" until="stage_time>90" wp="STDBY"/>
+      </for>
+      <circle alt="2800" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Survey Section 1">
+      <call fun="InitializePolygonSurvey(WP_S11, 5, 500, 0)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 2">
+      <call fun="InitializePolygonSurvey(WP_S21, 4, 500, 0)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 3">
+      <call fun="InitializePolygonSurvey(WP_S31, 4, 500, 0)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 4">
+      <call fun="InitializePolygonSurvey(WP_S44, 5, 500, 85)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

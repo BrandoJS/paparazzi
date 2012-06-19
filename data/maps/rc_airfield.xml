@@ -1,0 +1,4 @@
+<map file="rc_airfield.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 41.795367	-112.002363"/>
+  <point x="4265" y="1694" geo="WGS84 41.781808	-111.956594"/>
+</map>

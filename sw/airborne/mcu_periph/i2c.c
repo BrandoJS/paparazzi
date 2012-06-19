@@ -41,4 +41,10 @@ void   i2c_init(struct i2c_periph* p) {
   p->status = I2CIdle;
 }
 
+#ifdef USE_I2C0_SLAVE
 
+void i2c0_init_slave(void) {
+  i2c0_hw_init_slave();
+}
+
+#endif

@@ -301,6 +301,12 @@
 #define PERIODIC_SEND_BARO_RAW(_trans, _dev) {}
 #endif
 
+#ifdef USE_I2C0_SLAVE
+#define PERIODIC_SEND_AGGIECAP(_trans, _dev) DOWNLINK_SEND_AGGIECAP (_trans, _dev, &payloadstatus, &capturenum, &errorcode)
+#else
+#define PERIODIC_SEND_AGGIECAP(_trans, _dev) {}
+#endif
+
 #ifdef MEASURE_AIRSPEED
 #define PERIODIC_SEND_AIRSPEED(_trans, _dev) DOWNLINK_SEND_AIRSPEED (_trans, _dev, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed, &estimator_airspeed)
 #elif USE_AIRSPEED

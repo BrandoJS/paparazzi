@@ -40,7 +40,7 @@
 <!-- Define RC commands to Servo in Auto Mode -->
 <auto_rc_commands>
 	<set command="YAW" 	value="@YAW"/>
-	<set command="FLAP"    	value="@FLAP"/>
+	<!--<set command="FLAP"    	value="@FLAP"/>-->
 </auto_rc_commands>
 
 <!-- Define RC commands to Servos in Manual -->  
@@ -214,10 +214,10 @@
 
 <!-- Modules -->
   <modules>
-    <load name="flaps.xml">
+    <!--<load name="flaps.xml">
       <define name="FLAPS_MIN" value="-9600"/>
       <define name="FLAPS_MAX" value="800"/>
-    </load>
+    </load>-->
     <!-- Airspeed Sensor -->
     <load name="airspeed_adc_adv.xml">
       <configure name="ADC_AIRSPEED" value="ADC_3"/>

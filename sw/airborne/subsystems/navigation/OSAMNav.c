@@ -1,15 +1,10 @@
-#include "subsystems/navigation/OSAMNav.h"
-
-#include "subsystems/nav.h"
-#include "estimator.h"
-#include "autopilot.h"
-#include "generated/flight_plan.h"
+#include "OSAMNav.h"
 
 /************** Flower Navigation **********************************************/
 
-/** Makes a flower pattern.
+/** Makes a flower pattern. 
 	CenterWP is the center of the flower. The Navigation Height is taken from this waypoint.
-	EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)
+	EdgeWP defines the radius of the flower (distance from CenterWP to EdgeWP)	
 */
 
 enum FlowerStatus { Outside, FlowerLine, Circle };
@@ -30,30 +25,23 @@ static float Flowerradius;
 static uint8_t Center;
 static uint8_t Edge;
 
-#ifndef LINE_START_FUNCTION
-#define LINE_START_FUNCTION {}
-#endif
-#ifndef LINE_STOP_FUNCTION
-#define LINE_STOP_FUNCTION {}
-#endif
-
 bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 {
 	Center = CenterWP;
 	Edge = EdgeWP;
 
-	EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
-	EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
-
+	EdgeCurrentX = waypoints[Edge].x - waypoints[Center].x;
+	EdgeCurrentY = waypoints[Edge].y - waypoints[Center].y;
+	
 	Flowerradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 
-	TransCurrentX = estimator_x - WaypointX(Center);
-	TransCurrentY = estimator_y - WaypointY(Center);
+	TransCurrentX = estimator_x - waypoints[Center].x;
+	TransCurrentY = estimator_y - waypoints[Center].y;
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
 
 	FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-	Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
-	Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
+	Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
+	Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
 	FlyFromX = estimator_x;
 	FlyFromY = estimator_y;
 
@@ -69,10 +57,10 @@ bool_t InitializeFlower(uint8_t CenterWP, uint8_t EdgeWP)
 
 bool_t FlowerNav(void)
 {
-	TransCurrentX = estimator_x - WaypointX(Center);
-	TransCurrentY = estimator_y - WaypointY(Center);
+	TransCurrentX = estimator_x - waypoints[Center].x;
+	TransCurrentY = estimator_y - waypoints[Center].y;
 	DistanceFromCenter = sqrt(TransCurrentX*TransCurrentX+TransCurrentY*TransCurrentY);
-
+	
 	bool_t InCircle = TRUE;
 	float CircleTheta;
 
@@ -84,14 +72,14 @@ bool_t FlowerNav(void)
 
 	switch(CFlowerStatus)
 	{
-	case Outside:
+	case Outside:		
 		nav_route_xy(FlyFromX,FlyFromY,Fly2X,Fly2Y);
 		if(InCircle)
 		{
 			CFlowerStatus = FlowerLine;
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
-			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
+			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
+			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
 			FlyFromX = estimator_x;
 			FlyFromY = estimator_y;
 			nav_init_stage();
@@ -103,8 +91,8 @@ bool_t FlowerNav(void)
 		{
 			CFlowerStatus = Circle;
 			CircleTheta = nav_radius/Flowerradius;
-			CircleX = Flowerradius*cos(FlowerTheta+3.14-CircleTheta)+WaypointX(Center);
-			CircleY = Flowerradius*sin(FlowerTheta+3.14-CircleTheta)+WaypointY(Center);
+			CircleX = Flowerradius*cos(FlowerTheta+3.14-CircleTheta)+waypoints[Center].x;
+			CircleY = Flowerradius*sin(FlowerTheta+3.14-CircleTheta)+waypoints[Center].y;
 			nav_init_stage();
 		}
 		break;
@@ -112,34 +100,32 @@ bool_t FlowerNav(void)
 		nav_circle_XY(CircleX, CircleY, nav_radius);
 		if(InCircle)
 		{
-			EdgeCurrentX = WaypointX(Edge) - WaypointX(Center);
-			EdgeCurrentY = WaypointY(Edge) - WaypointY(Center);
+			EdgeCurrentX = waypoints[Edge].x - waypoints[Center].x;
+			EdgeCurrentY = waypoints[Edge].y - waypoints[Center].y;	
 			Flowerradius = sqrt(EdgeCurrentX*EdgeCurrentX+EdgeCurrentY*EdgeCurrentY);
 			if(DistanceFromCenter > Flowerradius)
 				CFlowerStatus = Outside;
 			else
 				CFlowerStatus = FlowerLine;
 			FlowerTheta = atan2(TransCurrentY,TransCurrentX);
-			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+WaypointX(Center);
-			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+WaypointY(Center);
+			Fly2X = Flowerradius*cos(FlowerTheta+3.14)+waypoints[Center].x;
+			Fly2Y = Flowerradius*sin(FlowerTheta+3.14)+waypoints[Center].y;
 			FlyFromX = estimator_x;
 			FlyFromY = estimator_y;
 			nav_init_stage();
 		}
 		break;
-	default:
-		break;
+
 	}
-        
 	return TRUE;
-}
+} 
 
 /************** Bungee Takeoff **********************************************/
 
-/** Takeoff functions for bungee takeoff.
-Run initialize function when the plane is on the bungee, the bungee is fully extended and you are ready to
-launch the plane. After initialized, the plane will follow a line drawn by the position of the plane on initialization and the
-position of the bungee (given in the arguments). Once the plane crosses the throttle line, which is perpendicular to the line the plane is following,
+/** Takeoff functions for bungee takeoff. 	
+Run initialize function when the plane is on the bungee, the bungee is fully extended and you are ready to 
+launch the plane. After initialized, the plane will follow a line drawn by the position of the plane on initialization and the 
+position of the bungee (given in the arguments). Once the plane crosses the throttle line, which is perpendicular to the line the plane is following, 
 and intersects the position of the bungee (plus or minus a fixed distance (TakeOff_Distance in airframe file) from the bungee just in case the bungee doesn't release directly above the bungee) the prop will come on. The plane will then continue to follow the line until it has reached a specific
 height (defined in as Takeoff_Height in airframe file) above the bungee waypoint and speed (defined as Takeoff_Speed in the airframe file).
 
@@ -147,22 +133,8 @@ height (defined in as Takeoff_Height in airframe file) above the bungee waypoint
   <define name="Height" value="30" unit="m"/>
   <define name="Speed" value="15" unit="m/s"/>
   <define name="Distance" value="10" unit="m"/>
-  <define name="MinSpeed" value="5" unit="m/s"/>
 </section>
  */
-
-#ifndef Takeoff_Distance
-#define Takeoff_Distance 10
-#endif
-#ifndef Takeoff_Height
-#define Takeoff_Height 30
-#endif
-#ifndef Takeoff_Speed
-#define Takeoff_Speed 15
-#endif
-#ifndef Takeoff_MinSpeed
-#define Takeoff_MinSpeed 5
-#endif
 
 enum TakeoffStatus { Launch, Throttle, Finished };
 static enum TakeoffStatus CTakeoffStatus;
@@ -189,15 +161,15 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	TDistance = fabs(Takeoff_Distance);
 
 	//Translate initial position so that the position of the bungee is (0,0)
-	float Currentx = initialx-(WaypointX(BungeeWaypoint));
-	float Currenty = initialy-(WaypointY(BungeeWaypoint));
+	float Currentx = initialx-(waypoints[BungeeWaypoint].x);
+	float Currenty = initialy-(waypoints[BungeeWaypoint].y);
 
 	//Record bungee alt (which should be the ground alt at that point)
 	BungeeAlt = waypoints[BungeeWaypoint].a;
 
 	//Find Launch line slope and Throttle line slope
 	float MLaunch = Currenty/Currentx;
-
+	
 	//Find Throttle Point (the point where the throttle line and launch line intersect)
 	if(Currentx < 0)
 		throttlePx = TDistance/sqrt(MLaunch*MLaunch+1);
@@ -217,15 +189,15 @@ bool_t InitializeBungeeTakeoff(uint8_t BungeeWP)
 	if(Currenty > ((ThrottleSlope*Currentx)+ThrottleB))
 		AboveLine = TRUE;
 	else
-		AboveLine = FALSE;
+		AboveLine = FALSE;	
 
 	//Enable Launch Status and turn kill throttle on
 	CTakeoffStatus = Launch;
 	kill_throttle = 1;
 
 	//Translate the throttle point back
-	throttlePx = throttlePx+(WaypointX(BungeeWP));
-	throttlePy = throttlePy+(WaypointY(BungeeWP));
+	throttlePx = throttlePx+(waypoints[BungeeWP].x);
+	throttlePy = throttlePy+(waypoints[BungeeWP].y);
 
 	return FALSE;
 }
@@ -241,11 +213,11 @@ bool_t BungeeTakeoff(void)
 	switch(CTakeoffStatus)
 	{
 	case Launch:
-		//Follow Launch Line
+		//Follow Launch Line	
 		NavVerticalAutoThrottleMode(0);
 	  	NavVerticalAltitudeMode(BungeeAlt+Takeoff_Height, 0.);
 		nav_route_xy(initialx,initialy,throttlePx,throttlePy);
-
+		
 		kill_throttle = 1;
 
 		//recalculate lines if below min speed
@@ -255,12 +227,12 @@ bool_t BungeeTakeoff(void)
 			initialy = estimator_y;
 
 			//Translate initial position so that the position of the bungee is (0,0)
-			Currentx = initialx-(WaypointX(BungeeWaypoint));
-			Currenty = initialy-(WaypointY(BungeeWaypoint));
+			Currentx = initialx-(waypoints[BungeeWaypoint].x);
+			Currenty = initialy-(waypoints[BungeeWaypoint].y);
 
 			//Find Launch line slope
 			float MLaunch = Currenty/Currentx;
-
+	
 			//Find Throttle Point (the point where the throttle line and launch line intersect)
 			if(Currentx < 0)
 				throttlePx = TDistance/sqrt(MLaunch*MLaunch+1);
@@ -280,11 +252,11 @@ bool_t BungeeTakeoff(void)
 			if(Currenty > ((ThrottleSlope*Currentx)+ThrottleB))
 				AboveLine = TRUE;
 			else
-				AboveLine = FALSE;
+				AboveLine = FALSE;	
 
 			//Translate the throttle point back
-			throttlePx = throttlePx+(WaypointX(BungeeWaypoint));
-			throttlePy = throttlePy+(WaypointY(BungeeWaypoint));
+			throttlePx = throttlePx+(waypoints[BungeeWaypoint].x);
+			throttlePy = throttlePy+(waypoints[BungeeWaypoint].y);
 		}
 
 		//Find out if the UAV is currently above the line
@@ -304,15 +276,15 @@ bool_t BungeeTakeoff(void)
 	case Throttle:
 		//Follow Launch Line
 		NavVerticalAutoThrottleMode(AGR_CLIMB_PITCH);
-		NavVerticalThrottleMode(9600*(.8));
+		NavVerticalThrottleMode(9600*(1));
 		nav_route_xy(initialx,initialy,throttlePx,throttlePy);
 		kill_throttle = 0;
-
+		
 		if((estimator_z > BungeeAlt+Takeoff_Height-10) && (estimator_hspeed_mod > Takeoff_Speed))
 		{
 			CTakeoffStatus = Finished;
 			return FALSE;
-		}
+		}			
 		else
 		{
 			return TRUE;
@@ -361,7 +333,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 	float XIntercept1 = 0;
 	float XIntercept2 = 0;
 
-	SurveyTheta = RadOfDeg(Orientation);
+	SurveyTheta = RadOfDeg(Orientation);	
 	PolySurveySweepNum = 0;
 	PolySurveySweepBackNum = 0;
 
@@ -371,9 +343,6 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 	struct Point2D Corners[PolygonSize];
 
 	CSurveyStatus = Init;
-
-	if (Size == 0)
-	  return TRUE;
 
 	//Don't initialize if Polygon is too big or if the orientation is not between 0 and 90
 	if(Size <= PolygonSize && Orientation >= -90 && Orientation <= 90)
@@ -505,7 +474,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 				XIntercept1 = EvaluateLineForX(ys, Edges[i]);
 			}
 		}
-
+	
 		//Find point to come from and point to go to
 		if(fabs(EntryPoint.x - XIntercept2) <= fabs(EntryPoint.x - XIntercept1))
 		{
@@ -537,8 +506,7 @@ bool_t InitializePolygonSurvey(uint8_t EntryWP, uint8_t Size, float sw, float Or
 		SurveyCircle.y = EntryPoint.y;
 
 		//Go into entry circle state
-		CSurveyStatus = Entry;
-		LINE_STOP_FUNCTION;
+		CSurveyStatus = Entry;	
 	}
 
 	return FALSE;
@@ -557,7 +525,7 @@ bool_t PolygonSurvey(void)
 	float XIntercept2 = 0;
 	float DInt1 = 0;
 	float DInt2 = 0;
-
+	
 	NavVerticalAutoThrottleMode(0); /* No pitch */
   	NavVerticalAltitudeMode(waypoints[SurveyEntryWP].a, 0.);
 
@@ -570,14 +538,13 @@ bool_t PolygonSurvey(void)
 		RotateAndTranslateToWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
 		RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
-		//follow the circle
+		//follow the circle		
 		nav_circle_XY(C.x, C.y, SurveyRadius);
 
 		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > .1 && estimator_z > waypoints[SurveyEntryWP].a-10)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
-			LINE_START_FUNCTION;
 		}
 		break;
 	case Sweep:
@@ -613,7 +580,7 @@ bool_t PolygonSurvey(void)
 				PolySurveySweepBackNum++;
 			}
 			else
-			{
+			{			
 				//Find y value of the first sweep
 				ys = LastPoint.y+dSweep;
 			}
@@ -679,18 +646,18 @@ bool_t PolygonSurvey(void)
 				}
 			}
 
-
+			
 
 			if(fabs(LastPoint.x-SurveyToWP.x) > fabs(SurveyFromWP.x-SurveyToWP.x))
 				SurveyCircle.x = LastPoint.x;
 			else
 				SurveyCircle.x = SurveyFromWP.x;
 
-
+			
 			if(!SweepingBack)
 				SurveyCircle.y = LastPoint.y+(dSweep/2);
 			else
-				SurveyCircle.y = LastPoint.y;
+				SurveyCircle.y = LastPoint.y;			
 
 			//Find the direction to circle
 			if(ys > 0 && SurveyToWP.x > SurveyFromWP.x)
@@ -701,9 +668,9 @@ bool_t PolygonSurvey(void)
 				SurveyRadius = -dSweep/2;
 
 			//Go into circle state
-			CSurveyStatus = SweepCircle;
+			CSurveyStatus = SweepCircle;	
 			nav_init_stage();
-      LINE_STOP_FUNCTION;
+
 			PolySurveySweepNum++;
 		}
 
@@ -715,14 +682,13 @@ bool_t PolygonSurvey(void)
 		RotateAndTranslateToWorld(&C, 0, SmallestCorner.x, SmallestCorner.y);
 		RotateAndTranslateToWorld(&C, SurveyTheta, 0, 0);
 
-		//follow the circle
+		//follow the circle		
 		nav_circle_XY(C.x, C.y, SurveyRadius);
 
 		if(NavQdrCloseTo(SurveyCircleQdr) && NavCircleCount() > 0)
 		{
 			CSurveyStatus = Sweep;
 			nav_init_stage();
-			LINE_START_FUNCTION;
 		}
 		break;
 	case Init:
@@ -751,8 +717,8 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
   float alt = waypoints[l1].a;
   waypoints[l2].a = alt;
 
-  float l2_l1_x = WaypointX(l1) - WaypointX(l2);
-  float l2_l1_y = WaypointY(l1) - WaypointY(l2);
+  float l2_l1_x = waypoints[l1].x - waypoints[l2].x;
+  float l2_l1_y = waypoints[l1].y - waypoints[l2].y;
   float d = sqrt(l2_l1_x*l2_l1_x+l2_l1_y*l2_l1_y);
 
   /* Unit vector from l1 to l2 */
@@ -760,38 +726,38 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
   float u_y = l2_l1_y / d;
 
   /* The half circle centers and the other leg */
-  struct point l2_c1 = { WaypointX(l1) + radius * u_y,
-			 WaypointY(l1) + radius * -u_x,
+  struct point l2_c1 = { waypoints[l1].x + radius * u_y,
+			 waypoints[l1].y + radius * -u_x,
 			 alt  };
-  struct point l2_c2 = { WaypointX(l1) + 1.732*radius * u_x,
-			 WaypointY(l1) + 1.732*radius * u_y,
+  struct point l2_c2 = { waypoints[l1].x + 1.732*radius * u_x,
+			 waypoints[l1].y + 1.732*radius * u_y,
 			 alt  };
-  struct point l2_c3 = { WaypointX(l1) + radius * -u_y,
-			 WaypointY(l1) + radius * u_x,
+  struct point l2_c3 = { waypoints[l1].x + radius * -u_y,
+			 waypoints[l1].y + radius * u_x,
 			 alt  };
-
-  struct point l1_c1 = { WaypointX(l2) + radius * -u_y,
-			 WaypointY(l2) + radius * u_x,
+  
+  struct point l1_c1 = { waypoints[l2].x + radius * -u_y,
+			 waypoints[l2].y + radius * u_x,
 			 alt  };
-  struct point l1_c2 = { WaypointX(l2) +1.732*radius * -u_x,
-			 WaypointY(l2) + 1.732*radius * -u_y,
+  struct point l1_c2 = { waypoints[l2].x +1.732*radius * -u_x,
+			 waypoints[l2].y + 1.732*radius * -u_y,
 			 alt  };
-  struct point l1_c3 = { WaypointX(l2) + radius * u_y,
-			 WaypointY(l2) + radius * -u_x,
+  struct point l1_c3 = { waypoints[l2].x + radius * u_y,
+			 waypoints[l2].y + radius * -u_x,
 			 alt  };
   float qdr_out_2_1 = M_PI/3. - atan2(u_y, u_x);
-
+ 
   float qdr_out_2_2 = -M_PI/3. - atan2(u_y, u_x);
   float qdr_out_2_3 = M_PI - atan2(u_y, u_x);
 
   /* Vertical target */
   NavVerticalAutoThrottleMode(0); /* No pitch */
   NavVerticalAltitudeMode(WaypointAlt(l1), 0.);
-
+ 
   switch (line_status) {
   case LR12: /* From wp l2 to wp l1 */
     NavSegment(l2, l1);
-    if (NavApproachingFrom(l1, l2, CARROT)) {
+    if (NavApproachingFrom(l1, l2, CARROT)) { 
       line_status = LQC21;
       waypoints[l1].a = waypoints[l1].a+AltSweep;
       nav_init_stage();
@@ -820,7 +786,7 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
     break;
   case LR21: /* From wp l1 to wp l2 */
     NavSegment(l1, l2);
-    if (NavApproachingFrom(l2, l1, CARROT)) {
+    if (NavApproachingFrom(l2, l1, CARROT)) { 
       line_status = LQC12;
       waypoints[l1].a = waypoints[l1].a+AltSweep;
       nav_init_stage();
@@ -846,10 +812,6 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
       line_status = LR12;
       nav_init_stage();
     }
-
-  default:
-    break;
-
   }
   return TRUE; /* This pattern never ends */
 }
@@ -857,26 +819,8 @@ bool_t VerticalRaster(uint8_t l1, uint8_t l2, float radius, float AltSweep) {
 /************** SkidLanding **********************************************/
 /*
 Landing Routine
-
-
-  <section name="Landing" prefix="Landing_">
-    <define name="AFHeight" value="50" unit="m"/>
-    <define name="FinalHeight" value="5" unit="m"/>
-    <define name="FinalStageTime" value="5" unit="s"/>
-  </section>
-
  */
-
-#ifndef Landing_AFHeight
-#define Landing_AFHeight 50
-#endif
-#ifndef Landing_FinalHeight
-#define Landing_FinalHeight 50
-#endif
-#ifndef Landing_FinalStageTime
-#define Landing_FinalStageTime 5
-#endif
-
+ 
 enum LandingStatus { CircleDown, LandingWait, Final, Approach };
 static enum LandingStatus CLandingStatus;
 static uint8_t AFWaypoint;
@@ -898,20 +842,20 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
 	LandAppAlt = estimator_z;
 	FinalLandAltitude = Landing_FinalHeight;
 	FinalLandCount = 1;
-	waypoints[AFWaypoint].a = waypoints[TDWaypoint].a + Landing_AFHeight;
-
-	float x_0 = WaypointX(TDWaypoint) - WaypointX(AFWaypoint);
-	float y_0 = WaypointY(TDWaypoint) - WaypointY(AFWaypoint);
+	//waypoints[AFWaypoint].a = waypoints[TDWaypoint].a + Landing_AFHeight;
+	
+	float x_0 = waypoints[TDWaypoint].x - waypoints[AFWaypoint].x;
+	float y_0 = waypoints[TDWaypoint].y - waypoints[AFWaypoint].y;
 
 	/* Unit vector from AF to TD */
 	float d = sqrt(x_0*x_0+y_0*y_0);
 	float x_1 = x_0 / d;
 	float y_1 = y_0 / d;
 
-	LandCircle.x = WaypointX(AFWaypoint) + y_1 * LandRadius;
-	LandCircle.y = WaypointY(AFWaypoint) - x_1 * LandRadius;
-
-	LandCircleQDR = atan2(WaypointX(AFWaypoint)-LandCircle.x, WaypointY(AFWaypoint)-LandCircle.y);
+	LandCircle.x = waypoints[AFWaypoint].x + y_1 * LandRadius;
+	LandCircle.y = waypoints[AFWaypoint].y - x_1 * LandRadius;
+	
+	LandCircleQDR = atan2(waypoints[AFWaypoint].x-LandCircle.x, waypoints[AFWaypoint].y-LandCircle.y);
 
 	if(LandRadius > 0)
 	{
@@ -923,8 +867,8 @@ bool_t InitializeSkidLanding(uint8_t AFWP, uint8_t TDWP, float radius)
 		ApproachQDR = LandCircleQDR+RadOfDeg(90);
 		LandCircleQDR = LandCircleQDR+RadOfDeg(45);
 	}
-
-
+	
+	
 	return FALSE;
 }
 
@@ -934,63 +878,63 @@ bool_t SkidLanding(void)
 	{
 	case CircleDown:
 		NavVerticalAutoThrottleMode(0); /* No pitch */
-
+		
 		if(NavCircleCount() < .1)
 		{
 	  		NavVerticalAltitudeMode(LandAppAlt, 0);
   		}
 		else
 			NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
-
-		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
-
+  			
+		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);	
+		
 		if(estimator_z < waypoints[AFWaypoint].a + 5)
 		{
 			CLandingStatus = LandingWait;
 			nav_init_stage();
 		}
-
+		
 	break;
-
+	
 	case LandingWait:
 		NavVerticalAutoThrottleMode(0); /* No pitch */
   		NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
 		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
-
+		
 	  	if(NavCircleCount() > 0.5 && NavQdrCloseTo(DegOfRad(ApproachQDR)))
 		{
 			CLandingStatus = Approach;
 			nav_init_stage();
 		}
 	break;
-
+	
 	case Approach:
-		//kill_throttle = 1;
+		kill_throttle = 1;
 		NavVerticalAutoThrottleMode(0); /* No pitch */
   		NavVerticalAltitudeMode(waypoints[AFWaypoint].a, 0);
 		nav_circle_XY(LandCircle.x, LandCircle.y, LandRadius);
-
+		
 	  	if(NavQdrCloseTo(DegOfRad(LandCircleQDR)))
 		{
 			CLandingStatus = Final;
 			nav_init_stage();
 		}
 	break;
-
+	
 	case Final:
 		kill_throttle = 1;
 		NavVerticalAutoThrottleMode(0);
   		NavVerticalAltitudeMode(waypoints[TDWaypoint].a+FinalLandAltitude, 0);
-		nav_route_xy(WaypointX(AFWaypoint),WaypointY(AFWaypoint),WaypointX(TDWaypoint),WaypointY(TDWaypoint));
+		nav_route_xy(waypoints[AFWaypoint].x,waypoints[AFWaypoint].y,waypoints[TDWaypoint].x,waypoints[TDWaypoint].y);
 		if(stage_time >= Landing_FinalStageTime*FinalLandCount)
 		{
 			FinalLandAltitude = FinalLandAltitude/2;
 			FinalLandCount++;
 		}
 	break;
-
+	
 	default:
-
+	
 	break;
 	}
 	return TRUE;
@@ -1015,15 +959,15 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 	case FLInitialize:
 
 		//Translate WPs so From_WP is origin
-		V.x = WaypointX(To_WP) - WaypointX(From_WP);
-		V.y = WaypointY(To_WP) - WaypointY(From_WP);
+		V.x = waypoints[To_WP].x - waypoints[From_WP].x;
+		V.y = waypoints[To_WP].y - waypoints[From_WP].y;
 
 		//Record Aircraft Position
 		P.x = estimator_x;
 		P.y = estimator_y;
 
 		//Rotate Aircraft Position so V is aligned with x axis
-		TranslateAndRotateFromWorld(&P, atan2(V.y,V.x), WaypointX(From_WP), WaypointY(From_WP));
+		TranslateAndRotateFromWorld(&P, atan2(V.y,V.x), waypoints[From_WP].x, waypoints[From_WP].y);
 
 		//Find which side of the flight line the aircraft is on
 		if(P.y > 0)
@@ -1051,59 +995,58 @@ bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Befo
 		FLQDR = atan2(FLFROMWP.x-FLCircle.x, FLFROMWP.y-FLCircle.y);
 
 		//Translate back
-		FLFROMWP.x = FLFROMWP.x + WaypointX(From_WP);
-		FLFROMWP.y = FLFROMWP.y + WaypointY(From_WP);
+		FLFROMWP.x = FLFROMWP.x + waypoints[From_WP].x;
+		FLFROMWP.y = FLFROMWP.y + waypoints[From_WP].y;
 
-		FLTOWP.x = FLTOWP.x + WaypointX(From_WP);
-		FLTOWP.y = FLTOWP.y + WaypointY(From_WP);
+		FLTOWP.x = FLTOWP.x + waypoints[From_WP].x;
+		FLTOWP.y = FLTOWP.y + waypoints[From_WP].y;
 
-		FLCircle.x = FLCircle.x + WaypointX(From_WP);
-		FLCircle.y = FLCircle.y + WaypointY(From_WP);
+		FLCircle.x = FLCircle.x + waypoints[From_WP].x;
+		FLCircle.y = FLCircle.y + waypoints[From_WP].y;
 
 		CFLStatus = FLCircleS;
 		nav_init_stage();
 
-		break;
+		break;	
 
 	case FLCircleS:
 
 		NavVerticalAutoThrottleMode(0); /* No pitch */
 		NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
-
-		nav_circle_XY(FLCircle.x, FLCircle.y, FLRadius);
-
+		
+		nav_circle_XY(FLCircle.x, FLCircle.y, FLRadius);	
+	
 		if(NavCircleCount() > 0.2 && NavQdrCloseTo(DegOfRad(FLQDR)))
 		{
 			CFLStatus = FLLine;
-			LINE_START_FUNCTION;
 			nav_init_stage();
 		}
-		break;
-
+		break;	
+	
 	case FLLine:
 
 		NavVerticalAutoThrottleMode(0); /* No pitch */
-		//NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
-		OSAMNavGlide(From_WP, To_WP);
+		//if(waypoints[From_WP].a == waypoints[To_WP].a)
+		//	NavVerticalAltitudeMode(waypoints[From_WP].a, 0);
+		//else
+			OSAMNavGlide(From_WP, To_WP);
 
 		nav_route_xy(FLFROMWP.x,FLFROMWP.y,FLTOWP.x,FLTOWP.y);
-
 
 		if(nav_approaching_xy(FLTOWP.x,FLTOWP.y,FLFROMWP.x,FLFROMWP.y, 0))
 		{
 			CFLStatus = FLFinished;
-			LINE_STOP_FUNCTION;
 			nav_init_stage();
-		}
-	break;
+		}			
+	break;	
 
 	case FLFinished:
 		CFLStatus = FLInitialize;
 		nav_init_stage();
-		return FALSE;
-	break;
+		return FALSE; 
+	break;	
 
-	default:
+	default:	
 	break;
 	}
 	return TRUE;
@@ -1136,7 +1079,7 @@ static uint8_t FLBlockCount = 0;
 bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After)
 {
 	if(First_WP < Last_WP)
-	{
+	{	
 		FlightLine(First_WP+FLBlockCount, First_WP+FLBlockCount+1, radius, Space_Before, Space_After);
 
 		if(CFLStatus == FLInitialize)
@@ -1149,9 +1092,9 @@ bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Sp
 			}
 		}
 	}
-	else
+	else	
 	{
-		FlightLine(First_WP-FLBlockCount, First_WP-FLBlockCount-1, radius, Space_Before, Space_After);
+		FlightLine(First_WP-FLBlockCount, First_WP-FLBlockCount-1, radius, Space_Before, Space_After);		
 
 		if(CFLStatus == FLInitialize)
 		{
@@ -1217,36 +1160,3 @@ float DistanceEquation(struct Point2D p1,struct Point2D p2)
 {
 	return sqrt((p1.x-p2.x)*(p1.x-p2.x)+(p1.y-p2.y)*(p1.y-p2.y));
 }
-
-float baseleg_out_qdr2;
-bool_t nav_compute_baseleg_2(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius ) {
-  nav_radius = radius;
-
-  float x_0 = waypoints[wp_td].x - waypoints[wp_af].x;
-  float y_0 = waypoints[wp_td].y - waypoints[wp_af].y;
-
-  /* Unit vector from AF to TD */
-  float d = sqrt(x_0*x_0+y_0*y_0);
-  float x_1 = x_0 / d;
-  float y_1 = y_0 / d;
-
-  float target_dist = 7*(waypoints[wp_af].a-waypoints[wp_td].a);
-
-  /* Ensure TD is at least 7*agl m away - glide slope of 14deg*/
-  if (d<target_dist) {
-  	waypoints[wp_td].x = waypoints[wp_af].x + target_dist*x_0/d;
-	waypoints[wp_td].y = waypoints[wp_af].y + target_dist*y_0/d;
-  }
-
-
-  waypoints[wp_baseleg].x = waypoints[wp_af].x + y_1 * nav_radius;
-  waypoints[wp_baseleg].y = waypoints[wp_af].y - x_1 * nav_radius;
-  waypoints[wp_baseleg].a = waypoints[wp_af].a;
-  baseleg_out_qdr2 = M_PI - atan2(-y_1, -x_1);
-  if (nav_radius < 0)
-    baseleg_out_qdr2 += M_PI;
-
-  return FALSE;
-}
-
-

@@ -1,0 +1,73 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1680" ground_alt="1480" lat0="41.842855" lon0="-113.036564" max_dist_from_home="5000" name="ScoobyFire" security_height="10">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "traffic_info.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-2.3" y="30.6"/>
+    <waypoint alt="1478.0" name="Bungee" x="-50.2" y="77.3"/>
+    <waypoint name="STDBY" x="155.0" y="260.0"/>
+    <waypoint alt="1730.0" name="1" x="803.8" y="-311.8"/>
+    <waypoint name="2" x="1169.2" y="-474.5"/>
+    <waypoint alt="1980.0" name="S11" x="132.9" y="126.8"/>
+    <waypoint alt="1980.0" name="_S12" x="-329.8" y="-120.0"/>
+    <waypoint alt="1980.0" name="_S13" x="-1729.8" y="2125.2"/>
+    <waypoint alt="1980.0" name="_S14" x="-1284.3" y="2348.5"/>
+    <waypoint name="_P1" x="-3726.8" y="2266.3"/>
+    <waypoint name="_P2" x="497.9" y="3894.2"/>
+    <waypoint name="_P3" x="4106.0" y="-1445.4"/>
+    <waypoint name="_P4" x="-903.7" y="-3242.4"/>
+    <waypoint alt="1525.0" name="AF" x="-50.2" y="-72.7"/>
+    <waypoint alt="1475.0" name="TD" x="-50.2" y="177.3"/>
+  </waypoints>
+  <sectors>
+    <sector name="FireArea">
+      <corner name="S11"/>
+      <corner name="_S12"/>
+      <corner name="_S13"/>
+      <corner name="_S14"/>
+    </sector>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo500">
+      <circle alt="1980" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Survey Fire">
+      <call fun="InitializePolygonSurvey(WP_S11, 4, 250, -57.5)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Standby"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Yellow Flower Test">
+      <call fun="InitializeFlower(WP_1,WP_2)"/>
+      <call fun="FlowerNav()"/>
+    </block>
+    <block name="Land CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

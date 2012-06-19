@@ -1,0 +1,67 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1482" ground_alt="1282" lat0="41.456" lon0="-112.274" max_dist_from_home="4500" name="BRMBR_Selected_Sites" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-38.7" y="1169.9"/>
+    <waypoint alt="1285.0" name="Bungee" x="0.3" y="1156.0"/>
+    <waypoint name="STDBY" x="434.5" y="1230.3"/>
+    <waypoint name="GCS" x="-36.7" y="1144.1"/>
+    <waypoint name="R1" x="696.3" y="2449.3"/>
+    <waypoint name="R2" x="-1247.8" y="-1970.3"/>
+    <waypoint name="R3" x="-96.2" y="-2349.4"/>
+    <waypoint name="R4" x="-444.3" y="-1237.0"/>
+    <waypoint name="R5" x="-563.5" y="-213.3"/>
+    <waypoint name="R6" x="1207.1" y="381.7"/>
+    <waypoint name="_P1" x="-209.0" y="3577.1"/>
+    <waypoint name="_P2" x="2632.1" y="2753.6"/>
+    <waypoint name="_P3" x="728.6" y="-3117.0"/>
+    <waypoint name="_P4" x="-2858.3" y="-2201.3"/>
+    <waypoint alt="1325.0" name="AF" x="-264.8" y="1304.2"/>
+    <waypoint alt="1285.0" name="TD" x="26.6" y="1180.9"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map BRMBR selected sites from R1 to R6">
+      <call fun="FlightLine(WP_R1,WP_R2,nav_radius,100,100)"/>
+      <call fun="FlightLine(WP_R3,WP_R4,nav_radius,100,100)"/>
+      <call fun="FlightLine(WP_R5,WP_R6,nav_radius,200,200)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Map BRMBR selected sites from R6 to R1">
+      <call fun="FlightLine(WP_R6,WP_R5,nav_radius,200,200)"/>
+      <call fun="FlightLine(WP_R4,WP_R3,nav_radius,100,100)"/>
+      <call fun="FlightLine(WP_R2,WP_R1,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

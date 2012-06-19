@@ -1,0 +1,86 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="325" ground_alt="25" lat0="48.27" lon0="-124.62" max_dist_from_home="5000" name="Tsoo_Yess1B" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-765.6" y="323.6"/>
+    <waypoint name="GCS" x="-524.1" y="452.0"/>
+    <waypoint alt="1181.0" name="Bungee" x="-318.7" y="278.3"/>
+    <waypoint name="STDBY" x="-192.2" y="383.9"/>
+    <waypoint alt="320.0" name="R1" x="-1534.4" y="1146.0"/>
+    <waypoint alt="320.0" name="R2" x="-1460.3" y="793.4"/>
+    <waypoint alt="320.0" name="R3" x="-1294.0" y="589.7"/>
+    <waypoint alt="320.0" name="R4" x="-732.3" y="474.2"/>
+    <waypoint alt="320.0" name="R5" x="-629.6" y="68.4"/>
+    <waypoint alt="320.0" name="R6" x="-454.6" y="-83.1"/>
+    <waypoint alt="320.0" name="R7" x="-339.8" y="-624.2"/>
+    <waypoint alt="320.0" name="R8" x="-63.1" y="-876.8"/>
+    <waypoint alt="320.0" name="R9" x="182.0" y="-874.5"/>
+    <waypoint alt="320.0" name="R10" x="197.1" y="-1215.0"/>
+    <waypoint alt="330.0" name="R11" x="439.8" y="-1326.3"/>
+    <waypoint alt="340.0" name="R12" x="340.2" y="-1824.3"/>
+    <waypoint alt="360.0" name="R13" x="105.9" y="-2020.0"/>
+    <waypoint alt="340.0" name="R14" x="-233.0" y="-1892.1"/>
+    <waypoint alt="340.0" name="R15" x="-560.0" y="-2972.8"/>
+    <waypoint alt="340.0" name="R16" x="-700.6" y="-2929.6"/>
+    <waypoint alt="340.0" name="R17" x="-323.6" y="-1693.5"/>
+    <waypoint alt="330.0" name="R18" x="87.2" y="-1849.1"/>
+    <waypoint alt="330.0" name="R19" x="208.3" y="-1743.3"/>
+    <waypoint alt="330.0" name="R20" x="267.6" y="-1413.4"/>
+    <waypoint alt="330.0" name="R21" x="54.0" y="-1313.1"/>
+    <waypoint alt="330.0" name="R22" x="37.8" y="-1025.7"/>
+    <waypoint alt="370.0" name="R23" x="-118.2" y="-1025.5"/>
+    <waypoint alt="360.0" name="R24" x="-482.4" y="-693.6"/>
+    <waypoint alt="320.0" name="R25" x="-523.3" y="-172.8"/>
+    <waypoint alt="320.0" name="R26" x="-765.2" y="-27.7"/>
+    <waypoint alt="320.0" name="R27" x="-853.8" y="346.4"/>
+    <waypoint alt="320.0" name="R28" x="-1371.1" y="453.3"/>
+    <waypoint alt="330.0" name="R29" x="-1602.8" y="726.3"/>
+    <waypoint alt="330.0" name="R30" x="-1663.0" y="1034.1"/>
+    <waypoint name="_P1" x="-2781.5" y="3018.1"/>
+    <waypoint name="_P2" x="2269.3" y="2902.3"/>
+    <waypoint name="_P3" x="2081.5" y="-3276.6"/>
+    <waypoint name="_P4" x="-2996.6" y="-3155.4"/>
+    <waypoint alt="1221.0" name="AF" x="-432.3" y="643.5"/>
+    <waypoint alt="1181.0" name="TD" x="-404.1" y="375.6"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Site1 From North">
+      <call fun="FlightLineBlock(WP_R1,WP_R15,nav_radius,100,100)"/>
+    </block>
+    <block name="Map Site1 From South">
+      <call fun="FlightLineBlock(WP_R16,WP_R30,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

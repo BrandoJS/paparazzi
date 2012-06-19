@@ -1,0 +1,90 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1825" ground_alt="1425" lat0="41.726" lon0="-111.822" max_dist_from_home="5000" name="LoganRiver" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint name="GCS" x="2067.4" y="1189.4"/>
+    <waypoint alt="1475.0" name="T_Bungee" x="2018.7" y="1250.1"/>
+    <waypoint alt="1361.0" name="B_Bungee" x="-2494.7" y="-1433.7"/>
+    <waypoint name="T_STDBY" x="1879.7" y="1409.0"/>
+    <waypoint alt="1465.0" name="B_STDBY" x="-2226.4" y="-1523.9"/>
+    <waypoint name="R1" x="3054.2" y="1858.6"/>
+    <waypoint name="R2" x="2537.3" y="1717.7"/>
+    <waypoint name="R3" x="2492.9" y="1559.6"/>
+    <waypoint name="R4" x="1581.1" y="1432.1"/>
+    <waypoint name="R5" x="21.2" y="-16.5"/>
+    <waypoint name="R6" x="-760.4" y="-180.0"/>
+    <waypoint name="R7" x="-2413.8" y="-2010.3"/>
+    <waypoint name="R8" x="-3226.3" y="-1918.1"/>
+    <waypoint name="R9" x="-3229.9" y="-2132.5"/>
+    <waypoint name="R10" x="-2333.5" y="-2219.2"/>
+    <waypoint name="R11" x="-1269.7" y="-1045.6"/>
+    <waypoint name="_P1" x="-3598.8" y="2248.4"/>
+    <waypoint name="_P2" x="3553.3" y="2190.2"/>
+    <waypoint name="_P3" x="3556.2" y="-2945.2"/>
+    <waypoint name="_P4" x="-3709.9" y="-2851.6"/>
+    <waypoint alt="1522.0" name="T_AF" x="2026.0" y="1494.0"/>
+    <waypoint alt="1482.0" name="T_TD" x="2026.1" y="1194.0"/>
+    <waypoint alt="1401.0" name="B_AF" x="-2235.2" y="-1424.3"/>
+    <waypoint alt="1361.0" name="B_TD" x="-2534.4" y="-1445.3"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Goto GCS"/>
+  </exceptions>
+  <blocks>
+    <block name="Top Takeoff">
+      <call fun="InitializeBungeeTakeoff(WP_T_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Top Standby">
+      <circle radius="-nav_radius" wp="T_STDBY"/>
+    </block>
+    <block name="Map River Part A From East">
+      <call fun="FlightLineBlock(WP_R1,WP_R6,nav_radius,100,100)"/>
+    </block>
+    <block name="Map River Part B From East">
+      <call fun="FlightLineBlock(WP_R6,WP_R8,nav_radius,100,100)"/>
+      <call fun="FlightLineBlock(WP_R9,WP_R11,nav_radius,100,100)"/>
+    </block>
+    <block name="Bottom Standby">
+      <circle alt="1565" radius="-nav_radius" until="NavCircleCount() > 0.1" wp="B_STDBY"/>
+      <circle radius="-nav_radius" wp="B_STDBY"/>
+    </block>
+    <block name="Bottom Land CW">
+      <call fun="InitializeSkidLanding(WP_B_AF, WP_B_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Bottom Land CCW">
+      <call fun="InitializeSkidLanding(WP_B_AF, WP_B_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Bottom Takeoff">
+      <call fun="InitializeBungeeTakeoff(WP_B_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Top Land CW">
+      <call fun="InitializeSkidLanding(WP_T_AF, WP_T_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Top Land CCW">
+      <call fun="InitializeSkidLanding(WP_T_AF, WP_T_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Goto GCS">
+      <circle radius="nav_radius" wp="GCS"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -3,6 +3,13 @@
 
 #include "std.h"
 
+#include "subsystems/navigation/OSAMNav.h"
+
+#include "subsystems/nav.h"
+#include "estimator.h"
+#include "autopilot.h"
+#include "generated/flight_plan.h"
+
 
 struct Point2D {float x; float y;};
 struct Line {float m;float b;float x;};
@@ -31,9 +38,6 @@ extern bool_t VerticalRaster(uint8_t wp1, uint8_t wp2, float radius, float AltSw
 extern bool_t FlightLine(uint8_t From_WP, uint8_t To_WP, float radius, float Space_Before, float Space_After);
 extern bool_t FlightLineBlock(uint8_t First_WP, uint8_t Last_WP, float radius, float Space_Before, float Space_After);
 void OSAMNavGlide(uint8_t From_WP, uint8_t To_WP);
-
-extern float baseleg_out_qdr2;
-extern bool_t nav_compute_baseleg_2(uint8_t wp_af, uint8_t wp_td, uint8_t wp_baseleg, float radius );
 
 void TranslateAndRotateFromWorld(struct Point2D *p, float Zrot, float transX, float transY);
 void RotateAndTranslateToWorld(struct Point2D *p, float Zrot, float transX, float transY);

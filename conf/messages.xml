@@ -564,15 +564,15 @@
     <field name="GX3_chksm"	type="uint16"/>
     <field name="GX3_calcm"	type="uint16"/>
   </message>
- <!-- 71 is free -->
-
-  <message name="FLAPS" id="72">
-     <field name="flaps_engaged" type="uint8" values="OFF|ON"/>
-     <field name="flaps_pos"     type="int16" unit="ticks"/>
-  </message>
  <!-- 72 is free -->
- <!-- 73 is free -->
- <!-- 74 is free -->
+
+
+<!-- Messages from Payload -->
+   <message name="AGGIECAP" id="73">
+     <field name="payloadstatus" type="uint8" values="Not Init|Cool|Warm"/>
+     <field name="capturenum" type="uint16"/>
+     <field name="errorcode" type="uint8"/>
+   </message>
 
   <message name="AIRSPEED_IND" id="74">
     <field name="ind_airspeed" type="float" unit="m/s"/>

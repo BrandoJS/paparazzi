@@ -26,12 +26,12 @@
 
 #include "std.h"
 #include "interrupt_hw.h"
+#include "led.h"
 #include BOARD_CONFIG
 
 ///////////////////
 // I2C Automaton //
 ///////////////////
-
 __attribute__ ((always_inline)) static inline void I2cSendStart(struct i2c_periph* p) {
   p->status = I2CStartRequested;
   ((i2cRegs_t *)(p->reg_addr))->conset = _BV(STA);
@@ -154,7 +154,6 @@ __attribute__ ((always_inline)) static inline void I2cAutomaton(int32_t state, s
       break;
   }
 }
-
 
 #ifdef USE_I2C0
 
@@ -313,6 +312,106 @@ void i2c1_hw_init ( void ) {
 
 #endif /* USE_I2C1 */
 
+#ifdef USE_I2C0_SLAVE
+
+#ifndef I2C0_VIC_SLOT
+#define I2C0_VIC_SLOT 9
+#endif
+
+volatile uint8_t i2cSendBuffer[I2C_BUF_LEN];
+volatile uint8_t i2cReceiveBuffer[I2C_BUF_LEN];
+volatile uint8_t i2cSendBufferIndex;
+volatile uint8_t i2cReceiveBufferIndex;
+volatile uint8_t i2c_send_payload_length;
+volatile uint8_t i2c_receive_payload_length;
+volatile bool_t i2c_slave_data_valid;
+
+void i2c0_slave_ISR(void) __attribute__ ((interrupt("IRQ")));
+
+void i2c0_slave_ISR(void)
+{
+	LED_TOGGLE(SYS_TIME_LED);
+	uint32_t state = I2C_STATUS_REG;	// read current status
+	I2cClearStart_slv();					// clear start bit
+	I2cClearAA_slv();						// clear AA bit
+	switch(state)
+	{
+		case I2C_SR_ARBIT_LOST:			// Arbitration was lost
+			I2cSendStart_slv();		// set Start, proceed as if slave address would have been received normally
+		case I2C_SR_SLA_ACK:			// own SLA+W received, ACK returned
+			I2cSendAck_slv();		// send ACK on first byte
+			break;
+		case I2C_SR_DATA_ACK:			// Data received, ACK returned
+			if (i2cReceiveBufferIndex < I2C_BUF_LEN) {	// if buffer is not full, continue
+				i2cReceiveBuffer[i2cReceiveBufferIndex] = I2C_DATA_REG;	// read and store data
+				i2cReceiveBufferIndex++;
+			} 
+			else {
+				// handle error somehow
+			}
+			I2cSendAck_slv();		// send ACK to receive more data
+			break;
+		case I2C_SR_DATA_NACK:			// Data received, NACK returned
+		case I2C_SR_RESTART:			// STOP or REP.START received while addressed as slave -> this was the last byte to read
+			I2cSendAck_slv();				// send ACK, switch to not addressed slave mode
+			break;
+
+		case I2C_ST_ARBIT_LOST:			// Arbitration was lost
+			I2cSendStart_slv();		// set Start, proceed as if slave address would have been received normally
+		case I2C_ST_SLA_ACK:			// own SLA+R received, ACK returned -> first byte to send
+			// first byte to read, so reset index
+			i2cSendBufferIndex = 0;
+			// transmit number of bytes to transmit first so that Master knows how many bytes to request
+			// payload length was already computed before
+			I2C_DATA_REG = i2c_send_payload_length;
+			i2cSendBufferIndex++;
+			I2cSendAck_slv();				// send ACK to commit data
+			break;
+		case I2C_ST_DATA_ACK:			// Data transmitted, ACK received -> all following bytes to send
+				if (i2cSendBufferIndex < i2c_send_payload_length+1) {	// if not all bytes sent yet, continue
+					I2C_DATA_REG = i2cSendBuffer[i2cSendBufferIndex-1];	// store data
+					i2cSendBufferIndex++;
+				} else {
+					// more bytes requested than actually present, handle error somehow
+				}
+		
+			I2cSendAck_slv();				// send ACK to commit data
+			break;
+		case I2C_ST_DATA_NACK:			// Data transmitted, NACK received
+		case I2C_ST_LAST_DATA_ACK:		// last Data transmitted, ACK received
+				// last byte, clear buffer and set validity
+				i2c_slave_data_valid = TRUE;
+				i2cSendBufferIndex = 0;
+			I2cSendAck_slv();				// send ACK, switch to not addressed slave mode
+			break;
+		default:
+			break;
+	}
+	
+	VICVectAddr = 0;		// reset VIC
+	I2cClearIT_slv();	// clear interrupt flag
+}
+
+void i2c0_hw_init_slave(void) {
+
+	PINSEL0    |= 0x50;	// P0.3 = SDA, P0.2 = SCL
+	I2C0ADR     = I2C_SLAVE_ADDR << 1; // set I2C slave address - this value must be shifted one bit left from the original address because of bit 0 determining whether to react on General Calls
+	I2C0CONCLR = _BV(AAC) | _BV(SIC) | _BV(STAC) | _BV(I2ENC);	// clear all flags
+	I2C0CONSET = _BV(I2EN) | _BV(AA);	// enable I2C, set AA flag
+	// initialize the interrupt vector
+	VICIntSelect &= ~VIC_BIT(VIC_I2C0);              // I2C0 selected as IRQ
+	VICIntEnable = VIC_BIT(VIC_I2C0);                // I2C0 interrupt enabled
+	_VIC_CNTL(I2C0_VIC_SLOT) = VIC_ENABLE | VIC_I2C0;
+	_VIC_ADDR(I2C0_VIC_SLOT) = (uint32_t)i2c0_slave_ISR;    // address of the ISR
+
+	i2cSendBufferIndex = 0;
+	i2cReceiveBufferIndex = 0;
+	i2c_send_payload_length = 5;
+	i2c_receive_payload_length = 5;
+	i2c_slave_data_valid = FALSE;
+}
+
+#endif /* USE_I2C0_SLAVE */
 
 bool_t i2c_idle(struct i2c_periph* p) {
   return p->status == I2CIdle;

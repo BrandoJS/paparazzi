@@ -1,0 +1,61 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="2330" ground_alt="1900" lat0="44.78" lon0="-113.755" max_dist_from_home="3500" name="Lemhi" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="0" y="0"/>
+    <waypoint alt="1950" name="Bungee" x="100" y="100"/>
+    <waypoint name="STDBY" x="200" y="200"/>
+    <waypoint alt="2200.0" name="R1" x="1646.5" y="-799.0"/>
+    <waypoint alt="2230.0" name="R2" x="969.7" y="-621.2"/>
+    <waypoint alt="2260.0" name="R3" x="937.3" y="-390.6"/>
+    <waypoint alt="2300.0" name="R4" x="92.5" y="397.0"/>
+    <waypoint name="R5" x="-1077.4" y="891.8"/>
+    <waypoint name="_P1" x="-1644.8" y="1741.7"/>
+    <waypoint name="_P2" x="2429.5" y="1738.0"/>
+    <waypoint name="_P3" x="2455.9" y="-1726.6"/>
+    <waypoint name="_P4" x="-1590.1" y="-1610.8"/>
+    <waypoint alt="1990" name="AF" x="-400" y="-200"/>
+    <waypoint alt="1950" name="TD" x="-200" y="-200"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Site5 From West">
+      <call fun="FlightLineBlock(WP_R5,WP_R1,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Map Site5 From East">
+      <call fun="FlightLineBlock(WP_R1,WP_R5,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

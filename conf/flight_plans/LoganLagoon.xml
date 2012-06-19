@@ -1,0 +1,67 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1550" ground_alt="1350" lat0="41.739466" lon0="-111.890111" max_dist_from_home="2000" name="LoganLagoon" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="73.5" y="-328.5"/>
+    <waypoint alt="1351.0" name="Bungee" x="-8.4" y="-257.1"/>
+    <waypoint name="STDBY" x="-141.2" y="-58.0"/>
+    <waypoint alt="2350.0" name="R1c" x="999.5" y="170.1"/>
+    <waypoint alt="2350.0" name="R1" x="997.7" y="270.1"/>
+    <waypoint alt="2350.0" name="R2" x="-1069.9" y="284.9"/>
+    <waypoint alt="2350.0" name="R3c" x="-1059.0" y="564.3"/>
+    <waypoint alt="2350.0" name="R3" x="-1059.0" y="824.3"/>
+    <waypoint alt="2350.0" name="R4" x="1004.5" y="801.7"/>
+    <waypoint name="_P1" x="-1721.7" y="1373.6"/>
+    <waypoint name="_P2" x="1933.2" y="1317.0"/>
+    <waypoint name="_P3" x="1811.5" y="-921.8"/>
+    <waypoint name="_P4" x="-1826.9" y="-880.4"/>
+    <waypoint alt="1401.0" name="AF" x="-284.2" y="-108.4"/>
+    <waypoint alt="1351.0" name="TD" x="-10.1" y="-230.4"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="StandbyLeft">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo1000">
+      <circle alt="2350" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Lagoon">
+      <circle radius="-100" until="NavQdrCloseTo(0)" wp="R1c"/>
+      <go approaching_time="5" from="R1" hmode="route" wp="R2"/>
+      <circle radius="260" until="NavQdrCloseTo(0)" wp="R3c"/>
+      <go approaching_time="5" from="R3" hmode="route" wp="R4"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

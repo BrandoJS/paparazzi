@@ -1,0 +1,75 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1460" ground_alt="1353" lat0="41.787505" lon0="-111.981391" max_dist_from_home="1500" name="Basic" security_height="25">
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/navigation/OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="1510.0" name="HOME" x="10.1" y="8.2"/>
+    <waypoint alt="1550.0" name="STDBY" x="67.1" y="234.0"/>
+    <waypoint alt="1560.0" name="1" x="-10.3" y="159.2"/>
+    <waypoint name="2" x="-211.6" y="-484.5"/>
+    <waypoint name="MOB" x="-435.6" y="105.0"/>
+    <waypoint name="S1" x="-456.1" y="-200.2"/>
+    <waypoint alt="1550.0" name="S2" x="-16.4" y="64.3"/>
+    <waypoint alt="1488.0" name="AF" x="-335.4" y="57.3"/>
+    <waypoint alt="1348.0" name="TD" x="99.4" y="100.2"/>
+    <waypoint name="_BASELEG" x="10.1" y="-231.4"/>
+    <waypoint alt="1350.0" name="Bungee" x="11.0" y="87.0"/>
+    <waypoint name="Center" x="-250.3" y="-221.3"/>
+    <waypoint name="Edge" x="-101.5" y="-351.1"/>
+  </waypoints>
+  <exceptions/>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff (wp_CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block group="home" key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block group="base_pattern" key="F8" name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block group="base_pattern" name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block group="base_pattern" name="MOB" strip_button="Circle here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <circle radius="nav_radius" wp="MOB"/>
+    </block>
+    <block group="extra_pattern" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block group="extra_pattern" name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+      <survey_rectangle grid="150" wp1="S1" wp2="S2"/>
+    </block>
+    <block name="Flower">
+      <call fun="InitializeFlower(WP_Center,WP_Edge)"/>
+      <call fun="FlowerNav()"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF,WP_TD, DEFAULT_LANDING_CIRCLE_RADIUS)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF,WP_TD, -DEFAULT_LANDING_CIRCLE_RADIUS)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

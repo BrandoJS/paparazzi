@@ -130,6 +130,13 @@ extern void i2c2_init(void);
 
 #endif /* USE_I2C2 */
 
+
+
+#ifdef USE_I2C0_SLAVE
+
+extern void i2c0_init_slave(void);
+#endif
+
 extern void   i2c_init(struct i2c_periph* p);
 extern bool_t i2c_idle(struct i2c_periph* p);
 extern bool_t i2c_submit(struct i2c_periph* p, struct i2c_transaction* t);

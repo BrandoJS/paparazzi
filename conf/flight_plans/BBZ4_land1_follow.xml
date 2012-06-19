@@ -1,0 +1,115 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="370" ground_alt="170" lat0="49.068701" lon0="8.009189" max_dist_from_home="900" name="BBZ1" qfu="270" security_height="130">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="360.0" name="HOME" x="-27.3" y="-23.7"/>
+    <waypoint alt="340.0" name="wp1" x="113.6" y="-183.5"/>
+    <waypoint alt="340.0" name="wp3" x="144.3" y="-132.6"/>
+    <waypoint alt="350.0" name="wp4" x="-128.2" y="-17.6"/>
+    <waypoint alt="340.0" name="1" x="-51.0" y="-71.4"/>
+    <waypoint alt="340.0" name="2" x="86.2" y="-137.6"/>
+    <waypoint name="S1" x="-224.2" y="35.2"/>
+    <waypoint name="S2" x="192.0" y="-193.8"/>
+    <waypoint name="S3" x="46.5" y="-495.9"/>
+    <waypoint name="S4" x="-289.0" y="-293.3"/>
+    <waypoint name="S5" x="-309.6" y="-77.2"/>
+    <waypoint name="A1" x="-300.5" y="95.2"/>
+    <waypoint name="A2" x="304.9" y="-42.3"/>
+    <waypoint name="A3" x="229.3" y="-403.2"/>
+    <waypoint name="A4" x="-382.1" y="-312.3"/>
+    <waypoint alt="180.0" name="AF" x="126.8" y="-98.2"/>
+    <waypoint alt="170.0" name="TD" x="0.0" y="-9.6"/>
+    <waypoint alt="200.0" name="_BASELEG" x="36.9" y="-163.3"/>
+  </waypoints>
+  <sectors>
+    <sector name="PolySector">
+      <corner name="S1"/>
+      <corner name="S2"/>
+      <corner name="S3"/>
+      <corner name="S4"/>
+      <corner name="S5"/>
+    </sector>
+    <sector name="FeldNord">
+      <corner name="A1"/>
+      <corner name="A2"/>
+      <corner name="A3"/>
+      <corner name="A4"/>
+    </sector>
+  </sectors>
+  <blocks>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="wp4"/>
+    </block>
+    <block name="Figure 8 around wp 1" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="1" radius="nav_radius" turn_around="2"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <exception cond="datalink_time > 22" deroute="Standby"/>
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block name="Circle4">
+      <circle radius="100" wp="wp4"/>
+    </block>
+    <block name="Follow ID2 (EG) d50 h20">
+      <follow ac_id="2" distance="50" height="20"/>
+    </block>
+    <block name="Follow ID2 (EG) d30 h20">
+      <follow ac_id="2" distance="30" height="20"/>
+    </block>
+    <block name="Follow ID9 (ES) d50 h20">
+      <follow ac_id="9" distance="50" height="20"/>
+    </block>
+    <block name="Follow ID9 (ES) d30 h20">
+      <follow ac_id="9" distance="30" height="20"/>
+    </block>
+    <block name="Line1-4">
+      <go wp="wp1"/>
+      <go wp="wp4"/>
+    </block>
+    <block name="OVAL3-4">
+      <oval p1="wp3" p2="wp4" radius="70"/>
+    </block>
+    <block name="FeldSued_50">
+      <call fun="InitializePolygonSurvey(WP_S1,5,75,50)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="FeldNord">
+      <call fun="InitializePolygonSurvey(WP_A1,4,75,0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Sued_90">
+      <call fun="InitializePolygonSurvey(WP_S1,5,75,90)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey S1-S2" strip_button="Survey (wp S1-S2)" strip_icon="survey.png">
+      <survey_rectangle grid="150" wp1="S1" wp2="S3"/>
+    </block>
+    <block name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <set value="-DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <deroute block="land"/>
+    </block>
+    <block name="land">
+      <call fun="nav_compute_baseleg(WP_AF, WP_TD, WP__BASELEG, nav_radius)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="_BASELEG"/>
+      <circle radius="nav_radius" until="And(NavQdrCloseTo(DegOfRad(baseleg_out_qdr)-10), 10 > fabs(estimator_z - WaypointAlt(WP__BASELEG)))" wp="_BASELEG"/>
+    </block>
+    <block name="final">
+      <exception cond="ground_alt + 10 > estimator_z" deroute="flare"/>
+      <go from="AF" hmode="route" vmode="glide" wp="TD"/>
+    </block>
+    <block name="flare">
+      <go approaching_time="0" from="AF" hmode="route" throttle="0.0" vmode="throttle" wp="TD"/>
+      <attitude roll="0.0" throttle="0.0" until="FALSE" vmode="throttle"/>
+    </block>
+  </blocks>
+</flight_plan>

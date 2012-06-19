@@ -1,0 +1,93 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="2100" ground_alt="1900" lat0="41.822102" lon0="-111.571" max_dist_from_home="8000" name="TempleFork_Spawn" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="1928.0" name="HOME" x="-262.1" y="-320.5"/>
+    <waypoint alt="1928.0" name="GCS" x="-277.0" y="-327.3"/>
+    <waypoint alt="1918.0" name="Bungee" x="-226.4" y="-318.5"/>
+    <waypoint alt="2123.0" name="STDBY" x="130.3" y="-474.6"/>
+    <waypoint alt="2778.0" name="S1" x="4333.3" y="2426.1"/>
+    <waypoint alt="2544.0" name="S2" x="3003.2" y="2134.3"/>
+    <waypoint alt="2439.0" name="S3" x="2503.3" y="1871.1"/>
+    <waypoint alt="2282.0" name="S4" x="1590.5" y="1954.9"/>
+    <waypoint alt="2218.0" name="S5" x="925.9" y="1892.2"/>
+    <waypoint alt="2155.0" name="S6" x="175.4" y="1408.8"/>
+    <waypoint alt="2121.0" name="S7" x="-244.0" y="767.5"/>
+    <waypoint alt="2104.0" name="S8" x="-659.7" y="703.7"/>
+    <waypoint alt="2102.0" name="S9" x="-658.1" y="939.1"/>
+    <waypoint alt="2090.0" name="S10" x="-988.5" y="1194.7"/>
+    <waypoint alt="2082.0" name="S11" x="-1320.8" y="1174.5"/>
+    <waypoint alt="2070.0" name="S12" x="-1467.5" y="1318.8"/>
+    <waypoint alt="2138.0" name="T1" x="-659.8" y="703.6"/>
+    <waypoint alt="2164.0" name="T2" x="-81.1" y="266.9"/>
+    <waypoint alt="2164.0" name="T3" x="248.8" y="-57.3"/>
+    <waypoint alt="2189.0" name="T4" x="325.7" y="-968.3"/>
+    <waypoint alt="2250.0" name="T5" x="905.8" y="-1227.5"/>
+    <waypoint alt="2275.0" name="T6" x="1404.9" y="-1075.3"/>
+    <waypoint alt="2275.0" name="T7" x="1571.1" y="-1054.4"/>
+    <waypoint alt="2375.0" name="T8" x="1900.9" y="-1511.4"/>
+    <waypoint alt="2375.0" name="T9" x="2231.6" y="-1735.9"/>
+    <waypoint alt="2442.0" name="T10" x="3064.6" y="-1385.7"/>
+    <waypoint name="_P1" x="-3454.4" y="4339.3"/>
+    <waypoint name="_P2" x="5760.8" y="4329.3"/>
+    <waypoint name="_P3" x="5930.9" y="-2835.5"/>
+    <waypoint name="_P4" x="-3358.9" y="-2945.1"/>
+    <waypoint alt="1963.0" name="AF" x="121.0" y="-521.3"/>
+    <waypoint alt="1923.0" name="TD" x="-189.9" y="-269.5"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Circle up to Spawn altitude">
+      <circle alt="2600" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Spawn Creek">
+      <go alt="2778" approaching_time="20" from="STDBY" hmode="route" wp="S3"/>
+      <go alt="2778" approaching_time="30" from="S3" hmode="route" wp="S1"/>
+      <call fun="FlightLineBlock(WP_S1,WP_S11,nav_radius,100,100)"/>
+      <circle radius="nav_radius" until="NavCircleCount() > 0.5" wp="S12"/>
+      <go approaching_time="20" from="S12" hmode="route" wp="S10"/>
+      <go approaching_time="20" from="S10" hmode="route" wp="S9"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Circle up to Temple altitude">
+      <circle alt="2400" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Temple">
+      <go alt="2450" approaching_time="20" from="STDBY" hmode="route" wp="T7"/>
+      <go alt="2450" approaching_time="30" from="T7" hmode="route" wp="T9"/>
+      <go alt="2450" approaching_time="30" from="T9" hmode="route" wp="T10"/>
+      <call fun="FlightLineBlock(WP_T10,WP_T1,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

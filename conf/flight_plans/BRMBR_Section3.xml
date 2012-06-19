@@ -1,0 +1,119 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1480" ground_alt="1280" lat0="41.4438" lon0="-112.2324" max_dist_from_home="7000" name="BRMBR" security_height="10">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "traffic_info.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="1101.7" y="256.6"/>
+    <waypoint name="GCS" x="-1.4" y="-3034.8"/>
+    <waypoint alt="1281.0" name="Bungee" x="57.2" y="-3030.1"/>
+    <waypoint name="STDBY" x="404.8" y="-3162.9"/>
+    <waypoint alt="2280.0" name="S11" x="-2882.7" y="-2483.8"/>
+    <waypoint alt="2280.0" name="_S12" x="-122.7" y="4279.9"/>
+    <waypoint alt="2280.0" name="_S13" x="689.8" y="4215.5"/>
+    <waypoint alt="2280.0" name="_S14" x="827.7" y="3956.2"/>
+    <waypoint alt="2280.0" name="_S15" x="-1906.8" y="-2732.0"/>
+    <waypoint alt="2280.0" name="S21" x="-1906.4" y="-2732.2"/>
+    <waypoint alt="2280.0" name="_S22" x="825.7" y="3956.9"/>
+    <waypoint alt="2280.0" name="_S23" x="1559.6" y="3086.0"/>
+    <waypoint alt="2280.0" name="_S24" x="-928.1" y="-2990.4"/>
+    <waypoint alt="2280.0" name="S31" x="839.0" y="-3250.1"/>
+    <waypoint alt="2280.0" name="_S32" x="-436.2" y="-3204.2"/>
+    <waypoint alt="2280.0" name="_S33" x="-929.8" y="-2995.7"/>
+    <waypoint alt="2280.0" name="_S34" x="904.8" y="1476.9"/>
+    <waypoint alt="2280.0" name="S41" x="1840.1" y="-3282.0"/>
+    <waypoint alt="2280.0" name="_S42" x="839.0" y="-3250.4"/>
+    <waypoint alt="2280.0" name="_S43" x="935.3" y="3099.3"/>
+    <waypoint alt="2280.0" name="_S44" x="1933.9" y="3071.5"/>
+    <waypoint name="_P1" x="-977.7" y="5844.5"/>
+    <waypoint name="_P2" x="5967.3" y="3362.5"/>
+    <waypoint name="_P3" x="2398.7" y="-5646.7"/>
+    <waypoint name="_P4" x="-4534.3" y="-2489.5"/>
+    <waypoint alt="1321.0" name="AF" x="-221.9" y="-3019.0"/>
+    <waypoint alt="1281.0" name="TD" x="77.7" y="-3034.7"/>
+  </waypoints>
+  <sectors>
+    <sector name="Section1">
+      <corner name="S11"/>
+      <corner name="_S12"/>
+      <corner name="_S13"/>
+      <corner name="_S14"/>
+      <corner name="_S15"/>
+    </sector>
+    <sector name="Section2">
+      <corner name="S21"/>
+      <corner name="_S22"/>
+      <corner name="_S23"/>
+      <corner name="_S24"/>
+    </sector>
+    <sector name="Section3">
+      <corner name="S31"/>
+      <corner name="_S32"/>
+      <corner name="_S33"/>
+      <corner name="_S34"/>
+    </sector>
+    <sector name="Section4">
+      <corner name="S41"/>
+      <corner name="_S42"/>
+      <corner name="_S43"/>
+      <corner name="_S44"/>
+    </sector>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo1000">
+      <circle alt="2280" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Survey Section 1">
+      <call fun="InitializePolygonSurvey(WP_S11, 5, 500, 68)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Survey Finished"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 2">
+      <call fun="InitializePolygonSurvey(WP_S21, 4, 500, 68)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Survey Finished"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 3">
+      <call fun="InitializePolygonSurvey(WP_S31, 4, 500, 89.5)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Survey Finished"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Section 4">
+      <call fun="InitializePolygonSurvey(WP_S41, 4, 500, 89.5)"/>
+      <exception cond="PolySurveySweepBackNum >=1" deroute="Survey Finished"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Survey Finished">
+      <call fun="InitializePolygonSurvey(WP_S11, 5, 500, 64)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -1,0 +1,75 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="625" ground_alt="401" lat0="42.73" lon0="-98.05" max_dist_from_home="8000" name="Niobrara" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="655.0" name="HOME" x="-1436.3" y="3351.3"/>
+    <waypoint alt="454.0" name="Bungee" x="-1477.3" y="3358.6"/>
+    <waypoint alt="855.0" name="STDBY" x="-1451.0" y="3182.1"/>
+    <waypoint alt="1400.0" name="R1" x="-625.8" y="-2214.5"/>
+    <waypoint alt="1400.0" name="R2" x="7.5" y="-240.1"/>
+    <waypoint alt="1400.0" name="R3" x="191.3" y="2794.6"/>
+    <waypoint alt="1400.0" name="S3" x="-1009.9" y="2132.6"/>
+    <waypoint alt="1400.0" name="_S4" x="-770.1" y="2824.2"/>
+    <waypoint alt="1400.0" name="_S5" x="445.9" y="2781.3"/>
+    <waypoint alt="1400.0" name="_S1" x="288.0" y="163.6"/>
+    <waypoint alt="1400.0" name="_S2" x="-1151.5" y="241.4"/>
+    <waypoint name="_P1" x="-2611.1" y="5332.8"/>
+    <waypoint name="_P2" x="2219.5" y="5299.0"/>
+    <waypoint name="_P3" x="1721.8" y="-2619.6"/>
+    <waypoint name="_P4" x="-2599.8" y="-2653.5"/>
+    <waypoint alt="494.0" name="AF" x="-1668.1" y="3516.7"/>
+    <waypoint alt="454.0" name="TD" x="-1438.3" y="3323.8"/>
+  </waypoints>
+  <sectors>
+    <sector name="RiverSection">
+      <corner name="S3"/>
+      <corner name="_S4"/>
+      <corner name="_S5"/>
+      <corner name="_S1"/>
+      <corner name="_S2"/>
+    </sector>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="CircleUpTo1000">
+      <circle alt="1400" radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Section">
+      <call fun="InitializePolygonSurvey(WP_S3, 5, 500, 86)"/>
+      <exception cond="PolySurveySweepNum >=2" deroute="Map Site1 at 1000m"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block name="Map Site1 at 1000m">
+      <call fun="FlightLineBlock(WP_R3,WP_R1,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -1,0 +1,63 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1550" ground_alt="1350" lat0="41.815562" lon0="-111.982437" max_dist_from_home="12500" name="HydroStructures" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="12.2" y="-10.0"/>
+    <waypoint alt="1347.0" name="Bungee" x="20.3" y="57.3"/>
+    <waypoint name="STDBY" x="211.8" y="126.9"/>
+    <waypoint alt="1600.0" name="R1" x="-167.7" y="289.7"/>
+    <waypoint alt="1600.0" name="R2" x="889.5" y="8582.0"/>
+    <waypoint alt="1600.0" name="R3" x="1051.4" y="8957.7"/>
+    <waypoint alt="1600.0" name="R4" x="1117.8" y="8891.5"/>
+    <waypoint alt="1600.0" name="R4c" x="1147.0" y="8987.2"/>
+    <waypoint alt="1600.0" name="R5" x="445.3" y="8919.7"/>
+    <waypoint alt="1650.0" name="R6" x="551.8" y="10108.8"/>
+    <waypoint alt="1650.0" name="R7" x="2293.0" y="10097.2"/>
+    <waypoint alt="1450.0" name="R8" x="4004.3" y="10090.7"/>
+    <waypoint alt="1450.0" name="R9" x="3835.4" y="10156.7"/>
+    <waypoint alt="1450.0" name="R9c" x="3907.4" y="10226.2"/>
+    <waypoint alt="1450.0" name="R10" x="4557.7" y="9679.0"/>
+    <waypoint alt="1450.0" name="R11" x="8125.1" y="6177.4"/>
+    <waypoint alt="1450.0" name="R11c" x="8051.9" y="6245.6"/>
+    <waypoint alt="1450.0" name="R12" x="7564.5" y="5582.2"/>
+    <waypoint alt="1376.0" name="AF" x="-187.9" y="-35.0"/>
+    <waypoint alt="1346.0" name="TD" x="12.2" y="-35.0"/>
+  </waypoints>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map Structures">
+      <go approaching_time="5" from="R1" hmode="route" wp="R2"/>
+      <go approaching_time="5" from="R2" hmode="route" wp="R3"/>
+      <circle radius="100" until="NavCircleCount() > 0.7" wp="R4c"/>
+      <go approaching_time="5" from="R4" hmode="route" wp="R5"/>
+      <go approaching_time="5" from="R5" hmode="route" wp="R6"/>
+      <go approaching_time="5" from="R6" hmode="route" wp="R7"/>
+      <go approaching_time="5" from="R7" hmode="route" wp="R8"/>
+      <circle radius="-100" until="NavCircleCount() > 0.7" wp="R9c"/>
+      <go approaching_time="5" from="R9" hmode="route" wp="R10"/>
+      <go approaching_time="30" from="R10" hmode="route" wp="R11"/>
+      <circle radius="100" until="NavCircleCount() > 0.4" wp="R11c"/>
+      <go approaching_time="5" from="R11" hmode="route" wp="R12"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

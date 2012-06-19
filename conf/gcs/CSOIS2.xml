@@ -7,7 +7,7 @@
     </rows>
     <rows>
       <widget NAME="map2d">
-        <papget type="message_field" display="gauge" x="380" y="60">
+        <papget type="message_field" display="gauge" x="625" y="58">
           <property name="scale" value="1."/>
           <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
           <property name="min" value="0"/>
@@ -15,26 +15,43 @@
           <property name="size" value="50."/>
           <property name="text" value="Airspeed"/>
         </papget>
-        <papget type="message_field" display="gauge" x="470" y="60">
-          <property name="scale" value="1"/>
-          <property name="field" value="ESTIMATOR:z_dot"/>
-          <property name="min" value="-10"/>
-          <property name="max" value="10"/>
-          <property name="size" value="50."/>
-          <property name="text" value="Climb Rate"/>
-        </papget>
-        <papget type="message_field" display="led" x="602" y="23">
+        <papget type="message_field" display="led" x="205" y="47">
           <property name="scale" value="1."/>
-          <property name="field" value="FLAPS:flaps_engaged"/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
           <property name="size" value="15."/>
-          <property name="text" value="Flaps"/>
+          <property name="text" value="Cool"/>
         </papget>
-        <papget type="message_field" display="text" x="358" y="108">
+        <papget type="message_field" display="led" x="203" y="74">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Warm"/>
+        </papget>
+        <papget type="message_field" display="text" x="235" y="12">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:capturenum"/>
+          <property name="format" value="Capture Num %.2f"/>
+          <property name="size" value="15."/>
+          <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="text" x="603" y="108">
           <property name="scale" value="1."/>
           <property name="field" value="AIRSPEED_IND:ind_airspeed"/>
           <property name="format" value="%.2f"/>
           <property name="size" value="15."/>
           <property name="color" value="green"/>
+        </papget>
+        <papget type="message_field" display="led" x="204" y="21">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:payloadstatus"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Init"/>
+        </papget>
+        <papget type="message_field" display="led" x="204" y="102">
+          <property name="scale" value="1."/>
+          <property name="field" value="AGGIECAP:errorcode"/>
+          <property name="size" value="15."/>
+          <property name="text" value="Status"/>
         </papget>
       </widget>
     </rows>

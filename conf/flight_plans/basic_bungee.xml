@@ -23,17 +23,6 @@
   </waypoints>
   <exceptions/>
   <blocks>
-    <block name="Wait GPS">
-      <set value="1" var="kill_throttle"/>
-      <while cond="!GpsFixValid()"/>
-    </block>
-    <block name="Geo init">
-      <while cond="LessThan(NavBlockTime(), 10)"/>
-    </block>
-    <block name="Holding point">
-      <set value="1" var="kill_throttle"/>
-      <attitude roll="0" throttle="0" vmode="throttle"/>
-    </block>
     <block name="Takeoff" strip_button="Takeoff (wp_CLIMB)" strip_icon="takeoff.png">
       <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
       <call fun="BungeeTakeoff()"/>

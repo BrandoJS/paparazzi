@@ -1,0 +1,69 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="895" ground_alt="695" lat0="41.199325" lon0="-103.244" max_dist_from_home="1600" name="BasicTuning" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="12.2" y="-10.0"/>
+    <waypoint alt="1347.0" name="Bungee" x="86.7" y="52.1"/>
+    <waypoint name="STDBY" x="211.8" y="126.9"/>
+    <waypoint name="1" x="-1000" y="1000"/>
+    <waypoint name="2" x="1000" y="-1000"/>
+    <waypoint name="P1" x="-803.7" y="-714.2"/>
+    <waypoint name="P2" x="-1034.8" y="878.9"/>
+    <waypoint name="P3" x="861.4" y="836.8"/>
+    <waypoint name="P4" x="832.8" y="-736.8"/>
+    <waypoint alt="1376.0" name="AF" x="-187.9" y="-35.0"/>
+    <waypoint alt="1346.0" name="TD" x="12.2" y="-35.0"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="P1"/>
+      <corner name="P2"/>
+      <corner name="P3"/>
+      <corner name="P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Go Home"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="StandbyLeft">
+      <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Figure 8 around Standby" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
+      <eight center="STDBY" radius="nav_radius" turn_around="1"/>
+    </block>
+    <block name="Oval 1-2" strip_button="Oval (wp 1-2)" strip_icon="oval.png">
+      <oval p1="1" p2="2" radius="nav_radius"/>
+    </block>
+    <block name="Survey 1-2" strip_button="Survey (wp 1-2)" strip_icon="survey.png">
+      <survey_rectangle grid="200" wp1="1" wp2="2"/>
+    </block>
+    <block name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_1, WP_2, nav_radius)"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Go Home">
+      <circle radius="nav_radius" wp="HOME"/>
+    </block>
+  </blocks>
+</flight_plan>

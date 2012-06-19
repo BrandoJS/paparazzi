@@ -1,0 +1,39 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1650" ground_alt="1350" lat0="41.815489" lon0="-111.982547" max_dist_from_home="9500" name="FishTrackingTest" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="1547.0" name="HOME" x="-31.8" y="-1.7"/>
+    <waypoint alt="1346.0" name="Bungee" x="-52.9" y="-29.3"/>
+    <waypoint alt="1546.0" name="STDBY" x="-167.8" y="-122.5"/>
+    <waypoint alt="1547.0" name="1" x="-10.4" y="-19.8"/>
+    <waypoint alt="1645.0" name="2" x="-277.6" y="-187.8"/>
+    <waypoint alt="1396.0" name="AF" x="-351.8" y="-55.4"/>
+    <waypoint alt="1346.0" name="TD" x="-43.2" y="-26.8"/>
+  </waypoints>
+  <blocks>
+    <block name="Takeoff">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Flower">
+      <call fun="InitializeFlower(WP_1,WP_2)"/>
+      <call fun="FlowerNav()"/>
+    </block>
+    <block name="Land CW" strip_button="Land CW (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW" strip_button="Land CCW (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

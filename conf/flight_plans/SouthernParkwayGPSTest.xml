@@ -1,0 +1,74 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1075" ground_alt="790" lat0="37.7309" lon0="-113.0517" max_dist_from_home="11000" name="SouthernParkway" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-34.4" y="-507.9"/>
+    <waypoint name="Truck" x="-25.3" y="-522.4"/>
+    <waypoint alt="788.0" name="BungeeWest" x="-43.5" y="-547.6"/>
+    <waypoint alt="861.0" name="BungeeEast" x="9644.3" y="-1532.3"/>
+    <waypoint name="STDBYWest" x="-161.5" y="-695.7"/>
+    <waypoint name="STDBYEast" x="9614.6" y="-1805.9"/>
+    <waypoint name="R1" x="-791.0" y="473.9"/>
+    <waypoint name="R2" x="6.2" y="-2.4"/>
+    <waypoint name="R3" x="419.8" y="-832.0"/>
+    <waypoint name="R4" x="1205.1" y="-2076.7"/>
+    <waypoint name="R5" x="1760.4" y="-2618.4"/>
+    <waypoint name="R6" x="2659.4" y="-2968.3"/>
+    <waypoint name="R7" x="4440.0" y="-2990.6"/>
+    <waypoint name="R8" x="5609.4" y="-2558.5"/>
+    <waypoint name="R9" x="6801.7" y="-2598.3"/>
+    <waypoint name="R10" x="8024.7" y="-2152.5"/>
+    <waypoint name="R11" x="9186.8" y="-1980.5"/>
+    <waypoint name="R12" x="9645.9" y="-1454.4"/>
+    <waypoint name="R13" x="10143.0" y="-316.6"/>
+    <waypoint alt="901.0" name="AFEast" x="9536.1" y="-1767.7"/>
+    <waypoint alt="861.0" name="TDEast" x="9783.7" y="-1802.5"/>
+    <waypoint alt="838.0" name="AFWest" x="-28.7" y="-368.7"/>
+    <waypoint alt="788.0" name="TDWest" x="-37.4" y="-618.5"/>
+  </waypoints>
+  <blocks>
+    <block name="TakeoffWest" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_BungeeWest)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="StandbyWest" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBYWest"/>
+    </block>
+    <block name="Land CW West">
+      <call fun="InitializeSkidLanding(WP_AFWest, WP_TDWest, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW West">
+      <call fun="InitializeSkidLanding(WP_AFWest, WP_TDWest, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Map South Pkwy West">
+      <call fun="FlightLineBlock(WP_R1,WP_R13,nav_radius,100,100)"/>
+      <deroute block="StandbyEast"/>
+    </block>
+    <block name="Map South Pkwy East">
+      <call fun="FlightLineBlock(WP_R13,WP_R1,nav_radius,100,100)"/>
+      <deroute block="StandbyWest"/>
+    </block>
+    <block name="TakeoffEast" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_BungeeEast)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="StandbyEast">
+      <circle radius="nav_radius" wp="STDBYEast"/>
+    </block>
+    <block name="Land CW East">
+      <call fun="InitializeSkidLanding(WP_AFEast, WP_TDEast, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW East">
+      <call fun="InitializeSkidLanding(WP_AFEast, WP_TDEast, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

@@ -1,0 +1,85 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="1630" ground_alt="1277" lat0="38.847662" lon0="-110.375420" max_dist_from_home="11000" name="SanRafael_Flight1" security_height="25">
+  <header>
+#include "nav_line.h"
+#include "datalink.h"
+#include "OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint alt="1588.0" name="HOME" x="1065.2" y="-1922.7"/>
+    <waypoint alt="1288.0" name="Bungee" x="1007.3" y="-1963.1"/>
+    <waypoint name="STDBY" x="523.4" y="-2025.4"/>
+    <waypoint alt="1630" name="R1" x="872.9" y="3817.0"/>
+    <waypoint alt="1630" name="R2" x="424.7" y="3887.0"/>
+    <waypoint alt="1630" name="R3" x="435.1" y="3121.5"/>
+    <waypoint alt="1630" name="R4" x="149.6" y="2961.6"/>
+    <waypoint alt="1630" name="R5" x="222.5" y="2219.4"/>
+    <waypoint alt="1630" name="R6" x="-109.3" y="1729.8"/>
+    <waypoint alt="1630" name="R7" x="419.7" y="1169.7"/>
+    <waypoint alt="1630" name="R8" x="91.6" y="508.2"/>
+    <waypoint alt="1630" name="R9" x="330.3" y="125.0"/>
+    <waypoint alt="1630" name="R10" x="-64.2" y="-91.3"/>
+    <waypoint alt="1630" name="R11" x="88.7" y="-426.2"/>
+    <waypoint alt="1630" name="R12" x="344.3" y="-619.1"/>
+    <waypoint alt="1630" name="R13" x="274.9" y="-987.9"/>
+    <waypoint alt="1630" name="R14" x="572.8" y="-1180.2"/>
+    <waypoint alt="1630" name="R15" x="245.6" y="-1624.2"/>
+    <waypoint alt="1630" name="R16" x="452.1" y="-1630.7"/>
+    <waypoint alt="1630" name="R17" x="816.7" y="-1135.4"/>
+    <waypoint alt="1630" name="R18" x="462.7" y="-907.0"/>
+    <waypoint alt="1630" name="R19" x="530.5" y="-547.0"/>
+    <waypoint alt="1630" name="R20" x="225.2" y="-316.1"/>
+    <waypoint alt="1630" name="R21" x="155.6" y="-164.5"/>
+    <waypoint alt="1630" name="R22" x="569.7" y="62.5"/>
+    <waypoint alt="1630" name="R23" x="286.3" y="517.8"/>
+    <waypoint alt="1630" name="R24" x="624.3" y="1200.4"/>
+    <waypoint alt="1630" name="R25" x="107.8" y="1747.3"/>
+    <waypoint alt="1630" name="R26" x="397.2" y="2175.4"/>
+    <waypoint alt="1630" name="R27" x="330.0" y="2867.4"/>
+    <waypoint alt="1630" name="R28" x="606.5" y="3022.5"/>
+    <waypoint alt="1630" name="R29" x="597.6" y="3688.3"/>
+    <waypoint alt="1630" name="R30" x="846.8" y="3648.9"/>
+    <waypoint alt="1344.0" name="AF" x="908.1" y="-1638.5"/>
+    <waypoint alt="1288.0" name="TD" x="995.8" y="-1925.4"/>
+    <waypoint name="_P1" x="-2130.1" y="5489.7"/>
+    <waypoint name="_P2" x="4318.2" y="5488.0"/>
+    <waypoint name="_P3" x="4390.0" y="-6239.5"/>
+    <waypoint name="_P4" x="-2133.5" y="-6179.7"/>
+  </waypoints>
+  <sectors>
+    <sector name="FlightArea">
+      <corner name="_P1"/>
+      <corner name="_P2"/>
+      <corner name="_P3"/>
+      <corner name="_P4"/>
+    </sector>
+  </sectors>
+  <exceptions>
+    <exception cond="InsideFlightArea(estimator_x, estimator_y) == FALSE" deroute="Standby"/>
+  </exceptions>
+  <blocks>
+    <block name="Takeoff" strip_button="Takeoff (wp CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Map River North">
+      <call fun="FlightLineBlock(WP_R16,WP_R30,nav_radius,100,100)"/>
+    </block>
+    <block name="Map River South">
+      <call fun="FlightLineBlock(WP_R1,WP_R15,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="Land CW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block name="Land CCW">
+      <call fun="InitializeSkidLanding(WP_AF, WP_TD, -nav_radius)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>
