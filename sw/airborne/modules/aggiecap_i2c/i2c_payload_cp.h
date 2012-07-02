@@ -2,7 +2,10 @@
 #define I2C_PAYLOAD_H_
 
 #include "std.h"
+#ifndef SITL
 #include "mcu_periph/i2c.h"
+#endif
+
 #include "led.h"
 
 

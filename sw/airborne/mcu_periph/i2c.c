@@ -42,9 +42,9 @@ void   i2c_init(struct i2c_periph* p) {
 }
 
 #ifdef USE_I2C0_SLAVE
-
+#ifndef SITL
 void i2c0_init_slave(void) {
   i2c0_hw_init_slave();
 }
-
+#endif
 #endif

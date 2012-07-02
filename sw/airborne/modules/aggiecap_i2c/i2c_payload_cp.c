@@ -23,11 +23,14 @@ void i2cpayloadinit_cp()
 	payloadstatus = 0;
 	errorcode = 0;
 	gotpayloaddata = FALSE;
+#ifndef SITL
 	i2c0_init_slave();
+#endif
 }
 
 void checkI2CBuffer_cp()
 {
+#ifndef SITL	
 	uint8_t buffdata[I2C_BUF_LEN];
 	//uint8_t datacount = 0;
 	uint16_t i;
@@ -56,14 +59,17 @@ void checkI2CBuffer_cp()
 		gotpayloaddata = TRUE;
 		
 	}
+#endif
 }
 
 void sendPayloadData_cp()
 {
+#ifndef SITL
 	if(gotpayloaddata)
 	{
 		//DOWNLINK_SEND_AGGIECAP_CP(DefaultChannel,DefaultDevice,&payloadstatus,&packet_num,&total_packets,&data_size,&link_data[0],&link_data[1],&link_data[2],&link_data[3],&link_data[4],&link_data[5],&link_data[6],&link_data[7],&errorcode);
 		DOWNLINK_SEND_AGGIECAP_LINK(DefaultChannel,DefaultDevice,&payloadstatus,&packet_num,&total_packets,&data_size,&errorcode,data_size,link_data_s);
 		gotpayloaddata = FALSE;
 	}
+#endif
 }
