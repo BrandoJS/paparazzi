@@ -566,7 +566,7 @@
   </message>
 
 <!-- Messages from Payload -->
-   <message name="AGGIECAP_CP" id="72">
+   <message name="AGGIECAP_LINK" id="72">
      <field name="payloadstatus" type="uint8" values="Not Init|Cool|Warm"/>
      <field name="packet_num" type="uint8"/>
      <field name="total_packets" type="uint8"/>

@@ -63,7 +63,7 @@ void sendPayloadData_cp()
 	if(gotpayloaddata)
 	{
 		//DOWNLINK_SEND_AGGIECAP_CP(DefaultChannel,DefaultDevice,&payloadstatus,&packet_num,&total_packets,&data_size,&link_data[0],&link_data[1],&link_data[2],&link_data[3],&link_data[4],&link_data[5],&link_data[6],&link_data[7],&errorcode);
-		DOWNLINK_SEND_AGGIECAP_CP(DefaultChannel,DefaultDevice,&payloadstatus,&packet_num,&total_packets,&data_size,&errorcode,data_size,link_data_s);
+		DOWNLINK_SEND_AGGIECAP_LINK(DefaultChannel,DefaultDevice,&payloadstatus,&packet_num,&total_packets,&data_size,&errorcode,data_size,link_data_s);
 		gotpayloaddata = FALSE;
 	}
 }
