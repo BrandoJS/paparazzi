@@ -66,6 +66,9 @@ extern volatile uint8_t i2c_receive_payload_length;
 extern volatile bool_t i2c_slave_data_valid;
 extern void i2c0_hw_init_slave(void);
 
+extern uint8_t i2c0_circ_read(uint8_t *circdata);
+extern uint16_t i2c0_circ_buff_size(void);
+
 #endif
 
 #ifdef USE_I2C1

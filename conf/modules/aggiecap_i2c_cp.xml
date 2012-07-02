@@ -1,0 +1,27 @@
+<!DOCTYPE module SYSTEM "module.dtd">
+
+<!--
+     Airspeed ADC module
+     @configure ADC_AIRSPEED on which ADC the sensor is connected
+     @define AIRSPEED_SCALE/AIRSPEED_QUADRATIC_SCALE scale factor, quadratic is used if defined
+     @define AIRSPEED_BIAS offset on ADC
+     -->
+
+<module name="aggiecap_i2c_cp" dir="aggiecap_i2c">
+  <doc>
+    <description>Communication between AggieCap and Paparazzi using I2C</description>
+  </doc>
+
+  <header>
+    <file name="i2c_payload_cp.h"/>
+  </header>
+  <init fun="i2cpayloadinit_cp()"/>
+  <periodic fun="checkI2CBuffer_cp()" freq="20"/>
+  <periodic fun="sendPayloadData_cp()" freq="10"/>
+
+  <makefile>
+    <file name="i2c_payload_cp.c"/>
+  </makefile>
+
+</module>
+

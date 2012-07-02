@@ -135,6 +135,8 @@ extern void i2c2_init(void);
 #ifdef USE_I2C0_SLAVE
 
 extern void i2c0_init_slave(void);
+extern uint8_t i2c0_circ_read(uint8_t *circdata);
+extern uint16_t i2c0_circ_buff_size(void);
 #endif
 
 extern void   i2c_init(struct i2c_periph* p);

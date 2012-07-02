@@ -564,7 +564,16 @@
     <field name="GX3_chksm"	type="uint16"/>
     <field name="GX3_calcm"	type="uint16"/>
   </message>
- <!-- 72 is free -->
+
+<!-- Messages from Payload -->
+   <message name="AGGIECAP_CP" id="72">
+     <field name="payloadstatus" type="uint8" values="Not Init|Cool|Warm"/>
+     <field name="packet_num" type="uint8"/>
+     <field name="total_packets" type="uint8"/>
+     <field name="data_size" type="uint8"/>
+     <field name="errorcode" type="uint8"/>
+     <field name="link_data_s" type="uint8[]"/>
+   </message>
 
 
 <!-- Messages from Payload -->

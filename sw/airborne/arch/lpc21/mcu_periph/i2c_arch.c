@@ -320,6 +320,7 @@ void i2c1_hw_init ( void ) {
 
 volatile uint8_t i2cSendBuffer[I2C_BUF_LEN];
 volatile uint8_t i2cReceiveBuffer[I2C_BUF_LEN];
+volatile uint16_t rxPtrHead, rxPtrTail, rxPtrTemp;
 volatile uint8_t i2cSendBufferIndex;
 volatile uint8_t i2cReceiveBufferIndex;
 volatile uint8_t i2c_send_payload_length;
@@ -342,14 +343,16 @@ void i2c0_slave_ISR(void)
 			I2cSendAck_slv();		// send ACK on first byte
 			break;
 		case I2C_SR_DATA_ACK:			// Data received, ACK returned
-			if (i2cReceiveBufferIndex < I2C_BUF_LEN) {	// if buffer is not full, continue
-				i2cReceiveBuffer[i2cReceiveBufferIndex] = I2C_DATA_REG;	// read and store data
-				i2cReceiveBufferIndex++;
-			} 
-			else {
-				// handle error somehow
+			// if buffer is not full, continue
+			if(rxPtrHead != rxPtrTail) //not full!
+			{
+				i2cReceiveBuffer[rxPtrHead] = I2C_DATA_REG;	// read and store data
+				I2cSendAck_slv();		// send ACK to receive more data
+				rxPtrHead++;			// move head up
+				if(rxPtrHead == I2C_BUF_LEN)	//wrap if we need to
+					rxPtrHead = 0;
 			}
-			I2cSendAck_slv();		// send ACK to receive more data
+
 			break;
 		case I2C_SR_DATA_NACK:			// Data received, NACK returned
 		case I2C_SR_RESTART:			// STOP or REP.START received while addressed as slave -> this was the last byte to read
@@ -406,11 +409,43 @@ void i2c0_hw_init_slave(void) {
 
 	i2cSendBufferIndex = 0;
 	i2cReceiveBufferIndex = 0;
+	rxPtrHead = 1;
+	rxPtrTail = 0;
 	i2c_send_payload_length = 5;
 	i2c_receive_payload_length = 5;
 	i2c_slave_data_valid = FALSE;
 }
 
+//return data from the circular buffer
+uint8_t i2c0_circ_read(uint8_t *circdata)
+{
+	// if buffer is not empty, continue
+	rxPtrTemp = rxPtrTail;
+	rxPtrTail++;
+	if(rxPtrTail == I2C_BUF_LEN) //wrap if we need to
+		rxPtrTail = 0;
+			
+	if(rxPtrTail == rxPtrHead)
+	{
+		//we're empty; back up
+		rxPtrTail = rxPtrTemp;
+		return 0;
+	}
+	else
+	{
+		*circdata = i2cReceiveBuffer[rxPtrTail];	// send data
+		return 1;
+	}
+}
+
+uint16_t i2c0_circ_buff_size(void)
+{
+	if(rxPtrHead <= rxPtrTail) //wrap case
+		return I2C_BUF_LEN - (rxPtrTail - rxPtrHead) - 1;
+	else
+		return rxPtrHead - rxPtrTail - 1; //one lost byte
+}
+	
 #endif /* USE_I2C0_SLAVE */
 
 bool_t i2c_idle(struct i2c_periph* p) {

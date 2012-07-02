@@ -8,7 +8,7 @@
   <channel ctl="left_stick_horiz" function="YAW" min="1130" neutral="1530" max="1930" average="0"/>
   <channel ctl="Mode" function="MODE" min="1130" neutral="1530" max="1930" average="10"/>
   <channel ctl="Flap" function="FLAP" min="1130" neutral="1530" max="1930" average="10"/>
-  <channel ctl="switch_A" function="G1" min="1130" neutral="1530" max="1930" average="10"/>
+  <channel ctl="Knob" function="KNOB" min="1130" neutral="1130" max="1930" average="10"/>
   <channel ctl="switch_B" function="G2" min="1130" neutral="1530" max="1930" average="10"/>
   
   
