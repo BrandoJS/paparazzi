@@ -1,0 +1,4 @@
+<map file="porritt.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 -43.507019	172.675228"/>
+  <point x="1216" y="1719" geo="WGS84 -43.520398	172.688281"/>
+</map>

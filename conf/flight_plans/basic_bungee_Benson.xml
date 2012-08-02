@@ -8,7 +8,7 @@
 </header>
   <waypoints>
     <waypoint name="HOME" x="-12.1" y="3.5"/>
-    <waypoint alt="1550.0" name="STDBY" x="-227.7" y="50.9"/>
+    <waypoint alt="1460.0" name="STDBY" x="-227.7" y="50.9"/>
     <waypoint name="1" x="-253.7" y="-235.7"/>
     <waypoint name="2" x="-211.6" y="-484.5"/>
     <waypoint name="MOB" x="-435.6" y="105.0"/>
@@ -26,6 +26,13 @@
     <block name="Wait GPS">
       <set value="1" var="kill_throttle"/>
       <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
     </block>
     <block name="Takeoff" strip_button="Takeoff (wp_CLIMB)" strip_icon="takeoff.png">
       <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>

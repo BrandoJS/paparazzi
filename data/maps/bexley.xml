@@ -1,0 +1,4 @@
+<map file="bexley.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 -43.505018	172.719212"/>
+  <point x="1216" y="1979" geo="WGS84 -43.520416	172.732265"/>
+</map>

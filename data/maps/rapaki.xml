@@ -1,0 +1,4 @@
+<map file="rapaki.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 -43.590674	172.655857"/>
+  <point x="2763" y="2498" geo="WGS84 -43.610083	172.685506"/>
+</map>

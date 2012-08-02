@@ -1,0 +1,4 @@
+<map file="selwyn_river.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 -43.494993	171.972231"/>
+  <point x="2477" y="2754" geo="WGS84 -43.516428	171.998816"/>
+</map>

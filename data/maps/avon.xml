@@ -1,0 +1,4 @@
+<map file="avon.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 -43.512875	172.658750"/>
+  <point x="1463" y="1225" geo="WGS84 -43.522410	172.674452"/>
+</map>

@@ -1,0 +1,87 @@
+<!DOCTYPE flight_plan SYSTEM "flight_plan.dtd">
+
+<flight_plan alt="155" ground_alt="5" lat0="-43.515973" lon0="172.668707" max_dist_from_home="1500" name="Avon" security_height="25">
+  <header>
+#include "subsystems/navigation/nav_line.h"
+#include "subsystems/datalink/datalink.h"
+#include "subsystems/navigation/OSAMNav.h"
+</header>
+  <waypoints>
+    <waypoint name="HOME" x="-3.1" y="-11.5"/>
+    <waypoint alt="160.0" name="STDBY" x="43.0" y="3.6"/>
+    <waypoint alt="160.0" name="STDBY2" x="-408.8" y="347.8"/>
+    <waypoint name="R1" x="-359.0" y="-75.2"/>
+    <waypoint alt="164.0" name="R2" x="-176.8" y="151.6"/>
+    <waypoint alt="164.0" name="R3" x="57.1" y="179.1"/>
+    <waypoint alt="164.0" name="R4" x="309.3" y="-112.3"/>
+    <waypoint name="MOB" x="-530.2" y="82.6"/>
+    <waypoint name="S1" x="-216.8" y="53.3"/>
+    <waypoint name="S2" x="135.5" y="64.3"/>
+    <waypoint alt="164.0" name="S3" x="180.5" y="-274.2"/>
+    <waypoint name="S4" x="-305.7" y="-241.1"/>
+    <waypoint alt="5.0" name="AF" x="-522.9" y="131.6"/>
+    <waypoint alt="5.0" name="TD" x="-536.0" y="15.7"/>
+    <waypoint name="_BASELEG" x="10.1" y="-231.4"/>
+    <waypoint alt="5.0" name="Bungee" x="48.1" y="6.0"/>
+  </waypoints>
+  <exceptions/>
+  <blocks>
+    <block name="Wait GPS">
+      <set value="1" var="kill_throttle"/>
+      <while cond="!GpsFixValid()"/>
+    </block>
+    <block name="Geo init">
+      <while cond="LessThan(NavBlockTime(), 10)"/>
+    </block>
+    <block name="Holding point">
+      <set value="1" var="kill_throttle"/>
+      <attitude roll="0" throttle="0" vmode="throttle"/>
+    </block>
+    <block name="Takeoff" strip_button="Takeoff (wp_CLIMB)" strip_icon="takeoff.png">
+      <call fun="InitializeBungeeTakeoff(WP_Bungee)"/>
+      <call fun="BungeeTakeoff()"/>
+    </block>
+    <block group="home" key="s" name="Standby" strip_button="Standby" strip_icon="home.png">
+      <circle radius="nav_radius" wp="STDBY"/>
+    </block>
+    <block group="home" name="Standby2">
+      <circle radius="nav_radius" wp="STDBY2"/>
+    </block>
+    <block group="base_pattern" name="MOB" strip_button="Circle here" strip_icon="mob.png">
+      <call fun="NavSetWaypointHere(WP_MOB)"/>
+      <set value="DEFAULT_CIRCLE_RADIUS" var="nav_radius"/>
+      <circle radius="nav_radius" wp="MOB"/>
+    </block>
+    <block name="Map Creek From West">
+      <call fun="FlightLineBlock(WP_R1,WP_R4,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block key="s" name="Map Creek From East">
+      <call fun="FlightLineBlock(WP_R4,WP_R1,nav_radius,100,100)"/>
+      <deroute block="Standby"/>
+    </block>
+    <block name="FollowRiver">
+      <go from="STDBY" wp="R1"/>
+      <go from="R1" wp="R2"/>
+      <go from="R2" wp="R3"/>
+      <go from="R3" wp="R4"/>
+      <deroute block="Standby"/>
+    </block>
+    <block group="extra_pattern" name="Line 1-2" strip_button="Line (wp 1-2)" strip_icon="line.png">
+      <call fun="nav_line_init()"/>
+      <call fun="nav_line(WP_R1, WP_R2, nav_radius)"/>
+    </block>
+    <block name="Survey Section 1">
+      <call fun="InitializePolygonSurvey(WP_S1, 4, 200,0)"/>
+      <call fun="PolygonSurvey()"/>
+    </block>
+    <block group="land" name="Land Right AF-TD" strip_button="Land right (wp AF-TD)" strip_icon="land-right.png">
+      <call fun="InitializeSkidLanding(WP_AF,WP_TD, DEFAULT_LANDING_CIRCLE_RADIUS)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+    <block group="land" name="Land Left AF-TD" strip_button="Land left (wp AF-TD)" strip_icon="land-left.png">
+      <call fun="InitializeSkidLanding(WP_AF,WP_TD, -DEFAULT_LANDING_CIRCLE_RADIUS)"/>
+      <call fun="SkidLanding()"/>
+    </block>
+  </blocks>
+</flight_plan>

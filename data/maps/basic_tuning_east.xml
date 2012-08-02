@@ -1,0 +1,4 @@
+<map file="basic_tuning_east.png" projection="Mercator">
+  <point x="0" y="0" geo="WGS84 41.828140	-111.988332"/>
+  <point x="4192" y="3898" geo="WGS84 41.796963	-111.943348"/>
+</map>
