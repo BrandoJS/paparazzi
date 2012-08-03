@@ -9,7 +9,7 @@
   <waypoints>
     <waypoint alt="1454.0" name="HOME" x="1005.3" y="-405.6"/>
     <waypoint alt="1345.0" name="Bungee" x="1067.7" y="-398.8"/>
-    <waypoint alt="1456.0" name="STDBY" x="1269.4" y="-396.5"/>
+    <waypoint alt="1456.0" name="STDBY" x="1293.9" y="-262.1"/>
     <waypoint alt="1455.0" name="1" x="1268.3" y="-594.2"/>
     <waypoint alt="1457.0" name="2" x="1300.3" y="-164.1"/>
     <waypoint alt="1851.0" name="S1" x="278.6" y="705.4"/>
@@ -22,6 +22,7 @@
     <waypoint name="_P4" x="2865.8" y="-1912.0"/>
     <waypoint alt="1470.0" name="AF" x="1249.8" y="-818.9"/>
     <waypoint alt="1344.0" name="TD" x="990.9" y="-372.1"/>
+    <waypoint name="wp1" x="1408.2" y="-438.2"/>
   </waypoints>
   <sectors>
     <sector name="Section1">
@@ -61,6 +62,9 @@
     </block>
     <block name="StandbyLeft">
       <circle radius="-nav_radius" wp="STDBY"/>
+    </block>
+    <block name="Wp1">
+      <circle radius="nav_radius" wp="1"/>
     </block>
     <block name="Figure 8 around Standby" strip_button="Figure 8 (wp 1-2)" strip_icon="eight.png">
       <eight center="STDBY" radius="nav_radius" turn_around="1"/>
